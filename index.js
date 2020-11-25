@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const { createServer } = require('http');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -22,7 +24,7 @@ app.use('/events', slackEvents.requestListener());
 
 app.use('/interactions', slackInteractions.requestListener());
 
-app.use('/ping', (_, res) => {
+app.get('/ping', (_, res) => {
     res.send({
         message: 'pong!'
     })

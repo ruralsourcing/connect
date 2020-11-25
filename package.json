@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": { },
+  "scripts": {
+    "start": "SLACK_SIGNING_SECRET=bb14b3d5774cc9b4d852ed312d97e10e node index.js"
+  },
   "author": "David Federspiel",
   "license": "ISC",
   "dependencies": {
@@ -11,6 +13,7 @@
     "@slack/interactive-messages": "^1.7.0",
     "@slack/web-api": "^5.14.0",
     "body-parser": "^1.19.0",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "http": "0.0.1-security"
   }
