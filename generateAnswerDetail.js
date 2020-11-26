@@ -2,7 +2,7 @@ const answerQuestionAsync = require('./answerQuestionAsync');
 
 module.exports = async function generateAnswerDetail(payload) {
     var answer = await answerQuestionAsync(payload.text);
-    //message.ts = payload.message_ts;
+    console.log("Answer", answer);
     let message = {};
     message.as_user = true;
     message.token = payload.token;
