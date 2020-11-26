@@ -19,6 +19,12 @@ slackEvents.on('message', (event) => {
 // Create an express application
 const app = express();
 
+slackEvents.on('url_verification', (event) => {
+    return {
+        challenge: event.challenge
+    }
+})
+
 // Plug the adapter in as a middleware
 app.use('/events', slackEvents.requestListener());
 
