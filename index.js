@@ -1,40 +1,84 @@
-require('dotenv').config();
+require("dotenv").config();
 
-const { createServer } = require('http');
-const express = require('express');
-const bodyParser = require('body-parser');
-const { createEventAdapter } = require('@slack/events-api');
-const { createMessageAdapter } = require('@slack/interactive-messages');
-const { response } = require('express');
+const { createServer } = require("http");
+const express = require("express");
+const bodyParser = require("body-parser");
+const { createEventAdapter } = require("@slack/events-api");
+const { createMessageAdapter } = require("@slack/interactive-messages");
+const { WebClient } = require('@slack/web-api');
+const { response } = require("express");
 const slackSigningSecret = process.env.SLACK_SIGNING_SECRET;
+const token = process.env.SLACK_TOKEN;
+
 const port = process.env.PORT || 3000;
 
 const slackEvents = createEventAdapter(slackSigningSecret);
 const slackInteractions = createMessageAdapter(slackSigningSecret);
+const web = new WebClient(token);
 
-slackEvents.on('message', (event) => {
-    console.log(`Received a message event: user ${event.user} in channel ${event.channel} says ${event.text}`);
-  });
+const generateAnswerDetail = require("./generateAnswerDetail");
+
+slackEvents.on("message", (event) => {
+  console.log(
+    `Received a message event: user ${event.user} in channel ${event.channel} says ${event.text}`
+  );
+});
 
 // Create an express application
 const app = express();
 
-slackEvents.on('url_verification', (event) => {
-    return {
-        challenge: event.challenge
-    }
-})
+slackEvents.on("url_verification", (event) => {
+  return {
+    challenge: event.challenge,
+  };
+});
+
+slackEvents.on("app_mention", (event) => {});
 
 // Plug the adapter in as a middleware
-app.use('/events', slackEvents.requestListener());
+app.use("/events", slackEvents.requestListener());
 
-app.use('/interactions', slackInteractions.requestListener());
+// Example of handling all message actions
+slackInteractions.action({ type: "message_action" }, (payload, respond) => {
+  // Logs the contents of the action to the console
+  console.log("payload", payload);
 
-app.get('/ping', (_, res) => {
-    res.send({
-        message: 'pong!'
-    })
-})
+  // Send an additional message only to the user who made interacted, as an ephemeral message
+  respond({
+    text: "Thanks for your submission.",
+    response_type: "ephemeral",
+  });
+
+  // If you'd like to replace the original message, use `chat.update`.
+  // Not returning any value.
+});
+
+app.use("/interactions", slackInteractions.requestListener());
+
+app.post("/slash", async (req) => {
+  var message = await generateAnswerDetail(req.body);
+  message.
+  context.log(message);
+  //await postSlackMessage(detailMessage, body.response_url);
+  (async () => {
+    // Post a message to the channel, and await the result.
+    // Find more arguments and details of the response: https://api.slack.com/methods/chat.postMessage
+    const result = await web.chat.postMessage(message);
+
+    // The result contains an identifier for the message, `ts`.
+    console.log(
+      `Successfully send message ${result.ts} in conversation ${conversationId}`
+    );
+  })();
+  await 
+  context.log("Sent Slack Message");
+});
+
+app.get("/ping", (_, res) => {
+  res.send({
+    message: "pong!",
+  });
+});
 
 // Example: If you're using a body parser, always put it after the event adapter in the middleware stack
 app.use(bodyParser());
