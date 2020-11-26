@@ -36,24 +36,7 @@ const app = express();
 app.use(express.json()); // for parsing application/json
 app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
-// Example of handling all message actions
-slackInteractions.action({ actionId: "top-answer" }, (payload) => {
-  // Logs the contents of the action to the console
-  console.log("payload", payload);
 
-  // Send an additional message only to the user who made interacted, as an ephemeral message
-  respond({
-    text: "Thanks for your submission.",
-    response_type: "ephemeral",
-  });
-
-  // If you'd like to replace the original message, use `chat.update`.
-  // Not returning any value.
-});
-
-slackInteractions.action({}, (payload, respond) => {
-  console.log("HERE");
-});
 
 app.use("/interact", slackInteractions.expressMiddleware());
 
@@ -90,3 +73,23 @@ server.listen(port, () => {
   // Log a message when the server is ready
   console.log(`Listening for events on ${server.address().port}`);
 });
+
+
+// Example of handling all message actions
+slackInteractions.action({ actionId: "top-answer" }, (payload) => {
+    // Logs the contents of the action to the console
+    console.log("payload", payload);
+  
+    // Send an additional message only to the user who made interacted, as an ephemeral message
+    respond({
+      text: "Thanks for your submission.",
+      response_type: "ephemeral",
+    });
+  
+    // If you'd like to replace the original message, use `chat.update`.
+    // Not returning any value.
+  });
+  
+  slackInteractions.action({}, (payload, respond) => {
+    console.log("HERE");
+  });
