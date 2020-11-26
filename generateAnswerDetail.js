@@ -27,8 +27,7 @@ module.exports = async function generateAnswerDetail(payload) {
                 "text": {
                     "type": "plain_text",
                     "text": ":thumbsup:",
-                    "emoji": true,
-                    "action_id": "top-answer"
+                    "emoji": true
                 },
                 "value": "top_choice"
             }
