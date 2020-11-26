@@ -47,7 +47,7 @@ slackEvents.on("app_mention", (event) => {});
 app.use("/events", slackEvents.requestListener());
 
 // Example of handling all message actions
-slackInteractions.action({ type: "message_action" }, (payload, respond) => {
+slackInteractions.action({ type: "block_actions" }, (payload, respond) => {
   // Logs the contents of the action to the console
   console.log("payload", payload);
 
