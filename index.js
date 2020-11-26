@@ -26,8 +26,8 @@ slackEvents.on("message", (event) => {
 
 // Create an express application
 const app = express();
-app.use(express.json()) // for parsing application/json
-app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
+app.use(express.json()); // for parsing application/json
+app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
 slackEvents.on("url_verification", (event) => {
   return {
@@ -59,20 +59,17 @@ app.use("/interactions", slackInteractions.requestListener());
 
 app.post("/slash", async (req, res) => {
   console.log(req.body);
-  var message = await generateAnswerDetail(req.body);
+  let message = await generateAnswerDetail(req.body);
   console.log(message);
   //await postSlackMessage(detailMessage, body.response_url);
-  (async () => {
-    // Post a message to the channel, and await the result.
-    // Find more arguments and details of the response: https://api.slack.com/methods/chat.postMessage
-    const result = await web.chat.postMessage(message);
+  // Post a message to the channel, and await the result.
+  // Find more arguments and details of the response: https://api.slack.com/methods/chat.postMessage
+  const result = await web.chat.postMessage(message);
 
-    // The result contains an identifier for the message, `ts`.
-    console.log(
-      `Successfully send message ${result.ts} in conversation ${conversationId}`
-    );
-  })();
-  res.sendStatus(200);
+  // The result contains an identifier for the message, `ts`.
+  console.log(
+    `Successfully send message ${result.ts} in conversation ${conversationId}`
+  );
 });
 
 app.get("/ping", (_, res) => {
