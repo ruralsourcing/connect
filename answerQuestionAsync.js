@@ -19,8 +19,8 @@ module.exports = async function answerQuestionAsync(question) {
       data: { question: question, top: 10 },
     })
       .then(function (response) {
-        console.log(response.body);
-        resolve(response.body);
+        console.log(response.data);
+        resolve(response.data);
       })
       .catch(reject);
   });
