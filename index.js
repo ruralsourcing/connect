@@ -17,10 +17,10 @@ const slackEvents = createEventAdapter(slackSigningSecret);
 const slackInteractions = createMessageAdapter(slackSigningSecret);
 const web = new WebClient(token);
 (async () => {
-    await web.auth.test();
-  
-    console.log("Done!");
-  })();
+  await web.auth.test();
+
+  console.log("Done!");
+})();
 
 const generateAnswerDetail = require("./generateAnswerDetail");
 
@@ -61,26 +61,15 @@ slackInteractions.action({ actionId: "top-answer" }, (payload) => {
   // Not returning any value.
 });
 
+slackInteractions.action({}, (payload, respond) => {
+  console.log("HERE");
+});
+
 app.use("/interactions", slackInteractions.requestListener());
 
 app.post("/slash", async (req, res) => {
-  console.log(req.body);
   let message = await generateAnswerDetail(req.body);
-  console.log(message);
-  //await postSlackMessage(detailMessage, body.response_url);
-  // Post a message to the channel, and await the result.
-  // Find more arguments and details of the response: https://api.slack.com/methods/chat.postMessage
-//   const result = await web.chat
-//     .postMessage(message)
-//     .catch((e) => {
-//       console.log(e);
-//     });
-
-  // The result contains an identifier for the message, `ts`.
-//   console.log(
-//     `Successfully send message ${result.ts} in conversation ${conversationId}`
-//   );
-    res.json(message);
+  res.json(message);
 });
 
 app.get("/ping", (_, res) => {
