@@ -55,7 +55,7 @@ slackInteractions.action({}, (payload, respond) => {
   console.log("HERE");
 });
 
-app.use("/interact", slackInteractions.requestListener());
+app.use("/interact", slackInteractions.expressMiddleware());
 
 slackEvents.on("url_verification", (event) => {
   return {
@@ -66,7 +66,7 @@ slackEvents.on("url_verification", (event) => {
 slackEvents.on("app_mention", (event) => {});
 
 // Plug the adapter in as a middleware
-app.use("/events", slackEvents.requestListener());
+app.use("/events", slackEvents.expressMiddleware());
 
 app.post("/slash", async (req, res) => {
   let message = await generateAnswerDetail(req.body);
@@ -85,6 +85,7 @@ app.use(bodyParser.json());
 
 // Initialize a server for the express app - you can skip this and the rest if you prefer to use app.listen()
 const server = createServer(app);
+
 server.listen(port, () => {
   // Log a message when the server is ready
   console.log(`Listening for events on ${server.address().port}`);
