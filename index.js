@@ -46,6 +46,10 @@ slackEvents.on("app_mention", (event) => {});
 // Plug the adapter in as a middleware
 app.use("/events", slackEvents.expressMiddleware());
 
+// Example: If you're using a body parser, always put it after the event adapter in the middleware stack
+app.use(express.json()); // for parsing application/json
+app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+
 app.post("/slash", async (req, res) => {
   let message = await generateAnswerDetail(req.body);
   res.json(message);
@@ -57,10 +61,6 @@ app.get("/ping", (_, res) => {
   });
 });
 
-// Example: If you're using a body parser, always put it after the event adapter in the middleware stack
-app.use(express.json()); // for parsing application/json
-app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
-
 // Initialize a server for the express app - you can skip this and the rest if you prefer to use app.listen()
 const server = createServer(app);
 
@@ -70,7 +70,7 @@ server.listen(port, () => {
 });
 
 // Example of handling all message actions
-slackInteractions.action({ actionId: "top-answer" }, (payload) => {
+slackInteractions.action({ actionId: "top-answer" }, (payload, respond) => {
   // Logs the contents of the action to the console
   console.log("payload", payload);
 
