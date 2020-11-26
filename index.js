@@ -5,7 +5,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const { createEventAdapter } = require("@slack/events-api");
 const { createMessageAdapter } = require("@slack/interactive-messages");
-const { WebClient } = require('@slack/web-api');
+const { WebClient } = require("@slack/web-api");
 const { response } = require("express");
 const slackSigningSecret = process.env.SLACK_SIGNING_SECRET;
 const token = process.env.SLACK_TOKEN;
@@ -55,9 +55,9 @@ slackInteractions.action({ type: "message_action" }, (payload, respond) => {
 
 app.use("/interactions", slackInteractions.requestListener());
 
-app.post("/slash", async (req) => {
+app.post("/slash", async (req, res) => {
+  console.log(req);
   var message = await generateAnswerDetail(req.body);
-  message.
   context.log(message);
   //await postSlackMessage(detailMessage, body.response_url);
   (async () => {
@@ -70,8 +70,7 @@ app.post("/slash", async (req) => {
       `Successfully send message ${result.ts} in conversation ${conversationId}`
     );
   })();
-  await 
-  context.log("Sent Slack Message");
+  res.sendStatus(200);
 });
 
 app.get("/ping", (_, res) => {
