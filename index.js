@@ -60,7 +60,7 @@ app.use("/interactions", slackInteractions.requestListener());
 app.post("/slash", async (req, res) => {
   console.log(req.body);
   var message = await generateAnswerDetail(req.body);
-  context.log(message);
+  console.log(message);
   //await postSlackMessage(detailMessage, body.response_url);
   (async () => {
     // Post a message to the channel, and await the result.
