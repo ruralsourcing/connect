@@ -35,6 +35,15 @@ const app = express();
 app.use(express.json()); // for parsing application/json
 app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
+
+
+
+
+
+
+
+
+
 slackEvents.on("url_verification", (event) => {
   return {
     challenge: event.challenge,
@@ -45,6 +54,12 @@ slackEvents.on("app_mention", (event) => {});
 
 // Plug the adapter in as a middleware
 app.use("/events", slackEvents.requestListener());
+
+
+
+
+
+
 
 // Example of handling all message actions
 slackInteractions.action({ actionId: "top-answer" }, (payload) => {
@@ -65,18 +80,40 @@ slackInteractions.action({}, (payload, respond) => {
   console.log("HERE");
 });
 
-app.use("/interactions", slackInteractions.requestListener());
+// app.use("/interactions", slackInteractions.requestListener());
+
+
+app.post("/interactions", (req, res) => {
+    console.log("EXPRESS ENDPOINT");
+    res.sendStatus(200);
+})
+
+
 
 app.post("/slash", async (req, res) => {
   let message = await generateAnswerDetail(req.body);
   res.json(message);
 });
 
+
+
+
+
+
 app.get("/ping", (_, res) => {
   res.send({
     message: "pong!",
   });
 });
+
+
+
+
+
+
+
+
+
 
 // Example: If you're using a body parser, always put it after the event adapter in the middleware stack
 app.use(bodyParser());
