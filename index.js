@@ -26,6 +26,8 @@ slackEvents.on("message", (event) => {
 
 // Create an express application
 const app = express();
+app.use(express.json()) // for parsing application/json
+app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
 
 slackEvents.on("url_verification", (event) => {
   return {
@@ -56,7 +58,7 @@ slackInteractions.action({ type: "message_action" }, (payload, respond) => {
 app.use("/interactions", slackInteractions.requestListener());
 
 app.post("/slash", async (req, res) => {
-  console.log(req);
+  console.log(req.body);
   var message = await generateAnswerDetail(req.body);
   context.log(message);
   //await postSlackMessage(detailMessage, body.response_url);
