@@ -2,11 +2,9 @@ require("dotenv").config();
 
 const { createServer } = require("http");
 const express = require("express");
-const bodyParser = require("body-parser");
 const { createEventAdapter } = require("@slack/events-api");
 const { createMessageAdapter } = require("@slack/interactive-messages");
 const { WebClient } = require("@slack/web-api");
-const { response } = require("express");
 const slackSigningSecret = process.env.SLACK_SIGNING_SECRET;
 const token = process.env.SLACK_TOKEN;
 console.log(token);
@@ -33,8 +31,7 @@ slackEvents.on("message", (event) => {
 
 // Create an express application
 const app = express();
-app.use(express.json()); // for parsing application/json
-app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+
 
 app.use("/interact", slackInteractions.expressMiddleware());
 
@@ -61,8 +58,8 @@ app.get("/ping", (_, res) => {
 });
 
 // Example: If you're using a body parser, always put it after the event adapter in the middleware stack
-app.use(bodyParser.urlencoded());
-app.use(bodyParser.json());
+app.use(express.json()); // for parsing application/json
+app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
 // Initialize a server for the express app - you can skip this and the rest if you prefer to use app.listen()
 const server = createServer(app);
