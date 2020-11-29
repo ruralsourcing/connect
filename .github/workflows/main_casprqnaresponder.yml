@@ -7,6 +7,9 @@ on:
   push:
     branches:
       - main
+env:
+  AZURE_WEBAPP_NAME: casprqnaresponder    # set this to your application's name
+  AZURE_WEBAPP_PACKAGE_PATH: './dist'  
 
 jobs:
   build-and-deploy:
@@ -29,7 +32,7 @@ jobs:
     - name: 'Deploy to Azure Web App'
       uses: azure/webapps-deploy@v2
       with:
-        app-name: 'casprqnaresponder'
+        app-name: ${{ env.AZURE_WEBAPP_NAME }}
         slot-name: 'production'
         publish-profile: ${{ secrets.AzureAppService_PublishProfile_5a2e0c97bd1346809cc1d71c25518166 }}
         package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
