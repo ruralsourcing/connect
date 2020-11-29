@@ -9,7 +9,7 @@ on:
       - main
 env:
   AZURE_WEBAPP_NAME: casprqnaresponder    # set this to your application's name
-  AZURE_WEBAPP_PACKAGE_PATH: './dist'  
+  AZURE_WEBAPP_PACKAGE_PATH: './'  
 
 jobs:
   build-and-deploy:
