@@ -1,18 +1,25 @@
-require("dotenv").config();
+import dotenv from "dotenv";
+dotenv.config();
 
-const { createServer } = require("http");
-const express = require("express");
-const { createEventAdapter } = require("@slack/events-api");
-const { createMessageAdapter } = require("@slack/interactive-messages");
-const { WebClient } = require("@slack/web-api");
-const slackSigningSecret = process.env.SLACK_SIGNING_SECRET;
-const token = process.env.SLACK_TOKEN;
+import { createServer } from "http";
+
+import express from "express";
+import { createEventAdapter } from "@slack/events-api";
+import { createMessageAdapter } from "@slack/interactive-messages";
+import { WebClient } from "@slack/web-api";
+import SlackEventAdapter from "@slack/events-api/dist/adapter";
+import { EventEmitter } from "events";
+import SlackMessageAdapter from "@slack/interactive-messages/dist/adapter";
+
+const slackSigningSecret = process.env.SLACK_SIGNING_SECRET || '';
+const token = process.env.SLACK_TOKEN || '';
 console.log(token);
 
 const port = process.env.PORT || 3000;
 
-const slackEvents = createEventAdapter(slackSigningSecret);
-const slackInteractions = createMessageAdapter(slackSigningSecret);
+const slackEvents: SlackEventAdapter & EventEmitter = createEventAdapter(slackSigningSecret) as any;
+const slackInteractions: SlackMessageAdapter & EventEmitter = createMessageAdapter(slackSigningSecret) as any;
+
 const web = new WebClient(token);
 
 (async () => {
@@ -66,7 +73,7 @@ const server = createServer(app);
 
 server.listen(port, () => {
   // Log a message when the server is ready
-  console.log(`Listening for events on ${server.address().port}`);
+  console.log(`Listening for events on ${port}`);
 });
 
 // Example of handling all message actions

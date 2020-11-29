@@ -32,4 +32,4 @@ jobs:
         app-name: 'casprqnaresponder'
         slot-name: 'production'
         publish-profile: ${{ secrets.AzureAppService_PublishProfile_5a2e0c97bd1346809cc1d71c25518166 }}
-        package: .
+        package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
