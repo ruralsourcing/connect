@@ -45,7 +45,7 @@ slackEvents.on("url_verification", (event) => {
   };
 });
 
-slackEvents.on("app_mention", (event) => {
+slackEvents.on("message.im", (event) => {
   console.log(event);
 });
 

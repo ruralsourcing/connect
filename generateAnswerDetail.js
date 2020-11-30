@@ -44,38 +44,5 @@ module.exports = async function generateAnswerDetail(payload) {
             "type": "divider"
         }
     ];
-    // if (answer.answers.length > 1) {
-    //     message.blocks.push({
-    //         "type": "section",
-    //         "text": {
-    //             "type": "mrkdwn",
-    //             "text": "*Other Answers*"
-    //         }
-    //     });
-    //     for (var x = 1; x < answer.answers.length; x++) {
-    //         message.blocks.push({
-    //             "type": "section",
-    //             "text": {
-    //                 "type": "mrkdwn",
-    //                 "text": `${x}. *${answer.answers[x].questions[0]} (${answer.answers[x].score}%)*`
-    //             }
-    //         }, {
-    //                 "type": "section",
-    //                 "text": {
-    //                     "type": "mrkdwn",
-    //                     "text": answer.answers[x].answer
-    //                 },
-    //                 "accessory": {
-    //                     "type": "button",
-    //                     "text": {
-    //                         "type": "plain_text",
-    //                         "text": ":thumbsup:",
-    //                         "emoji": true
-    //                     },
-    //                     "value": "option_" + x
-    //                 }
-    //             });
-    //     }
-    // }
     return message;
 }
