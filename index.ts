@@ -45,8 +45,12 @@ slackEvents.on("url_verification", (event) => {
   };
 });
 
-slackEvents.on("message.im", (event) => {
-  console.log(event);
+slackEvents.on('app_mention', (event) => {
+  console.log("App Mention", event)
+})
+
+slackEvents.on("message", (event) => {
+  console.log("Message", event);
 });
 
 // Plug the adapter in as a middleware
