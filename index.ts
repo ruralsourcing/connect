@@ -13,13 +13,10 @@ import SlackMessageAdapter from "@slack/interactive-messages/dist/adapter";
 
 const slackSigningSecret = process.env.SLACK_SIGNING_SECRET || '';
 const token = process.env.SLACK_TOKEN || '';
-console.log(token);
-
 const port = process.env.PORT || 3000;
 
 const slackEvents: SlackEventAdapter & EventEmitter = createEventAdapter(slackSigningSecret) as any;
 const slackInteractions: SlackMessageAdapter & EventEmitter = createMessageAdapter(slackSigningSecret) as any;
-
 const web = new WebClient(token);
 
 (async () => {
@@ -48,7 +45,9 @@ slackEvents.on("url_verification", (event) => {
   };
 });
 
-slackEvents.on("app_mention", (event) => {});
+slackEvents.on("app_mention", (event) => {
+  console.log(event);
+});
 
 // Plug the adapter in as a middleware
 app.use("/events", slackEvents.expressMiddleware());
