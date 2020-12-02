@@ -45,12 +45,24 @@ slackEvents.on("url_verification", (event) => {
   };
 });
 
+/**
+ * Fires when the app is mentioned in a channel. For mentions in a DM or private channel, use message.im or
+ */
 slackEvents.on('app_mention', (event) => {
-  console.log("App Mention", event)
+  console.log("app_mention", event)
+})
+
+
+slackEvents.on('message.groups', (event) => {
+  console.log("message.groups", event)
 })
 
 slackEvents.on("message", (event) => {
   console.log("Message", event);
+});
+
+slackEvents.on("message.im", (event) => {
+  console.log("message.im", event);
 });
 
 // Plug the adapter in as a middleware
