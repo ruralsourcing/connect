@@ -10,6 +10,11 @@
   "author": "David Federspiel",
   "license": "ISC",
   "dependencies": {
+    "@azure/cognitiveservices-qnamaker": "^3.2.0",
+    "@azure/cognitiveservices-qnamaker-runtime": "^1.0.1",
+    "@azure/ms-rest-azure-js": "^2.0.1",
+    "@azure/ms-rest-js": "^2.1.0",
+    "@azure/ms-rest-nodeauth": "^3.0.6",
     "@slack/events-api": "^2.3.4",
     "@slack/interactive-messages": "^1.7.0",
     "@slack/web-api": "^5.14.0",
