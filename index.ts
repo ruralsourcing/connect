@@ -6,7 +6,7 @@ import { createServer } from "http";
 import express from "express";
 import { createEventAdapter } from "@slack/events-api";
 import { createMessageAdapter } from "@slack/interactive-messages";
-import { WebClient } from "@slack/web-api";
+import { WebClient, WebAPICallResult } from "@slack/web-api";
 import SlackEventAdapter from "@slack/events-api/dist/adapter";
 import { EventEmitter } from "events";
 import SlackMessageAdapter from "@slack/interactive-messages/dist/adapter";
@@ -25,7 +25,7 @@ const web = new WebClient(token);
   console.log("Done!");
 })();
 
-const generateAnswerDetail = require("./generateAnswerDetail");
+import { generateAnswerDetail } from "./generateAnswerDetail";
 
 slackEvents.on("message", (event) => {
   console.log(
