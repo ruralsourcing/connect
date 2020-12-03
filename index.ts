@@ -77,7 +77,12 @@ app.post("/slash", async (req, res) => {
 });
 
 app.post("/zoom", (req, res) => {
-  console.log("ZOOM", req.body)
+  console.log("ZOOM POST", req.body)
+  res.sendStatus(200);
+})
+
+app.get("/zoom", (req, res) => {
+  console.log("ZOOM REQUEST", req.params)
   res.sendStatus(200);
 })
 
