@@ -119,7 +119,7 @@ slackInteractions.action({ actionId: "zoom" }, (payload, respond) => {
 
   // Send an additional message only to the user who made interacted, as an ephemeral message
   respond({
-    text: `Authenticate to Zoom https://zoom.us/oauth/authorize?response_type=code&client_id=${process.env.ZOOM_CLIENT_ID}&redirect_uri=${process.env.REDIRECT_URI}`,
+    text: `Authenticate to Zoom https://zoom.us/oauth/authorize?response_type=code&client_id=${process.env.ZOOM_CLIENT_ID}&redirect_uri=${process.env.ZOOM_REDIRECT_URI}`,
     response_type: "ephemeral",
   });
   // If you'd like to replace the original message, use `chat.update`.
