@@ -11,6 +11,7 @@ import SlackEventAdapter from "@slack/events-api/dist/adapter";
 import { EventEmitter } from "events";
 import SlackMessageAdapter from "@slack/interactive-messages/dist/adapter";
 
+
 const slackSigningSecret = process.env.SLACK_SIGNING_SECRET || '';
 const token = process.env.SLACK_TOKEN || '';
 const port = process.env.PORT || 3000;
@@ -18,6 +19,8 @@ const port = process.env.PORT || 3000;
 const slackEvents: SlackEventAdapter & EventEmitter = createEventAdapter(slackSigningSecret) as any;
 const slackInteractions: SlackMessageAdapter & EventEmitter = createMessageAdapter(slackSigningSecret) as any;
 const web = new WebClient(token);
+
+
 
 (async () => {
   await web.auth.test();
@@ -77,6 +80,10 @@ app.post("/slash", async (req, res) => {
   res.json(message);
 });
 
+app.post("/zoom", async (req, res) => {
+  console.log("ZOOM", req.body)
+})
+
 app.get("/ping", (_, res) => {
   res.send({
     message: "pong!",
@@ -112,7 +119,7 @@ slackInteractions.action({ actionId: "zoom" }, (payload, respond) => {
 
   // Send an additional message only to the user who made interacted, as an ephemeral message
   respond({
-    text: "Check for zoom auth and start workflow.",
+    text: `Authenticate to Zoom https://zoom.us/oauth/authorize?response_type=code&client_id=${process.env.ZOOM_CLIENT_ID}&redirect_uri=${process.env.REDIRECT_URI}`,
     response_type: "ephemeral",
   });
   // If you'd like to replace the original message, use `chat.update`.
