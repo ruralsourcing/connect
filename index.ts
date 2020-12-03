@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import { createServer } from "http";
+import axios, { AxiosRequestConfig } from 'axios';
 
 import express from "express";
 import { createEventAdapter } from "@slack/events-api";
@@ -40,7 +41,6 @@ slackEvents.on("message", (event) => {
 const app = express();
 
 
-app.use("/interact", slackInteractions.expressMiddleware());
 
 slackEvents.on("url_verification", (event) => {
   return {
@@ -69,7 +69,13 @@ slackEvents.on("message.im", (event) => {
 });
 
 // Plug the adapter in as a middleware
+app.use("/interact", slackInteractions.expressMiddleware());
 app.use("/events", slackEvents.expressMiddleware());
+
+// Example: If you're using a body parser, always put it after the event adapter in the middleware stack
+// ALWAYS PUT BEFORE REGULAR ROUTES
+app.use(express.json()); // for parsing application/json
+app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
 app.post("/slash", async (req, res) => {
   let message = await generateAnswerDetail(req.body);
@@ -81,8 +87,21 @@ app.post("/zoom", (req, res) => {
   res.sendStatus(200);
 })
 
-app.get("/zoom", (req, res) => {
-  console.log("ZOOM REQUEST", req.params)
+app.get("/zoom", async (req, res) => {
+  console.log("ZOOM REQUEST", req.query)
+  if(req.query && req.query.code) {
+    let response = await axios.post("https://zoom.us/oauth/token", {
+      params: {
+        grant_type: "authorization_code",
+        code: req.query.code,
+        redirect_uri: process.env.ZOOM_REDIRECT_URI
+      },
+      headers: {
+        Authorization: `Basic ${Buffer.from(`${process.env.ZOOM_CLIENT_ID}:${process.env.ZOOM_CLIENT_SECRET}`).toString('base64')}`
+      }
+    } as AxiosRequestConfig)
+    console.log("AXIOS AUTH CODE RESPONSE", response.data);
+  }
   res.sendStatus(200);
 })
 
@@ -91,10 +110,6 @@ app.get("/ping", (_, res) => {
     message: "pong!",
   });
 });
-
-// Example: If you're using a body parser, always put it after the event adapter in the middleware stack
-app.use(express.json()); // for parsing application/json
-app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
 // Initialize a server for the express app - you can skip this and the rest if you prefer to use app.listen()
 const server = createServer(app);
