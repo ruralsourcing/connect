@@ -80,7 +80,7 @@ app.post("/slash", async (req, res) => {
   res.json(message);
 });
 
-app.post("/zoom", async (req, res) => {
+app.post("/zoom", (req, res) => {
   console.log("ZOOM", req.body)
 })
 
