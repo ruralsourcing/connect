@@ -90,14 +90,14 @@ app.post("/zoom", (req, res) => {
 app.get("/zoom", async (req, res) => {
   console.log("ZOOM REQUEST", req.query)
   if(req.query && req.query.code) {
-    let response = await axios.post("https://zoom.us/oauth/token", {
+    let response = await axios.post("https://zoom.us/oauth/token", null, {
       params: {
         grant_type: "authorization_code",
         code: req.query.code,
         redirect_uri: process.env.ZOOM_REDIRECT_URI
       },
       headers: {
-        Authorization: `Basic ${btoa(`${process.env.ZOOM_CLIENT_ID}:${process.env.ZOOM_CLIENT_SECRET}`)}`
+        Authorization: `Basic ${Buffer.from(`${process.env.ZOOM_CLIENT_ID}:${process.env.ZOOM_CLIENT_SECRET}`).toString('base64')}`
       }
     } as AxiosRequestConfig)
     console.log("AXIOS AUTH CODE RESPONSE", response.data);
