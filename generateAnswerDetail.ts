@@ -1,6 +1,6 @@
 import { answerQuestionAsync } from "./answerQuestionAsync";
 import { WebAPICallResult } from '@slack/web-api';
-import { Block, SectionBlock } from '@slack/types';
+import { Block, DividerBlock, SectionBlock } from '@slack/types';
 
 interface QnAMessageResult extends WebAPICallResult {
     channel: string;
@@ -24,14 +24,7 @@ export async function generateAnswerDetail(payload: any): Promise<QnAMessageResu
           type: "section",
           text: {
             type: "mrkdwn",
-            text: "QnA Maker Response Details",
-          },
-        } as SectionBlock,
-        {
-          type: "section",
-          text: {
-            type: "mrkdwn",
-            text: `*Top Answer (${answers[0].score}%)*`,
+            text: `${answers[0].answer} (${answers[0].score}%)*`,
           },
           accessory: {
             type: "button",
@@ -40,20 +33,28 @@ export async function generateAnswerDetail(payload: any): Promise<QnAMessageResu
               text: ":thumbsup:",
               emoji: true,
             },
-            value: "top_choice",
             action_id: "top-answer",
           },
-        },
+        } as SectionBlock,
         {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: answers[0].answer,
+            text: "Hop on a zoom call?",
           },
-        },
+          accessory: {
+            type: "button",
+            text: {
+              type: "plain_text",
+              text: ":ghost:",
+              emoji: true,
+            },
+            action_id: "zoom",
+          },
+        } as SectionBlock,
         {
           type: "divider",
-        },
+        } as DividerBlock,
       ]
     } as QnAMessageResult;
   };

@@ -105,3 +105,16 @@ slackInteractions.action({ actionId: "top-answer" }, (payload, respond) => {
   // If you'd like to replace the original message, use `chat.update`.
   // Not returning any value.
 });
+
+slackInteractions.action({ actionId: "zoom" }, (payload, respond) => {
+  // Logs the contents of the action to the console
+  console.log("payload", payload);
+
+  // Send an additional message only to the user who made interacted, as an ephemeral message
+  respond({
+    text: "Thanks for your submission.",
+    response_type: "ephemeral",
+  });
+  // If you'd like to replace the original message, use `chat.update`.
+  // Not returning any value.
+});
