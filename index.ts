@@ -112,7 +112,7 @@ slackInteractions.action({ actionId: "zoom" }, (payload, respond) => {
 
   // Send an additional message only to the user who made interacted, as an ephemeral message
   respond({
-    text: "Thanks for your submission.",
+    text: "Check for zoom auth and start workflow.",
     response_type: "ephemeral",
   });
   // If you'd like to replace the original message, use `chat.update`.
