@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import { createServer } from "http";
-import axios, { AxiosRequestConfig } from 'axios';
+import axios, { AxiosRequestConfig } from "axios";
 
 import express from "express";
 import { createEventAdapter } from "@slack/events-api";
@@ -12,19 +12,20 @@ import SlackEventAdapter from "@slack/events-api/dist/adapter";
 import { EventEmitter } from "events";
 import SlackMessageAdapter from "@slack/interactive-messages/dist/adapter";
 
-import SessionManager from './lib/SessionManager/SessionManager';
+import SessionManager from "./lib/SessionManager/SessionManager";
 
 const session = new SessionManager();
 
-const slackSigningSecret = process.env.SLACK_SIGNING_SECRET || '';
-const token = process.env.SLACK_TOKEN || '';
+const slackSigningSecret = process.env.SLACK_SIGNING_SECRET || "";
+const token = process.env.SLACK_TOKEN || "";
 const port = process.env.PORT || 3000;
 
-const slackEvents: SlackEventAdapter & EventEmitter = createEventAdapter(slackSigningSecret) as any;
-const slackInteractions: SlackMessageAdapter & EventEmitter = createMessageAdapter(slackSigningSecret) as any;
+const slackEvents: SlackEventAdapter & EventEmitter = createEventAdapter(
+  slackSigningSecret
+) as any;
+const slackInteractions: SlackMessageAdapter &
+  EventEmitter = createMessageAdapter(slackSigningSecret) as any;
 const web = new WebClient(token);
-
-
 
 (async () => {
   await web.auth.test();
@@ -43,8 +44,6 @@ slackEvents.on("message", (event) => {
 // Create an express application
 const app = express();
 
-
-
 slackEvents.on("url_verification", (event) => {
   return {
     challenge: event.challenge,
@@ -54,14 +53,13 @@ slackEvents.on("url_verification", (event) => {
 /**
  * Fires when the app is mentioned in a channel. For mentions in a DM or private channel, use message.im or
  */
-slackEvents.on('app_mention', (event) => {
-  console.log("app_mention", event)
-})
+slackEvents.on("app_mention", (event) => {
+  console.log("app_mention", event);
+});
 
-
-slackEvents.on('message.groups', (event) => {
-  console.log("message.groups", event)
-})
+slackEvents.on("message.groups", (event) => {
+  console.log("message.groups", event);
+});
 
 slackEvents.on("message", (event) => {
   console.log("Message", event);
@@ -86,29 +84,31 @@ app.post("/slash", async (req, res) => {
 });
 
 app.post("/zoom", (req, res) => {
-  console.log("ZOOM POST", req.body)
+  console.log("ZOOM POST", req.body);
   res.sendStatus(200);
-})
+});
 
 app.get("/zoom", async (req, res) => {
-  console.log("ZOOM REQUEST", req.query)
-  if(req.query && req.query.code) {
+  console.log("ZOOM REQUEST", req.query);
+  if (req.query && req.query.code) {
     let response = await axios.post("https://zoom.us/oauth/token", null, {
       params: {
         grant_type: "authorization_code",
         code: req.query.code,
-        redirect_uri: process.env.ZOOM_REDIRECT_URI
+        redirect_uri: process.env.ZOOM_REDIRECT_URI,
       },
       headers: {
-        Authorization: `Basic ${Buffer.from(`${process.env.ZOOM_CLIENT_ID}:${process.env.ZOOM_CLIENT_SECRET}`).toString('base64')}`
-      }
-    } as AxiosRequestConfig)
+        Authorization: `Basic ${Buffer.from(
+          `${process.env.ZOOM_CLIENT_ID}:${process.env.ZOOM_CLIENT_SECRET}`
+        ).toString("base64")}`,
+      },
+    } as AxiosRequestConfig);
     console.log("AXIOS AUTH CODE RESPONSE", response.data);
     res.json(response.data);
   } else {
     res.send(500);
   }
-})
+});
 
 app.get("/ping", (_, res) => {
   res.send({
@@ -145,7 +145,11 @@ slackInteractions.action({ actionId: "zoom" }, (payload, respond) => {
 
   // Send an additional message only to the user who made interacted, as an ephemeral message
   respond({
-    text: `Hold up, it looks like we need to let Zoom create meetings for you. [Connect Zoom](https://zoom.us/oauth/authorize?response_type=code&client_id=${process.env.ZOOM_CLIENT_ID}&redirect_uri=${process.env.ZOOM_REDIRECT_URI})`,
+    text: `Hold up, it looks like we need to let Zoom create meetings for you. <https://zoom.us/oauth/authorize?response_type=code&client_id=${
+      process.env.ZOOM_CLIENT_ID
+    }&redirect_uri=${process.env.ZOOM_REDIRECT_URI}&state=${Buffer.from(
+      `team=${payload.team_id}&user=${payload.user_id}`
+    ).toString("base64")}|Connect Zoom>`,
     response_type: "ephemeral",
   });
   // If you'd like to replace the original message, use `chat.update`.
