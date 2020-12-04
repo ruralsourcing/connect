@@ -3,6 +3,7 @@ dotenv.config();
 
 import { createServer } from "http";
 import axios, { AxiosRequestConfig } from "axios";
+import jwt_decode from "jwt-decode";
 
 import express from "express";
 import { createEventAdapter } from "@slack/events-api";
@@ -154,11 +155,23 @@ slackInteractions.action({ actionId: "top-answer" }, (payload, respond) => {
   // Not returning any value.
 });
 
-slackInteractions.action({ actionId: "zoom" }, (payload, respond) => {
+slackInteractions.action({ actionId: "zoom" }, async (payload, respond) => {
   // Logs the contents of the action to the console
   console.log("payload", payload);
   let userSession = session.session(payload.user.team_id, payload.user.id);
   if (userSession?.authorization) {
+    let token = jwt_decode<any>(userSession.authorization.token);
+    console.log(token);
+    let response = await axios.post(`https://api.zoom.us/v2/users/${token.uid}/meetings`, {
+      type: 1,
+      topic: "CASpR Support",
+      agenda: "Understanding the reducer pattern in React"
+    }, {
+      headers: {
+        Authorization: `Bearer ${userSession.authorization.token}`
+      }
+    })
+    console.log(response);
     respond({
       text: `Cool, let's figure out who can help - tech/manager/hr tree workflow...`,
       response_type: "ephemeral",
