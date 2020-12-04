@@ -111,8 +111,8 @@ app.get("/zoom", async (req, res) => {
       },
     } as AxiosRequestConfig);
     console.log("AXIOS AUTH CODE RESPONSE", response.data);
-    session.addAuthorization(userData.team, userData.user, response.data.access_token, 'Zoom User ID');
-    res.json(session.session(userData.team, userData.user));
+    session.addAuthorization(userData.teamId, userData.userId, response.data.access_token, 'Zoom User ID');
+    res.json(session.session(userData.teamId, userData.userId));
   } else {
     res.send(500);
   }
@@ -161,7 +161,7 @@ slackInteractions.action({ actionId: "zoom" }, (payload, respond) => {
       text: `Hold up, it looks like we need to let Zoom create meetings for you. <https://zoom.us/oauth/authorize?response_type=code&client_id=${
         process.env.ZOOM_CLIENT_ID
       }&redirect_uri=${process.env.ZOOM_REDIRECT_URI}&state=${Buffer.from(
-        `{team:${payload.user.team_id},user:${payload.user.id}}`
+        `{"teamId":"${payload.user.team_id}","userId":"${payload.user.id}"}`
       ).toString("base64")}|Connect Zoom>`,
       response_type: "ephemeral",
     });
