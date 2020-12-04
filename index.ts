@@ -171,9 +171,10 @@ slackInteractions.action({ actionId: "zoom" }, async (payload, respond) => {
         Authorization: `Bearer ${userSession.authorization.token}`
       }
     })
-    console.log(response);
+    console.log(response.data);
+    // SEND DM to users
     respond({
-      text: `Cool, let's figure out who can help - tech/manager/hr tree workflow...`,
+      text: `<${response.data.start_url}|Start the ${response.data.topic} meeting - ${response.data.agenda}>`,
       response_type: "ephemeral",
     });
   } else {
