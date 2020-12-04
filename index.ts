@@ -93,11 +93,13 @@ app.get("/zoom", async (req, res) => {
   console.log("ZOOM REQUEST", req.query);
   if (req.query && req.query.code) {
     let userData;
-    if(req.query.state){
-      userData = JSON.parse(Buffer.from(req.query.state as string, 'base64').toString('utf-8'));
-      console.log(JSON.parse(userData));
+    if (req.query.state) {
+      userData = JSON.parse(
+        Buffer.from(req.query.state as string, "base64").toString("utf-8")
+      );
+      console.log(userData);
     }
-      
+
     let response = await axios.post("https://zoom.us/oauth/token", null, {
       params: {
         grant_type: "authorization_code",
@@ -111,7 +113,12 @@ app.get("/zoom", async (req, res) => {
       },
     } as AxiosRequestConfig);
     console.log("AXIOS AUTH CODE RESPONSE", response.data);
-    session.addAuthorization(userData.teamId, userData.userId, response.data.access_token, 'Zoom User ID');
+    session.addAuthorization(
+      userData.teamId,
+      userData.userId,
+      response.data.access_token,
+      "Zoom User ID"
+    );
     res.json(session.session(userData.teamId, userData.userId));
   } else {
     res.send(500);
@@ -151,17 +158,20 @@ slackInteractions.action({ actionId: "zoom" }, (payload, respond) => {
   // Logs the contents of the action to the console
   console.log("payload", payload);
   let userSession = session.session(payload.user.team_id, payload.user.id);
-  if(userSession?.authorization){
+  if (userSession?.authorization) {
     respond({
       text: `Cool, let's figure out who can help - tech/manager/hr tree workflow...`,
       response_type: "ephemeral",
-    })
+    });
   } else {
     respond({
       text: `Hold up, it looks like we need to let Zoom create meetings for you. <https://zoom.us/oauth/authorize?response_type=code&client_id=${
         process.env.ZOOM_CLIENT_ID
       }&redirect_uri=${process.env.ZOOM_REDIRECT_URI}&state=${Buffer.from(
-        `{"teamId":"${payload.user.team_id}","userId":"${payload.user.id}"}`
+        JSON.stringify({
+          teamId: payload.user.team_id,
+          userId: payload.user.id,
+        })
       ).toString("base64")}|Connect Zoom>`,
       response_type: "ephemeral",
     });
