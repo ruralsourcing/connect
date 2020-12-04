@@ -7,7 +7,7 @@ import axios, { AxiosRequestConfig } from "axios";
 import express from "express";
 import { createEventAdapter } from "@slack/events-api";
 import { createMessageAdapter } from "@slack/interactive-messages";
-import { WebClient, WebAPICallResult } from "@slack/web-api";
+import { WebClient } from "@slack/web-api";
 import SlackEventAdapter from "@slack/events-api/dist/adapter";
 import { EventEmitter } from "events";
 import SlackMessageAdapter from "@slack/interactive-messages/dist/adapter";
@@ -34,6 +34,7 @@ const web = new WebClient(token);
 })();
 
 import { generateAnswerDetail } from "./generateAnswerDetail";
+import Authorization from "./lib/SessionManager/Authorization";
 
 slackEvents.on("message", (event) => {
   console.log(
@@ -91,6 +92,12 @@ app.post("/zoom", (req, res) => {
 app.get("/zoom", async (req, res) => {
   console.log("ZOOM REQUEST", req.query);
   if (req.query && req.query.code) {
+    let userData;
+    if(req.query.state){
+      userData = JSON.parse(Buffer.from(req.query.state as string, 'base64').toString('utf-8'));
+      console.log(JSON.parse(userData));
+    }
+      
     let response = await axios.post("https://zoom.us/oauth/token", null, {
       params: {
         grant_type: "authorization_code",
@@ -104,7 +111,8 @@ app.get("/zoom", async (req, res) => {
       },
     } as AxiosRequestConfig);
     console.log("AXIOS AUTH CODE RESPONSE", response.data);
-    res.json(response.data);
+    session.addAuthorization(userData.team, userData.user, response.data.access_token, 'Zoom User ID');
+    res.json(session.session(userData.team, userData.user));
   } else {
     res.send(500);
   }
@@ -142,16 +150,24 @@ slackInteractions.action({ actionId: "top-answer" }, (payload, respond) => {
 slackInteractions.action({ actionId: "zoom" }, (payload, respond) => {
   // Logs the contents of the action to the console
   console.log("payload", payload);
-
+  let userSession = session.session(payload.user.team_id, payload.user.id);
+  if(userSession?.authorization){
+    respond({
+      text: `Cool, let's figure out who can help - tech/manager/hr tree workflow...`,
+      response_type: "ephemeral",
+    })
+  } else {
+    respond({
+      text: `Hold up, it looks like we need to let Zoom create meetings for you. <https://zoom.us/oauth/authorize?response_type=code&client_id=${
+        process.env.ZOOM_CLIENT_ID
+      }&redirect_uri=${process.env.ZOOM_REDIRECT_URI}&state=${Buffer.from(
+        `{team:${payload.user.team_id},user:${payload.user.id}}`
+      ).toString("base64")}|Connect Zoom>`,
+      response_type: "ephemeral",
+    });
+  }
   // Send an additional message only to the user who made interacted, as an ephemeral message
-  respond({
-    text: `Hold up, it looks like we need to let Zoom create meetings for you. <https://zoom.us/oauth/authorize?response_type=code&client_id=${
-      process.env.ZOOM_CLIENT_ID
-    }&redirect_uri=${process.env.ZOOM_REDIRECT_URI}&state=${Buffer.from(
-      `team=${payload.team_id}&user=${payload.user_id}`
-    ).toString("base64")}|Connect Zoom>`,
-    response_type: "ephemeral",
-  });
+
   // If you'd like to replace the original message, use `chat.update`.
   // Not returning any value.
 });
