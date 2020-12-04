@@ -12,6 +12,9 @@ import SlackEventAdapter from "@slack/events-api/dist/adapter";
 import { EventEmitter } from "events";
 import SlackMessageAdapter from "@slack/interactive-messages/dist/adapter";
 
+import SessionManager from './lib/SessionManager/SessionManager';
+
+const session = new SessionManager();
 
 const slackSigningSecret = process.env.SLACK_SIGNING_SECRET || '';
 const token = process.env.SLACK_TOKEN || '';
@@ -101,8 +104,10 @@ app.get("/zoom", async (req, res) => {
       }
     } as AxiosRequestConfig)
     console.log("AXIOS AUTH CODE RESPONSE", response.data);
+    res.json(response.data);
+  } else {
+    res.send(500);
   }
-  res.sendStatus(200);
 })
 
 app.get("/ping", (_, res) => {
@@ -140,7 +145,7 @@ slackInteractions.action({ actionId: "zoom" }, (payload, respond) => {
 
   // Send an additional message only to the user who made interacted, as an ephemeral message
   respond({
-    text: `Authenticate to Zoom https://zoom.us/oauth/authorize?response_type=code&client_id=${process.env.ZOOM_CLIENT_ID}&redirect_uri=${process.env.ZOOM_REDIRECT_URI}`,
+    text: `Hold up, it looks like we need to let Zoom create meetings for you. [Connect Zoom](https://zoom.us/oauth/authorize?response_type=code&client_id=${process.env.ZOOM_CLIENT_ID}&redirect_uri=${process.env.ZOOM_REDIRECT_URI})`,
     response_type: "ephemeral",
   });
   // If you'd like to replace the original message, use `chat.update`.
