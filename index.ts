@@ -114,11 +114,12 @@ app.get("/zoom", async (req, res) => {
       },
     } as AxiosRequestConfig);
     console.log("AXIOS AUTH CODE RESPONSE", response.data);
+    let token = jwt_decode<any>(response.data.access_token);
     session.addAuthorization(
       userData.teamId,
       userData.userId,
       response.data.access_token,
-      "Zoom User ID"
+      token.uid
     );
     res.json(session.session(userData.teamId, userData.userId));
   } else {
