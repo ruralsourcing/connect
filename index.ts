@@ -87,12 +87,50 @@ app.post("/slash", async (req, res) => {
 
 app.post("/zoom", (req, res) => {
   console.log("ZOOM POST", req.body);
+  /*
+    MEETING STARTED: Time to DM others
+    ZOOM POST {
+      event: 'meeting.started',
+      payload: {
+        account_id: 'u_zReRmhRYiKcE6w7aAZhg',
+        object: {
+          duration: 60,
+          start_time: '2020-12-04T08:54:27Z',
+          timezone: 'America/Indianapolis',
+          topic: 'CASpR Support',
+          id: '98522741440',
+          type: 1,
+          uuid: 'JOeiPNgGSaGslOD6+uNLjQ==',
+          host_id: 'eyxXfnupQvWNjXJcNoD7Xg'
+        }
+      }
+    }
+
+    MEETING ENDED: Time to Retrospect
+    ZOOM POST {
+      event: 'meeting.ended',
+      payload: {
+        account_id: 'u_zReRmhRYiKcE6w7aAZhg',
+        object: {
+          duration: 60,
+          start_time: '2020-12-04T08:54:27Z',
+          timezone: 'America/Indianapolis',
+          end_time: '2020-12-04T08:55:45Z',
+          topic: 'CASpR Support',
+          id: '98522741440',
+          type: 1,
+          uuid: 'JOeiPNgGSaGslOD6+uNLjQ==',
+          host_id: 'eyxXfnupQvWNjXJcNoD7Xg'
+        }
+      }
+    }
+  */
   res.sendStatus(200);
 });
 
 app.post("/zoom", (req, res) => {
   console.log("POST ZOOM EVENT", req.body);
-})
+});
 
 app.get("/zoom", async (req, res) => {
   console.log("ZOOM REQUEST", req.query);
@@ -165,15 +203,19 @@ slackInteractions.action({ actionId: "zoom" }, async (payload, respond) => {
   let userSession = session.session(payload.user.team_id, payload.user.id);
   if (userSession?.authorization) {
     let token = jwt_decode<any>(userSession.authorization.token);
-    let response = await axios.post(`https://api.zoom.us/v2/users/${token.uid}/meetings`, {
-      type: 1,
-      topic: "CASpR Support",
-      agenda: "Understanding the reducer pattern in React"
-    }, {
-      headers: {
-        Authorization: `Bearer ${userSession.authorization.token}`
+    let response = await axios.post(
+      `https://api.zoom.us/v2/users/${token.uid}/meetings`,
+      {
+        type: 1,
+        topic: "CASpR Support",
+        agenda: "Understanding the reducer pattern in React",
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${userSession.authorization.token}`,
+        },
       }
-    });
+    );
     // SEND DM to users
     respond({
       text: `<${response.data.start_url}|Click here to start your meeting: ${response.data.topic}: ${response.data.agenda}>`,
