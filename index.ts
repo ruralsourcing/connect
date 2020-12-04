@@ -90,6 +90,10 @@ app.post("/zoom", (req, res) => {
   res.sendStatus(200);
 });
 
+app.post("/zoom", (req, res) => {
+  console.log("POST ZOOM EVENT", req.body);
+})
+
 app.get("/zoom", async (req, res) => {
   console.log("ZOOM REQUEST", req.query);
   if (req.query && req.query.code) {
@@ -158,11 +162,9 @@ slackInteractions.action({ actionId: "top-answer" }, (payload, respond) => {
 
 slackInteractions.action({ actionId: "zoom" }, async (payload, respond) => {
   // Logs the contents of the action to the console
-  console.log("payload", payload);
   let userSession = session.session(payload.user.team_id, payload.user.id);
   if (userSession?.authorization) {
     let token = jwt_decode<any>(userSession.authorization.token);
-    console.log(token);
     let response = await axios.post(`https://api.zoom.us/v2/users/${token.uid}/meetings`, {
       type: 1,
       topic: "CASpR Support",
@@ -171,11 +173,10 @@ slackInteractions.action({ actionId: "zoom" }, async (payload, respond) => {
       headers: {
         Authorization: `Bearer ${userSession.authorization.token}`
       }
-    })
-    console.log(response.data);
+    });
     // SEND DM to users
     respond({
-      text: `<${response.data.start_url}|Start the ${response.data.topic} meeting - ${response.data.agenda}>`,
+      text: `<${response.data.start_url}|Click here to start your meeting: ${response.data.topic}: ${response.data.agenda}>`,
       response_type: "ephemeral",
     });
   } else {
