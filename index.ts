@@ -1,12 +1,18 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { createServer } from "http";
+import { createServer, request } from "http";
 import axios, { AxiosRequestConfig } from "axios";
 import jwt_decode from "jwt-decode";
 
 import express from "express";
-import { WebClient } from "@slack/web-api";
+import {
+  ChatPostMessageArguments,
+  ConversationsOpenArguments,
+  IMOpenArguments,
+  WebAPICallResult,
+  WebClient,
+} from "@slack/web-api";
 import SessionManager from "./lib/SessionManager/SessionManager";
 
 const session = new SessionManager();
@@ -47,8 +53,40 @@ app.post("/slash", async (req, res) => {
   res.json(message);
 });
 
+class ConversationOpenResult implements WebAPICallResult {
+  channel: any;
+  ok: boolean = true;
+  error?: string;
+  response_metadata?: {
+    warnings?: string[];
+    next_cursor?: string;
+    scopes?: string[];
+    acceptedScopes?: string[];
+    retryAfter?: number;
+    messages?: string[];
+  };
+  [key: string]: unknown;
+}
+
 app.post("/zoom", (req, res) => {
   console.log("ZOOM POST", req.body);
+  if (req.body.event == "meeting.started") {
+    web.conversations
+      .open({
+        users: "UP8C804QK",
+      } as ConversationsOpenArguments)
+      .then((result) => {
+        let r = result as ConversationOpenResult;
+        if (result.ok)
+          web.chat
+            .postMessage({
+              text:
+                "David is working on a zoom chat and trying to find the public link to send",
+              channel: r.channel.id,
+            } as ChatPostMessageArguments)
+            .catch(console.log);
+      });
+  }
   /*
     MEETING STARTED: Time to DM others
     ZOOM POST {
@@ -136,18 +174,17 @@ app.get("/zoom", async (req, res) => {
 });
 
 app.get("/policy", (req, res) => {
-  res.send("<h1>Policy...</h1>")
+  res.send("<h1>Policy...</h1>");
 });
 app.get("/terms", (req, res) => {
-  res.send("<h1>Terms...</h1>")
+  res.send("<h1>Terms...</h1>");
 });
 app.get("/support", (req, res) => {
-  res.send("<h1>Support...</h1>")
+  res.send("<h1>Support...</h1>");
 });
 app.get("/documentation", (req, res) => {
-  res.send("<h1>Documentation...</h1>")
+  res.send("<h1>Documentation...</h1>");
 });
-
 
 app.get("/ping", (_, res) => {
   res.send({
