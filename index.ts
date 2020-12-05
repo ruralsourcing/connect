@@ -6,13 +6,7 @@ import axios, { AxiosRequestConfig } from "axios";
 import jwt_decode from "jwt-decode";
 
 import express from "express";
-import { createEventAdapter } from "@slack/events-api";
-import { createMessageAdapter } from "@slack/interactive-messages";
 import { WebClient } from "@slack/web-api";
-import SlackEventAdapter from "@slack/events-api/dist/adapter";
-import { EventEmitter } from "events";
-import SlackMessageAdapter from "@slack/interactive-messages/dist/adapter";
-
 import SessionManager from "./lib/SessionManager/SessionManager";
 
 const session = new SessionManager();
@@ -20,12 +14,6 @@ const session = new SessionManager();
 const slackSigningSecret = process.env.SLACK_SIGNING_SECRET || "";
 const token = process.env.SLACK_TOKEN || "";
 const port = process.env.PORT || 3000;
-
-const slackEvents: SlackEventAdapter & EventEmitter = createEventAdapter(
-  slackSigningSecret
-) as any;
-const slackInteractions: SlackMessageAdapter &
-  EventEmitter = createMessageAdapter(slackSigningSecret) as any;
 const web = new WebClient(token);
 
 (async () => {
@@ -35,41 +23,15 @@ const web = new WebClient(token);
 })();
 
 import { generateAnswerDetail } from "./generateAnswerDetail";
-import Authorization from "./lib/SessionManager/Authorization";
 
-slackEvents.on("message", (event) => {
-  console.log(
-    `Received a message event: user ${event.user} in channel ${event.channel} says ${event.text}`
-  );
-});
+import SlackEventHandlers from "./handlers/SlackEventHandlers";
+const slackEvents = SlackEventHandlers(slackSigningSecret);
+
+import SlackInteractionHandlers from "./handlers/SlackInteractionHandlers";
+const slackInteractions = SlackInteractionHandlers(slackSigningSecret, session);
 
 // Create an express application
 const app = express();
-
-slackEvents.on("url_verification", (event) => {
-  return {
-    challenge: event.challenge,
-  };
-});
-
-/**
- * Fires when the app is mentioned in a channel. For mentions in a DM or private channel, use message.im or
- */
-slackEvents.on("app_mention", (event) => {
-  console.log("app_mention", event);
-});
-
-slackEvents.on("message.groups", (event) => {
-  console.log("message.groups", event);
-});
-
-slackEvents.on("message", (event) => {
-  console.log("Message", event);
-});
-
-slackEvents.on("message.im", (event) => {
-  console.log("message.im", event);
-});
 
 // Plug the adapter in as a middleware
 app.use("/interact", slackInteractions.expressMiddleware());
@@ -181,61 +143,4 @@ const server = createServer(app);
 server.listen(port, () => {
   // Log a message when the server is ready
   console.log(`Listening for events on ${port}`);
-});
-
-// Example of handling all message actions
-slackInteractions.action({ actionId: "top-answer" }, (payload, respond) => {
-  // Logs the contents of the action to the console
-  console.log("payload", payload);
-
-  // Send an additional message only to the user who made interacted, as an ephemeral message
-  respond({
-    text: "Thanks for your submission.",
-    response_type: "ephemeral",
-  });
-
-  // If you'd like to replace the original message, use `chat.update`.
-  // Not returning any value.
-});
-
-slackInteractions.action({ actionId: "zoom" }, async (payload, respond) => {
-  // Logs the contents of the action to the console
-  let userSession = session.session(payload.user.team_id, payload.user.id);
-  if (userSession?.authorization) {
-    let token = jwt_decode<any>(userSession.authorization.token);
-    let response = await axios.post(
-      `https://api.zoom.us/v2/users/${token.uid}/meetings`,
-      {
-        type: 1,
-        topic: "CASpR Support",
-        agenda: "Understanding the reducer pattern in React",
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${userSession.authorization.token}`,
-        },
-      }
-    );
-    // SEND DM to users
-    respond({
-      text: `<${response.data.start_url}|Click here to start your meeting: ${response.data.topic}: ${response.data.agenda}>`,
-      response_type: "ephemeral",
-    });
-  } else {
-    respond({
-      text: `Hold up, it looks like we need to let Zoom create meetings for you. <https://zoom.us/oauth/authorize?response_type=code&client_id=${
-        process.env.ZOOM_CLIENT_ID
-      }&redirect_uri=${process.env.ZOOM_REDIRECT_URI}&state=${Buffer.from(
-        JSON.stringify({
-          teamId: payload.user.team_id,
-          userId: payload.user.id,
-        })
-      ).toString("base64")}|Connect Zoom>`,
-      response_type: "ephemeral",
-    });
-  }
-  // Send an additional message only to the user who made interacted, as an ephemeral message
-
-  // If you'd like to replace the original message, use `chat.update`.
-  // Not returning any value.
 });
