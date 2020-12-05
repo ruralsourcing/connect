@@ -119,17 +119,35 @@ app.get("/zoom", async (req, res) => {
     } as AxiosRequestConfig);
     console.log("AXIOS AUTH CODE RESPONSE", response.data);
     let token = jwt_decode<any>(response.data.access_token);
-    session.addAuthorization(
-      userData.teamId,
-      userData.userId,
-      response.data.access_token,
-      token.uid
-    );
-    res.json(session.session(userData.teamId, userData.userId));
+    if (userData) {
+      session.addAuthorization(
+        userData.teamId,
+        userData.userId,
+        response.data.access_token,
+        token.uid
+      );
+      res.json(session.session(userData.teamId, userData.userId));
+    } else {
+      res.sendStatus(200);
+    }
   } else {
     res.send(500);
   }
 });
+
+app.get("/policy", (req, res) => {
+  res.send("<h1>Policy...</h1>")
+});
+app.get("/terms", (req, res) => {
+  res.send("<h1>Terms...</h1>")
+});
+app.get("/support", (req, res) => {
+  res.send("<h1>Support...</h1>")
+});
+app.get("/documentation", (req, res) => {
+  res.send("<h1>Documentation...</h1>")
+});
+
 
 app.get("/ping", (_, res) => {
   res.send({
