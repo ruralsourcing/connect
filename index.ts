@@ -4,6 +4,7 @@ dotenv.config();
 import { createServer, request } from "http";
 import axios, { AxiosRequestConfig } from "axios";
 import jwt_decode from "jwt-decode";
+import jsonServer from "json-server";
 
 import express from "express";
 import {
@@ -43,7 +44,6 @@ interface UsersResponse extends WebAPICallResult {
   users.members.forEach((member) => {
     if (member.deleted || member.is_bot || member.name == "slackbot") return;
     let userSession = session.session(member.team_id, member.id);
-    if (!userSession) return;
     userSession.email = member.profile.email;
     userSession.name = member.profile.real_name;
   });
@@ -60,6 +60,9 @@ const slackInteractions = SlackInteractionHandlers(slackSigningSecret, session);
 
 // Create an express application
 const app = express();
+
+app.use("/api", jsonServer.defaults());
+app.use("/api", jsonServer.router("./data/db.json"));
 
 // Plug the adapter in as a middleware
 app.use("/interact", slackInteractions.expressMiddleware());
@@ -79,27 +82,35 @@ interface ConversationOpenResult extends WebAPICallResult {
   channel: any;
 }
 
+// Called by Zoom API Webhook
 app.post("/zoom", (req, res) => {
   console.log("ZOOM POST", req.body);
   if (req.body.event == "meeting.started") {
     // instead of getting every user, get users based on matched skills
-    session.sessions.forEach((session) => {
-      web.conversations
-        .open({
-          users: session.userId,
-        } as ConversationsOpenArguments)
-        .then((result) => {
-          let r = result as ConversationOpenResult;
-          if (result.ok)
-            web.chat
-              .postMessage({
-                text:
-                  "David is working on a zoom chat and trying to find the public link to send",
-                channel: r.channel.id,
-              } as ChatPostMessageArguments)
-              .catch(console.log);
-        });
-    });
+    let uuid = req.body.payload.uuid;
+    let meeting = session.getMeeting(uuid);
+    if(!meeting) return;
+    else {
+      session.sessions.forEach((s) => {
+        web.conversations
+          .open({
+            users: s.userId,
+          } as ConversationsOpenArguments)
+          .then((result) => {
+            let r = result as ConversationOpenResult;
+            if (result.ok)
+              web.chat
+                .postMessage({
+                  text:
+                    `A meeting was requested by ${s.name} for ${meeting.topic}: <${meeting.join_url}| Join Here>`,
+                  channel: r.channel.id,
+                } as ChatPostMessageArguments)
+                .catch(console.log);
+          });
+      });
+    }
+    
+    
   }
   /*
     MEETING STARTED: Time to DM others

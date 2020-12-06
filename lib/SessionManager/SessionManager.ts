@@ -1,74 +1,90 @@
 "use strict";
 
-import Session from './Session';
-import Authorization from './Authorization';
+import { Session } from "./Session";
+import Authorization from "./Authorization";
+import { settings } from "cluster";
+import { Meeting } from "./Meeting";
 
 /**
  * @description Session manager
  */
 export default class SessionManager {
-    private _sessions: Session[];
+  private _sessions: Session[];
 
-    constructor() {
-        this._sessions = [];
-    }
+  constructor() {
+    this._sessions = [];
+  }
 
-    get sessions(){
-        if(!this._sessions)
-            this._sessions = [];
-        
-        return this._sessions;
-    }
+  get sessions(): Session[] {
+    return this._sessions;
+  }
 
-    set sessions(sessions){
-        this._sessions = sessions;
-    }
+  set sessions(sessions) {
+    this._sessions = sessions;
+  }
 
-    /**
-     * @param {String} userId
-     * @returns {Boolean} Login Status 
-     */
-    authorized(teamId: string, userId: string): boolean {
-        var session = this.sessions.find((x) => { return x.teamId == teamId && x.userId == userId});
-        return session != undefined && session.authorization != undefined;
-    }
+  /**
+   * @param {String} userId
+   * @returns {Boolean} Login Status
+   */
+  authorized(teamId: string, userId: string): boolean {
+    var session = this.sessions.find((x) => {
+      return x.teamId == teamId && x.userId == userId;
+    });
+    return session != undefined && session.authorization != undefined;
+  }
 
-    /**
-     * @description Retrieves a user session, or creates on if no session exists
-     * @param {String} userId User Id Key
-     * @returns {Session} User Session object
-     */
-    session(teamId: string, userId: string): Session | undefined {
-        if(this._session(teamId, userId) == undefined){
-            this.sessions.push(new Session(teamId, userId));
-            return this._session(teamId, userId);
-        }
-        return this._session(teamId, userId);
+  /**
+   * @description Retrieves a user session, or creates on if no session exists
+   * @param {String} userId User Id Key
+   * @returns {Session} User Session object
+   */
+  session(teamId: string, userId: string): Session {
+    if (this._session(teamId, userId) === undefined) {
+      this._sessions.push({teamId, userId} as Session);
     }
+    let session = this._session(teamId, userId);
+    if (!session) session = {} as Session;
 
-    private _session(teamId: string, userId: string) : Session | undefined {
-        return this.sessions.find((session) => { return session.teamId == teamId && session.userId == userId});
-    }
+    return session;
+  }
 
-    authorizationHeader(teamId: string, userId: string) {
-        return 'Bearer ' + this._session(teamId, userId)?.authorization?.token
-    }
+  private _session(teamId: string, userId: string): Session | undefined {
+    const session = this._sessions.find(
+      (session) => session.teamId == teamId && session.userId == userId
+    );
+    return session;
+  }
 
-    /**
-     * @param {String} teamId
-     * @param {String} userId 
-     * @param {String} token
-     * @param {String} username 
-     */
-    addAuthorization(teamId: string, userId: string, token: string, username: string){
-        if(this.userDoesNotExist(teamId, userId)) return;
-        
-        let session = this._session(teamId, userId);
-        if(session) 
-            session.authorization = new Authorization(token, username);
-    }
+  authorizationHeader(teamId: string, userId: string) {
+    return "Bearer " + this.session(teamId, userId)?.authorization?.token;
+  }
 
-    userDoesNotExist(teamId: string, userId: string) {
-        return this._session(teamId, userId) == undefined;
-    }
+  /**
+   * @param {String} teamId
+   * @param {String} userId
+   * @param {String} token
+   * @param {String} username
+   */
+  addAuthorization(
+    teamId: string,
+    userId: string,
+    token: string,
+    username: string
+  ) {
+    let session = this.session(teamId, userId);
+    session.authorization = new Authorization(token, username);
+  }
+
+  addMeeting(session: Session, meeting: Meeting) {
+    session.meetings?.push(meeting);
+  }
+
+  getMeeting(uuid: string): Meeting {
+    let meeting;
+    this.sessions.find(s => {
+        meeting = s.meetings?.find(m => m.uuid === uuid)
+    });
+    return meeting || {} as Meeting;
+  }
 }

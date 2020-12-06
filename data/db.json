@@ -1,0 +1,14 @@
+{
+  "sessions": [
+    {
+      "title": "something",
+      "author": "dfed",
+      "id": 1
+    },
+    {
+      "author": "dfed",
+      "someotherFile": 1234,
+      "id": 2
+    }
+  ]
+}
