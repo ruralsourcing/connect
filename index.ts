@@ -9,7 +9,6 @@ import express from "express";
 import {
   ChatPostMessageArguments,
   ConversationsOpenArguments,
-  IMOpenArguments,
   WebAPICallResult,
   WebClient,
 } from "@slack/web-api";
@@ -28,6 +27,7 @@ interface Profile {
 }
 interface Member {
   id: string;
+  is_bot: boolean;
   team_id: string;
   name: string;
   deleted: boolean;
@@ -41,15 +41,12 @@ interface UsersResponse extends WebAPICallResult {
   await web.auth.test();
   let users = (await web.users.list()) as UsersResponse;
   users.members.forEach((member) => {
-    let userSession = session.session(
-      member.team_id,
-      member.id,
-    );
-    if(!userSession) return;
+    if (member.deleted || member.is_bot || member.name == "slackbot") return;
+    let userSession = session.session(member.team_id, member.id);
+    if (!userSession) return;
     userSession.email = member.profile.email;
     userSession.name = member.profile.real_name;
   });
-  console.log(session.sessions);
 })();
 
 import { generateAnswerDetail } from "./generateAnswerDetail";
@@ -85,21 +82,24 @@ interface ConversationOpenResult extends WebAPICallResult {
 app.post("/zoom", (req, res) => {
   console.log("ZOOM POST", req.body);
   if (req.body.event == "meeting.started") {
-    web.conversations
-      .open({
-        users: "UP8C804QK",
-      } as ConversationsOpenArguments)
-      .then((result) => {
-        let r = result as ConversationOpenResult;
-        if (result.ok)
-          web.chat
-            .postMessage({
-              text:
-                "David is working on a zoom chat and trying to find the public link to send",
-              channel: r.channel.id,
-            } as ChatPostMessageArguments)
-            .catch(console.log);
-      });
+    // instead of getting every user, get users based on matched skills
+    session.sessions.forEach((session) => {
+      web.conversations
+        .open({
+          users: session.userId,
+        } as ConversationsOpenArguments)
+        .then((result) => {
+          let r = result as ConversationOpenResult;
+          if (result.ok)
+            web.chat
+              .postMessage({
+                text:
+                  "David is working on a zoom chat and trying to find the public link to send",
+                channel: r.channel.id,
+              } as ChatPostMessageArguments)
+              .catch(console.log);
+        });
+    });
   }
   /*
     MEETING STARTED: Time to DM others
@@ -148,11 +148,12 @@ app.post("/zoom", (req, res) => {
 
 app.get("/zoom", async (req, res) => {
   console.log("ZOOM REQUEST", req.query);
-  if (req.query && req.query.code) {
+  const { code, state } = req.query;
+  if (code) {
     let userData;
-    if (req.query.state) {
+    if (state) {
       userData = JSON.parse(
-        Buffer.from(req.query.state as string, "base64").toString("utf-8")
+        Buffer.from(state as string, "base64").toString("utf-8")
       );
       console.log(userData);
     }
@@ -169,7 +170,7 @@ app.get("/zoom", async (req, res) => {
         ).toString("base64")}`,
       },
     } as AxiosRequestConfig);
-    console.log("AXIOS AUTH CODE RESPONSE", response.data);
+    
     let token = jwt_decode<any>(response.data.access_token);
     if (userData) {
       session.addAuthorization(

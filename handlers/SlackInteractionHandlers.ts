@@ -46,6 +46,7 @@ export default function SlackInteractionHandlers(
       );
       // SEND DM to users
       console.log(response.data);
+      userSession.addMeeting(response.data)
       respond({
         text: `<${response.data.start_url}|Click here to start your meeting: ${response.data.topic}: ${response.data.agenda}>`,
         response_type: "ephemeral",
