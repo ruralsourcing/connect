@@ -100,11 +100,9 @@ test("can add meetings from zoom payload", () => {
     let session = manager.session("1", "2");
     manager.addMeeting(session, payload);
     expect(session.meetings?.length).toBeGreaterThan(0);
-    //expect(session.meetings[0].uuid).toEqual("JtcANK6eSaWGRSAgN8xg+Q==");
   });
   
   test("can find a meeting by uuid", () => {
     let meeting = manager.getMeeting("JtcANK6eSaWGRSAgN8xg+Q==");
-    console.log(meeting);
     expect(meeting).toBeDefined();
   });
