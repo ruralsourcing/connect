@@ -87,11 +87,13 @@ app.post("/zoom", (req, res) => {
   if (req.body.event == "meeting.started") {
     // instead of getting every user, get users based on matched skills
     console.log(req.body)
+    console.log(req.body.payload.object.uuid);
     let uuid = req.body.payload.object.uuid;
     let meeting = session.getMeeting(uuid);
     if(!meeting) return;
     else {
       session.sessions.forEach((s) => {
+        if(s.userId !== 'UPKSA9K0V') return;
         web.conversations
           .open({
             users: s.userId,

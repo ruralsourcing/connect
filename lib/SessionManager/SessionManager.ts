@@ -41,7 +41,7 @@ export default class SessionManager {
    */
   session(teamId: string, userId: string): Session {
     if (this._session(teamId, userId) === undefined) {
-      this._sessions.push({ teamId, userId } as Session);
+      this._sessions.push({teamId, userId} as Session);
     }
     let session = this._session(teamId, userId);
     if (!session) session = {} as Session;
@@ -77,15 +77,16 @@ export default class SessionManager {
   }
 
   addMeeting(session: Session, meeting: Meeting) {
-    if (!session.meetings) session.meetings = [];
+      if(!session.meetings)
+        session.meetings = [];
     session.meetings.push(meeting);
   }
 
   getMeeting(uuid: string): Meeting {
     let meeting;
-    this.sessions.find((s) => {
-      meeting = s.meetings?.find((m) => m.uuid === uuid);
+    this.sessions.find(s => {
+        meeting = s.meetings?.find(m => m.uuid === uuid)
     });
-    return meeting || ({} as Meeting);
+    return meeting || {} as Meeting;
   }
 }
