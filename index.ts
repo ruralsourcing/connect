@@ -86,10 +86,11 @@ app.post("/zoom", (req, res) => {
   console.log("ZOOM POST", req.body);
   if (req.body.event == "meeting.started") {
     // instead of getting every user, get users based on matched skills
-    console.log(req.body)
-    console.log(req.body.payload.object.uuid);
+    console.log('PAYLOAD', req.body)
+    console.log('UUID', req.body.payload.object.uuid);
     let uuid = req.body.payload.object.uuid;
     let meeting = session.getMeeting(uuid);
+    console.log('MEETING', meeting);
     if(!meeting) return;
     else {
       session.sessions.forEach((s) => {
