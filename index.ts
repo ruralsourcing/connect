@@ -22,10 +22,34 @@ const token = process.env.SLACK_TOKEN || "";
 const port = process.env.PORT || 3000;
 const web = new WebClient(token);
 
+interface Profile {
+  real_name: string;
+  email: string;
+}
+interface Member {
+  id: string;
+  team_id: string;
+  name: string;
+  deleted: boolean;
+  profile: Profile;
+}
+interface UsersResponse extends WebAPICallResult {
+  members: Member[];
+}
+
 (async () => {
   await web.auth.test();
-
-  console.log("Done!");
+  let users = (await web.users.list()) as UsersResponse;
+  users.members.forEach((member) => {
+    let userSession = session.session(
+      member.team_id,
+      member.id,
+    );
+    if(!userSession) return;
+    userSession.email = member.profile.email;
+    userSession.name = member.profile.real_name;
+  });
+  console.log(session.sessions);
 })();
 
 import { generateAnswerDetail } from "./generateAnswerDetail";
@@ -34,6 +58,7 @@ import SlackEventHandlers from "./handlers/SlackEventHandlers";
 const slackEvents = SlackEventHandlers(slackSigningSecret);
 
 import SlackInteractionHandlers from "./handlers/SlackInteractionHandlers";
+import { Profiler } from "inspector";
 const slackInteractions = SlackInteractionHandlers(slackSigningSecret, session);
 
 // Create an express application
@@ -53,19 +78,8 @@ app.post("/slash", async (req, res) => {
   res.json(message);
 });
 
-class ConversationOpenResult implements WebAPICallResult {
+interface ConversationOpenResult extends WebAPICallResult {
   channel: any;
-  ok: boolean = true;
-  error?: string;
-  response_metadata?: {
-    warnings?: string[];
-    next_cursor?: string;
-    scopes?: string[];
-    acceptedScopes?: string[];
-    retryAfter?: number;
-    messages?: string[];
-  };
-  [key: string]: unknown;
 }
 
 app.post("/zoom", (req, res) => {
@@ -184,6 +198,10 @@ app.get("/support", (req, res) => {
 });
 app.get("/documentation", (req, res) => {
   res.send("<h1>Documentation...</h1>");
+});
+
+app.get("/sessions", (req, res) => {
+  res.json(session.sessions);
 });
 
 app.get("/ping", (_, res) => {

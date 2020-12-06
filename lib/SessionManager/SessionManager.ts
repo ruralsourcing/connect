@@ -7,7 +7,7 @@ import Authorization from './Authorization';
  * @description Session manager
  */
 export default class SessionManager {
-    _sessions: Session[];
+    private _sessions: Session[];
 
     constructor() {
         this._sessions = [];
@@ -46,7 +46,7 @@ export default class SessionManager {
         return this._session(teamId, userId);
     }
 
-    _session(teamId: string, userId: string) : Session | undefined {
+    private _session(teamId: string, userId: string) : Session | undefined {
         return this.sessions.find((session) => { return session.teamId == teamId && session.userId == userId});
     }
 
