@@ -55,7 +55,6 @@ import SlackEventHandlers from "./handlers/SlackEventHandlers";
 const slackEvents = SlackEventHandlers(slackSigningSecret);
 
 import SlackInteractionHandlers from "./handlers/SlackInteractionHandlers";
-import { Profiler } from "inspector";
 const slackInteractions = SlackInteractionHandlers(slackSigningSecret, session);
 
 // Create an express application
@@ -87,7 +86,8 @@ app.post("/zoom", (req, res) => {
   console.log("ZOOM POST", req.body);
   if (req.body.event == "meeting.started") {
     // instead of getting every user, get users based on matched skills
-    let uuid = req.body.payload.uuid;
+    console.log(req.body)
+    let uuid = req.body.payload.object.uuid;
     let meeting = session.getMeeting(uuid);
     if(!meeting) return;
     else {
