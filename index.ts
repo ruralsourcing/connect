@@ -3,6 +3,8 @@ dotenv.config();
 
 import { createServer } from "http";
 import axios, { AxiosRequestConfig } from "axios";
+axios.defaults.baseURL = process.env.API_BASE_URL || '';
+
 import jwt_decode from "jwt-decode";
 import jsonServer from "json-server";
 
@@ -90,14 +92,14 @@ interface ConversationOpenResult extends WebAPICallResult {
 }
 
 // Called by Zoom API Webhook
-app.post("/zoom", (req, res) => {
+app.post("/zoom", async (req, res) => {
   console.log("ZOOM POST", req.body);
   if (req.body.event == "meeting.started") {
     // instead of getting every user, get users based on matched skills
     console.log("PAYLOAD", req.body);
     console.log("UUID", req.body.payload.object.uuid);
     let uuid = req.body.payload.object.uuid;
-    let meeting = meetingManager.getMeeting(uuid);
+    let meeting = await meetingManager.getMeeting(uuid);
     console.log("MEETING", meeting);
     if (meeting != null) {
       session.sessions.forEach((s) => {
@@ -224,7 +226,23 @@ app.get("/sessions", (req, res) => {
 });
 
 app.get("/meetings", async (_, res) => {
-  res.json(await meetingManager.getAll())
+  res.json(await meetingManager.getAll());
+});
+
+app.post("/meetings", async (req, res) => {
+  await meetingManager.addMeeting({
+    uuid: "JtcANK6eSaWGRSAgN8xg+Q==",
+    id: 1,
+    host_id: "eyxXfnupQvWNjXJcNoD7Xg",
+    host_email: "david@federnet.com",
+    topic: "CASpR Support",
+    start_url:
+      "https://zoom.us/s/93398173560?zak=eyJ6bV9za20iOiJ6bV9vMm0iLCJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjbGllbnQiLCJ1aWQiOiJleXhYZm51cFF2V05qWEpjTm9EN1hnIiwiaXNzIjoid2ViIiwic3R5IjoxLCJ3Y2QiOiJhdzEiLCJjbHQiOjAsInN0ayI6InQ5NUNKWG1rcHo0U0lkMV9aUndTOUduZElhdlNMRGtja3U5aFh2LVcwbUEuQUcuTTFxWFcxc3d0Zmw2TWFQR21hVHczWnU0V0I5Vmt3S1hoc3h5Uk1telplVFBaeXBZMk9lY0RzblpUclJqREMxWExubTJTeFk5djNHS0NwNC5KTGFBZWNkcjJIZ2N6TVFyMllvNE9BLk44bnJubEhSVlA0OFROTVQiLCJleHAiOjE2MDcyMDg0NzgsImlhdCI6MTYwNzIwMTI3OCwiYWlkIjoidV96UmVSbWhSWWlLY0U2dzdhQVpoZyIsImNpZCI6IiJ9.NXPpvZRL80AVFMVyqaXhKO1hKywkFbYyze48LtOxTWw",
+    join_url:
+      "https://zoom.us/j/93398173560?pwd=c2dnaFMzTzkvSmgzZnhaUVZYb2lwdz09",
+    password: "u4UrGs"
+  });
+  res.sendStatus(200)
 });
 
 app.get("/ping", (_, res) => {

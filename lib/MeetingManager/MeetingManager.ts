@@ -2,8 +2,8 @@ import { IDataContext } from "../../data/types";
 import { Meeting } from "./Meeting";
 
 export default class MeetingManager {
-  _meetings: Meeting[];
-  _context: IDataContext<Meeting>;
+  private _meetings: Meeting[];
+  private _context: IDataContext<Meeting>;
 
   constructor(context: IDataContext<Meeting>) {
     this._meetings = [];
@@ -14,15 +14,15 @@ export default class MeetingManager {
     return await this._context.getAll();
   }
 
-  addMeeting(meeting: Meeting) {
-    this._meetings.push(meeting);
-    //this._context.post(meeting);
+  async addMeeting(meeting: Meeting) {
+    //this._meetings.push(meeting);
+    await this._context.post(meeting);
   }
 
-  getMeeting(uuid: string): Meeting {
-    let meeting = null;
-    meeting = this._meetings.find((m) => m.uuid === uuid);
-    if (!meeting) throw "Something went wrong";
-    return meeting;
+  async getMeeting(uuid: string): Promise<Meeting> {
+    // let meeting = null;
+    // meeting = this._meetings.find((m) => m.uuid === uuid);
+    // if (!meeting) throw "Something went wrong";
+    return await this._context.get(uuid);
   }
 }
