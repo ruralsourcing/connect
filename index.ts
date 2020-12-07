@@ -91,7 +91,7 @@ app.post("/zoom", (req, res) => {
     let uuid = req.body.payload.object.uuid;
     let meeting = session.getMeeting(uuid);
     console.log('MEETING', meeting);
-    if(meeting !== undefined) {
+    if(meeting) {
       session.sessions.forEach((s) => {
         if(s.userId !== 'UPKSA9K0V') return;
         web.conversations
@@ -104,7 +104,7 @@ app.post("/zoom", (req, res) => {
               web.chat
                 .postMessage({
                   text:
-                    `A meeting was requested by ${s.name} for ${meeting.topic}: <${meeting.join_url}| Join Here>`,
+                    `A meeting was requested by ${s.name} for ${meeting?.topic}: <${meeting?.join_url}| Join Here>`,
                   channel: r.channel.id,
                 } as ChatPostMessageArguments)
                 .catch(console.log);
