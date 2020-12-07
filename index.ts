@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { createServer, request } from "http";
+import { createServer } from "http";
 import axios, { AxiosRequestConfig } from "axios";
 import jwt_decode from "jwt-decode";
 import jsonServer from "json-server";
@@ -14,6 +14,7 @@ import {
   WebClient,
 } from "@slack/web-api";
 import SessionManager from "./lib/SessionManager/SessionManager";
+import MeetingManager from "./lib/MeetingManager/MeetingManager";
 
 const session = new SessionManager();
 const meetingManager = new MeetingManager();
@@ -56,7 +57,6 @@ import SlackEventHandlers from "./handlers/SlackEventHandlers";
 const slackEvents = SlackEventHandlers(slackSigningSecret);
 
 import SlackInteractionHandlers from "./handlers/SlackInteractionHandlers";
-import MeetingManager from "./lib/MeetingManager/MeetingManager";
 const slackInteractions = SlackInteractionHandlers(slackSigningSecret, session, meetingManager);
 
 // Create an express application
@@ -91,7 +91,7 @@ app.post("/zoom", (req, res) => {
     console.log('PAYLOAD', req.body)
     console.log('UUID', req.body.payload.object.uuid);
     let uuid = req.body.payload.object.uuid;
-    let meeting = session.getMeeting(uuid);
+    let meeting = meetingManager.getMeeting(uuid);
     console.log('MEETING', meeting);
     if(meeting != null) {
       session.sessions.forEach((s) => {
