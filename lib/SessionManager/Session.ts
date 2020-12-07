@@ -7,5 +7,5 @@ export interface Session {
     name: string ;
     email: string;
     authorization?: Authorization;
-    meetings?: Meeting[];
+    meetings: Meeting[];
 }

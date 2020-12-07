@@ -83,10 +83,11 @@ export default class SessionManager {
   }
 
   getMeeting(uuid: string): Meeting | null {
-    let meeting;
+    let meeting = null;
     this.sessions.forEach(s => {
-        meeting = s.meetings?.find(m => m.uuid === uuid)
+        meeting = s.meetings.find(m => m.uuid === uuid)
     });
-    return meeting || null;
+    console.log(meeting);
+    return meeting;
   }
 }
