@@ -1,14 +1,84 @@
 {
   "sessions": [
     {
-      "title": "something",
-      "author": "dfed",
-      "id": 1
+      "id": 0,
+      "teamId": "TPMMUULT1",
+      "userId": "UP8C804QK",
+      "email": "jrenbarger@apterainc.com",
+      "name": "jocelynn"
     },
     {
-      "author": "dfed",
-      "someotherFile": 1234,
-      "id": 2
+      "id": 1,
+      "teamId": "TPMMUULT1",
+      "userId": "UPKSA9K0V",
+      "email": "david@federnet.com",
+      "name": "David Federspiel",
+      "authorization": {
+        "token": "eyJhbGciOiJIUzUxMiIsInYiOiIyLjAiLCJraWQiOiJjZjQ0MjhlMC0wMTEzLTQ4N2MtYTM1Ni01ZWQ1NDI2YzUwZDcifQ.eyJ2ZXIiOjcsImF1aWQiOiI1M2RiMDcwZjk4NjkxYmE5NDQ0ZjA5OTAwZmRmMjViNyIsImNvZGUiOiJEUUJtYnE3UFppX2V5eFhmbnVwUXZXTmpYSmNOb0Q3WGciLCJpc3MiOiJ6bTpjaWQ6N0FVU1F6ZE1UY3lJNkRUc0hGVENJdyIsImdubyI6MCwidHlwZSI6MCwidGlkIjowLCJhdWQiOiJodHRwczovL29hdXRoLnpvb20udXMiLCJ1aWQiOiJleXhYZm51cFF2V05qWEpjTm9EN1hnIiwibmJmIjoxNjA3MzA5MDUxLCJleHAiOjE2MDczMTI2NTEsImlhdCI6MTYwNzMwOTA1MSwiYWlkIjoidV96UmVSbWhSWWlLY0U2dzdhQVpoZyIsImp0aSI6ImRkM2UwNWZhLTQxMzItNDI0Mi05ODdkLTdkNzBiYTE5YjFiMSJ9.e1GCQLc5BxgIaiGkrUTAcYzRd0NiS0mAK5fte4Vn_5cufNKq-kvpeEsHNmV-TsxPbWhTc5B7gMZ7Lch9mmw-bA",
+        "username": "eyxXfnupQvWNjXJcNoD7Xg"
+      }
+    }
+  ],
+  "meetings": [
+    {
+      "uuid": "JtcANK6eSaWGRSAgN8xg+Q==",
+      "id": 93398173560,
+      "host_id": "eyxXfnupQvWNjXJcNoD7Xg",
+      "host_email": "david@federnet.com",
+      "topic": "CASpR Support",
+      "type": 1,
+      "status": "waiting",
+      "timezone": "America/Indianapolis",
+      "agenda": "Understanding the reducer pattern in React",
+      "created_at": "2020-12-05T20:47:58Z",
+      "start_url": "https://zoom.us/s/93398173560?zak=eyJ6bV9za20iOiJ6bV9vMm0iLCJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjbGllbnQiLCJ1aWQiOiJleXhYZm51cFF2V05qWEpjTm9EN1hnIiwiaXNzIjoid2ViIiwic3R5IjoxLCJ3Y2QiOiJhdzEiLCJjbHQiOjAsInN0ayI6InQ5NUNKWG1rcHo0U0lkMV9aUndTOUduZElhdlNMRGtja3U5aFh2LVcwbUEuQUcuTTFxWFcxc3d0Zmw2TWFQR21hVHczWnU0V0I5Vmt3S1hoc3h5Uk1telplVFBaeXBZMk9lY0RzblpUclJqREMxWExubTJTeFk5djNHS0NwNC5KTGFBZWNkcjJIZ2N6TVFyMllvNE9BLk44bnJubEhSVlA0OFROTVQiLCJleHAiOjE2MDcyMDg0NzgsImlhdCI6MTYwNzIwMTI3OCwiYWlkIjoidV96UmVSbWhSWWlLY0U2dzdhQVpoZyIsImNpZCI6IiJ9.NXPpvZRL80AVFMVyqaXhKO1hKywkFbYyze48LtOxTWw",
+      "join_url": "https://zoom.us/j/93398173560?pwd=c2dnaFMzTzkvSmgzZnhaUVZYb2lwdz09",
+      "password": "u4UrGs",
+      "h323_password": "056718",
+      "pstn_password": "056718",
+      "encrypted_password": "c2dnaFMzTzkvSmgzZnhaUVZYb2lwdz09",
+      "settings": {
+        "host_video": false,
+        "participant_video": false,
+        "cn_meeting": false,
+        "in_meeting": false,
+        "join_before_host": false,
+        "mute_upon_entry": false,
+        "watermark": false,
+        "use_pmi": false,
+        "approval_type": 2,
+        "audio": "voip",
+        "auto_recording": "none",
+        "enforce_login": false,
+        "enforce_login_domains": "",
+        "alternative_hosts": "",
+        "close_registration": false,
+        "show_share_button": false,
+        "allow_multiple_devices": false,
+        "registrants_confirmation_email": true,
+        "waiting_room": true,
+        "request_permission_to_unmute_participants": false,
+        "registrants_email_notification": true,
+        "meeting_authentication": false,
+        "encryption_type": "enhanced_encryption",
+        "approved_or_denied_countries_or_regions": { "enable": false }
+      }
+    }
+  ],
+  "tech": [
+    {
+      "id": 0,
+      "name": "Machine Learning"
+    }
+  ],
+  "skills": [
+    {
+      "id": 0,
+      "sessionId": 0,
+      "skills": [{
+        "techId": 0,
+        "rating": 6
+      }]
     }
   ]
 }
