@@ -85,7 +85,7 @@ export default class SessionManager {
   getMeeting(uuid: string): Meeting {
     let meeting = null;
     this.sessions.forEach(s => {
-        meeting = s.meetings.find(m => m.uuid === uuid)
+        meeting = s.meetings?.find(m => m.uuid === uuid)
     });
     if(!meeting) throw "Something went wrong";
     return meeting;
