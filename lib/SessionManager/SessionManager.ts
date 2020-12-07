@@ -82,12 +82,12 @@ export default class SessionManager {
     session.meetings.push(meeting);
   }
 
-  getMeeting(uuid: string): Meeting | null {
+  getMeeting(uuid: string): Meeting {
     let meeting = null;
     this.sessions.forEach(s => {
         meeting = s.meetings.find(m => m.uuid === uuid)
     });
-    console.log(meeting);
+    if(!meeting) throw "Something went wrong";
     return meeting;
   }
 }
