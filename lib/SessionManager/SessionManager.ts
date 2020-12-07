@@ -2,8 +2,7 @@
 
 import { Session } from "./Session";
 import Authorization from "./Authorization";
-import { settings } from "cluster";
-import { Meeting } from "./Meeting";
+import { Meeting } from "../MeetingManager/Meeting";
 
 /**
  * @description Session manager
@@ -74,20 +73,5 @@ export default class SessionManager {
   ) {
     let session = this.session(teamId, userId);
     session.authorization = new Authorization(token, username);
-  }
-
-  addMeeting(session: Session, meeting: Meeting) {
-    if (!session.meetings) session.meetings = [];
-    session.meetings.push(meeting);
-  }
-
-  getMeeting(uuid: string): Meeting {
-    let meeting = null;
-    console.log(uuid, this.sessions);
-    this.sessions.forEach((s) => {
-      meeting = s.meetings?.find((m) => m.uuid === uuid);
-    });
-    if (!meeting) throw "Something went wrong";
-    return meeting;
   }
 }

@@ -1,5 +1,5 @@
 import Authorization from "./Authorization";
-import { Meeting } from "./Meeting";
+import { Meeting } from "../MeetingManager/Meeting";
 
 export interface Session {
     teamId: string;
@@ -7,5 +7,4 @@ export interface Session {
     name: string ;
     email: string;
     authorization?: Authorization;
-    meetings?: Meeting[];
 }

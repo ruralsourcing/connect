@@ -16,6 +16,7 @@ import {
 import SessionManager from "./lib/SessionManager/SessionManager";
 
 const session = new SessionManager();
+const meetingManager = new MeetingManager();
 
 const slackSigningSecret = process.env.SLACK_SIGNING_SECRET || "";
 const token = process.env.SLACK_TOKEN || "";
@@ -55,7 +56,8 @@ import SlackEventHandlers from "./handlers/SlackEventHandlers";
 const slackEvents = SlackEventHandlers(slackSigningSecret);
 
 import SlackInteractionHandlers from "./handlers/SlackInteractionHandlers";
-const slackInteractions = SlackInteractionHandlers(slackSigningSecret, session);
+import MeetingManager from "./lib/MeetingManager/MeetingManager";
+const slackInteractions = SlackInteractionHandlers(slackSigningSecret, session, meetingManager);
 
 // Create an express application
 const app = express();
