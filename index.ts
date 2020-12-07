@@ -91,8 +91,7 @@ app.post("/zoom", (req, res) => {
     let uuid = req.body.payload.object.uuid;
     let meeting = session.getMeeting(uuid);
     console.log('MEETING', meeting);
-    if(!meeting) return;
-    else {
+    if(meeting !== undefined) {
       session.sessions.forEach((s) => {
         if(s.userId !== 'UPKSA9K0V') return;
         web.conversations

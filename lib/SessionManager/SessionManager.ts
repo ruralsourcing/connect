@@ -82,7 +82,7 @@ export default class SessionManager {
     session.meetings.push(meeting);
   }
 
-  getMeeting(uuid: string): Meeting {
+  getMeeting(uuid: string): Meeting | undefined {
     let meeting;
     this.sessions.forEach(s => {
         meeting = s.meetings?.find(m => m.uuid === uuid)
