@@ -15,9 +15,16 @@ import {
 } from "@slack/web-api";
 import SessionManager from "./lib/SessionManager/SessionManager";
 import MeetingManager from "./lib/MeetingManager/MeetingManager";
+import MeetingContext from "./data/MeetingContext";
+
+import { generateAnswerDetail } from "./generateAnswerDetail";
+
+import SlackEventHandlers from "./handlers/SlackEventHandlers";
+import SlackInteractionHandlers from "./handlers/SlackInteractionHandlers";
 
 const session = new SessionManager();
-const meetingManager = new MeetingManager();
+const dbContext = new MeetingContext();
+const meetingManager = new MeetingManager(dbContext);
 
 const slackSigningSecret = process.env.SLACK_SIGNING_SECRET || "";
 const token = process.env.SLACK_TOKEN || "";
@@ -51,13 +58,12 @@ interface UsersResponse extends WebAPICallResult {
   });
 })();
 
-import { generateAnswerDetail } from "./generateAnswerDetail";
-
-import SlackEventHandlers from "./handlers/SlackEventHandlers";
 const slackEvents = SlackEventHandlers(slackSigningSecret);
-
-import SlackInteractionHandlers from "./handlers/SlackInteractionHandlers";
-const slackInteractions = SlackInteractionHandlers(slackSigningSecret, session, meetingManager);
+const slackInteractions = SlackInteractionHandlers(
+  slackSigningSecret,
+  session,
+  meetingManager
+);
 
 // Create an express application
 const app = express();
@@ -88,14 +94,14 @@ app.post("/zoom", (req, res) => {
   console.log("ZOOM POST", req.body);
   if (req.body.event == "meeting.started") {
     // instead of getting every user, get users based on matched skills
-    console.log('PAYLOAD', req.body)
-    console.log('UUID', req.body.payload.object.uuid);
+    console.log("PAYLOAD", req.body);
+    console.log("UUID", req.body.payload.object.uuid);
     let uuid = req.body.payload.object.uuid;
     let meeting = meetingManager.getMeeting(uuid);
-    console.log('MEETING', meeting);
-    if(meeting != null) {
+    console.log("MEETING", meeting);
+    if (meeting != null) {
       session.sessions.forEach((s) => {
-        if(s.userId !== 'UP8C804QK') return;
+        if (s.userId !== "UP8C804QK") return;
         web.conversations
           .open({
             users: s.userId,
@@ -105,16 +111,13 @@ app.post("/zoom", (req, res) => {
             if (result.ok)
               web.chat
                 .postMessage({
-                  text:
-                    `A meeting was requested by ${s.name} for ${meeting.topic}: <${meeting?.join_url}| Join Here>`,
+                  text: `A meeting was requested by ${s.name} for ${meeting.topic}: <${meeting?.join_url}| Join Here>`,
                   channel: r.channel.id,
                 } as ChatPostMessageArguments)
                 .catch(console.log);
           });
       });
     }
-    
-    
   }
   /*
     MEETING STARTED: Time to DM others
@@ -185,7 +188,7 @@ app.get("/zoom", async (req, res) => {
         ).toString("base64")}`,
       },
     } as AxiosRequestConfig);
-    
+
     let token = jwt_decode<any>(response.data.access_token);
     if (userData) {
       session.addAuthorization(
@@ -218,6 +221,10 @@ app.get("/documentation", (req, res) => {
 
 app.get("/sessions", (req, res) => {
   res.json(session.sessions);
+});
+
+app.get("/meetings", async (_, res) => {
+  res.json(await meetingManager.getAll())
 });
 
 app.get("/ping", (_, res) => {
