@@ -1,7 +1,30 @@
 import SessionManager from "../SessionManager";
 import { Session } from "../Session";
+import SessionDataContext from "../SessionDataContext";
 
-const manager = new SessionManager();
+class TestableSessionContext implements SessionDataContext {
+  getAll(): Promise<Session[]> {
+    return new Promise<Session[]>((resolve, reject) => {
+      resolve([{} as Session]);
+    });
+  }
+  get(uuid: string): Promise<Session> {
+    return new Promise<Session>((resolve, reject) => {
+      resolve({} as Session);
+    });
+  }
+  post(item: Session): Promise<Session> {
+    throw new Error("Method not implemented.");
+  }
+  delete(id: string): Promise<void> {
+    throw new Error("Method not implemented.");
+  }
+  put(item: Session): Promise<Session> {
+    throw new Error("Method not implemented.");
+  }
+}
+
+const manager = new SessionManager(new TestableSessionContext());
 
 test("can create a session", () => {
   const session = manager.session("1", "2");
@@ -20,11 +43,11 @@ test("can get all sessions", () => {
 test("can initialize sessions", () => {
   const sessions = [
     {
-      teamId: "1",
-      userId: "2",
+      slackTeamId: "1",
+      slackUserId: "2",
       name: "",
       email: "",
-    }
+    },
   ] as Session[];
   manager.sessions = sessions;
   expect(manager.sessions.length).toEqual(1);

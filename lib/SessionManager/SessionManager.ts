@@ -2,16 +2,19 @@
 
 import { Session } from "./Session";
 import Authorization from "./Authorization";
-import { Meeting } from "../MeetingManager/Meeting";
+import { IDataContext } from "../../data/types";
+import SessionDataContext from "./SessionDataContext";
 
 /**
  * @description Session manager
  */
 export default class SessionManager {
   private _sessions: Session[];
+  _context: SessionDataContext;
 
-  constructor() {
+  constructor(context: IDataContext<Session>) {
     this._sessions = [];
+    this._context = context as SessionDataContext;
   }
 
   get sessions(): Session[] {
@@ -22,13 +25,17 @@ export default class SessionManager {
     this._sessions = sessions;
   }
 
+  async get(): Promise<Session[]> {
+    return await this._context.getAll();
+  }
+
   /**
    * @param {String} userId
    * @returns {Boolean} Login Status
    */
   authorized(teamId: string, userId: string): boolean {
     var session = this.sessions.find((x) => {
-      return x.teamId == teamId && x.userId == userId;
+      return x.slackTeamId == teamId && x.slackUserId == userId;
     });
     return session != undefined && session.authorization != undefined;
   }
@@ -40,7 +47,7 @@ export default class SessionManager {
    */
   session(teamId: string, userId: string): Session {
     if (this._session(teamId, userId) === undefined) {
-      this._sessions.push({ teamId, userId } as Session);
+      this._sessions.push({ slackTeamId: teamId, slackUserId: userId } as Session);
     }
     let session = this._session(teamId, userId);
     if (!session) session = {} as Session;
@@ -50,7 +57,7 @@ export default class SessionManager {
 
   private _session(teamId: string, userId: string): Session | undefined {
     const session = this._sessions.find(
-      (session) => session.teamId == teamId && session.userId == userId
+      (session) => session.slackTeamId == teamId && session.slackUserId == userId
     );
     return session;
   }

@@ -1,9 +1,6 @@
 import MeetingManager from "../MeetingManager";
-import MeetingContext from "../../../data/MeetingContext";
+import MeetingContext from "../MeetingDataContext";
 import { Meeting } from "../Meeting";
-
-const data = require("../../../data/db.json");
-
 class TestableMeetingContext implements MeetingContext {
   getAll(): Promise<Meeting[]> {
     return new Promise<Meeting[]>((resolve, reject) => {
@@ -25,13 +22,13 @@ class TestableMeetingContext implements MeetingContext {
       } as Meeting);
     });
   }
-  post(item: Meeting): Promise<void> {
+  post(item: Meeting): Promise<Meeting> {
     throw new Error("Method not implemented.");
   }
   delete(id: string): Promise<void> {
     throw new Error("Method not implemented.");
   }
-  put(item: Meeting): Promise<void> {
+  put(item: Meeting): Promise<Meeting> {
     throw new Error("Method not implemented.");
   }
 }

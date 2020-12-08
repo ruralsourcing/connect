@@ -1,22 +1,114 @@
 {
-  "sessions": [
+  "users": [
     {
-      "id": 0,
-      "teamId": "TPMMUULT1",
-      "userId": "UP8C804QK",
-      "email": "jrenbarger@apterainc.com",
-      "name": "jocelynn"
+      "name": "jrenbarger",
+      "id": 1
     },
     {
-      "id": 1,
-      "teamId": "TPMMUULT1",
-      "userId": "UPKSA9K0V",
+      "name": "david",
+      "id": 2
+    },
+    {
+      "name": "rspice",
+      "id": 3
+    },
+    {
+      "name": "bbakle",
+      "id": 4
+    },
+    {
+      "name": "rsandoz",
+      "id": 5
+    },
+    {
+      "name": "ismith",
+      "id": 6
+    },
+    {
+      "name": "pika.andy",
+      "id": 7
+    },
+    {
+      "name": "justin",
+      "id": 8
+    },
+    {
+      "name": "jonathan.c.read",
+      "id": 9
+    }
+  ],
+  "sessions": [
+    {
+      "userId": 4,
+      "email": "bbakle@apterainc.com",
+      "slackTeamId": "TPMMUULT1",
+      "slackUserId": "UPEE640SD",
+      "name": "bbakle",
+      "id": 1
+    },
+    {
+      "userId": 7,
+      "email": "pika.andy@yahoo.com",
+      "slackTeamId": "TPMMUULT1",
+      "slackUserId": "USVDU109X",
+      "name": "pika.andy",
+      "id": 2
+    },
+    {
+      "userId": 1,
+      "email": "jocelynnhartwig@gmail.com",
+      "slackTeamId": "TPMMUULT1",
+      "slackUserId": "UP8C804QK",
+      "name": "jrenbarger",
+      "id": 3
+    },
+    {
+      "userId": 2,
       "email": "david@federnet.com",
-      "name": "David Federspiel",
-      "authorization": {
-        "token": "eyJhbGciOiJIUzUxMiIsInYiOiIyLjAiLCJraWQiOiJjZjQ0MjhlMC0wMTEzLTQ4N2MtYTM1Ni01ZWQ1NDI2YzUwZDcifQ.eyJ2ZXIiOjcsImF1aWQiOiI1M2RiMDcwZjk4NjkxYmE5NDQ0ZjA5OTAwZmRmMjViNyIsImNvZGUiOiJEUUJtYnE3UFppX2V5eFhmbnVwUXZXTmpYSmNOb0Q3WGciLCJpc3MiOiJ6bTpjaWQ6N0FVU1F6ZE1UY3lJNkRUc0hGVENJdyIsImdubyI6MCwidHlwZSI6MCwidGlkIjowLCJhdWQiOiJodHRwczovL29hdXRoLnpvb20udXMiLCJ1aWQiOiJleXhYZm51cFF2V05qWEpjTm9EN1hnIiwibmJmIjoxNjA3MzA5MDUxLCJleHAiOjE2MDczMTI2NTEsImlhdCI6MTYwNzMwOTA1MSwiYWlkIjoidV96UmVSbWhSWWlLY0U2dzdhQVpoZyIsImp0aSI6ImRkM2UwNWZhLTQxMzItNDI0Mi05ODdkLTdkNzBiYTE5YjFiMSJ9.e1GCQLc5BxgIaiGkrUTAcYzRd0NiS0mAK5fte4Vn_5cufNKq-kvpeEsHNmV-TsxPbWhTc5B7gMZ7Lch9mmw-bA",
-        "username": "eyxXfnupQvWNjXJcNoD7Xg"
-      }
+      "slackTeamId": "TPMMUULT1",
+      "slackUserId": "UPKSA9K0V",
+      "name": "david",
+      "id": 4
+    },
+    {
+      "userId": 3,
+      "email": "rspice@apterainc.com",
+      "slackTeamId": "TPMMUULT1",
+      "slackUserId": "USBFD178R",
+      "name": "rspice",
+      "id": 5
+    },
+    {
+      "userId": 5,
+      "email": "rsandoz@apterainc.com",
+      "slackTeamId": "TPMMUULT1",
+      "slackUserId": "UPTLALPU0",
+      "name": "rsandoz",
+      "id": 6
+    },
+    {
+      "userId": 6,
+      "email": "ismith@apterainc.com",
+      "slackTeamId": "TPMMUULT1",
+      "slackUserId": "US8TVE858",
+      "name": "ismith",
+      "id": 7
+    },
+    {
+      "userId": 8,
+      "email": "justin@polepress.com",
+      "slackTeamId": "TPMMUULT1",
+      "slackUserId": "U011DG1U8EN",
+      "name": "justin",
+      "id": 8
+    },
+    {
+      "userId": 9,
+      "email": "jonathan.c.read@gmail.com",
+      "slackTeamId": "TPMMUULT1",
+      "slackUserId": "U013F19CBDM",
+      "name": "jonathan.c.read",
+      "id": 9
     }
   ],
   "meetings": [
@@ -61,24 +153,28 @@
         "registrants_email_notification": true,
         "meeting_authentication": false,
         "encryption_type": "enhanced_encryption",
-        "approved_or_denied_countries_or_regions": { "enable": false }
+        "approved_or_denied_countries_or_regions": {
+          "enable": false
+        }
       }
+    }
+  ],
+  "skills": [
+    {
+      "id": 0,
+      "userId": 2,
+      "techId": 1,
+      "rating": 5
     }
   ],
   "tech": [
     {
       "id": 0,
       "name": "Machine Learning"
-    }
-  ],
-  "skills": [
+    },
     {
-      "id": 0,
-      "sessionId": 0,
-      "skills": [{
-        "techId": 0,
-        "rating": 6
-      }]
+      "id": 1,
+      "name": "React"
     }
   ]
 }

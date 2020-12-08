@@ -2,8 +2,9 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import { createServer } from "http";
+
 import axios, { AxiosRequestConfig } from "axios";
-axios.defaults.baseURL = process.env.API_BASE_URL || '';
+axios.defaults.baseURL = process.env.API_BASE_URL || "";
 
 import jwt_decode from "jwt-decode";
 import jsonServer from "json-server";
@@ -17,16 +18,26 @@ import {
 } from "@slack/web-api";
 import SessionManager from "./lib/SessionManager/SessionManager";
 import MeetingManager from "./lib/MeetingManager/MeetingManager";
-import MeetingContext from "./data/MeetingContext";
+import MeetingContext from "./lib/MeetingManager/MeetingDataContext";
 
 import { generateAnswerDetail } from "./generateAnswerDetail";
 
 import SlackEventHandlers from "./handlers/SlackEventHandlers";
 import SlackInteractionHandlers from "./handlers/SlackInteractionHandlers";
+import UserManager from "./lib/UserManager/UserManager";
+import UserDataContext from "./lib/UserManager/UserDataContext";
+import { User } from "./lib/UserManager/User";
+import { Session } from "./lib/SessionManager/Session";
+import SessionDataContext from "./lib/SessionManager/SessionDataContext";
 
-const session = new SessionManager();
+const sessionDataContext = new SessionDataContext();
+const session = new SessionManager(sessionDataContext);
+
 const dbContext = new MeetingContext();
 const meetingManager = new MeetingManager(dbContext);
+
+const userDataContext = new UserDataContext();
+const userManager = new UserManager(userDataContext);
 
 const slackSigningSecret = process.env.SLACK_SIGNING_SECRET || "";
 const token = process.env.SLACK_TOKEN || "";
@@ -51,13 +62,6 @@ interface UsersResponse extends WebAPICallResult {
 
 (async () => {
   await web.auth.test();
-  let users = (await web.users.list()) as UsersResponse;
-  users.members.forEach((member) => {
-    if (member.deleted || member.is_bot || member.name == "slackbot") return;
-    let userSession = session.session(member.team_id, member.id);
-    userSession.email = member.profile.email;
-    userSession.name = member.profile.real_name;
-  });
 })();
 
 const slackEvents = SlackEventHandlers(slackSigningSecret);
@@ -240,15 +244,47 @@ app.post("/meetings", async (req, res) => {
       "https://zoom.us/s/93398173560?zak=eyJ6bV9za20iOiJ6bV9vMm0iLCJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjbGllbnQiLCJ1aWQiOiJleXhYZm51cFF2V05qWEpjTm9EN1hnIiwiaXNzIjoid2ViIiwic3R5IjoxLCJ3Y2QiOiJhdzEiLCJjbHQiOjAsInN0ayI6InQ5NUNKWG1rcHo0U0lkMV9aUndTOUduZElhdlNMRGtja3U5aFh2LVcwbUEuQUcuTTFxWFcxc3d0Zmw2TWFQR21hVHczWnU0V0I5Vmt3S1hoc3h5Uk1telplVFBaeXBZMk9lY0RzblpUclJqREMxWExubTJTeFk5djNHS0NwNC5KTGFBZWNkcjJIZ2N6TVFyMllvNE9BLk44bnJubEhSVlA0OFROTVQiLCJleHAiOjE2MDcyMDg0NzgsImlhdCI6MTYwNzIwMTI3OCwiYWlkIjoidV96UmVSbWhSWWlLY0U2dzdhQVpoZyIsImNpZCI6IiJ9.NXPpvZRL80AVFMVyqaXhKO1hKywkFbYyze48LtOxTWw",
     join_url:
       "https://zoom.us/j/93398173560?pwd=c2dnaFMzTzkvSmgzZnhaUVZYb2lwdz09",
-    password: "u4UrGs"
+    password: "u4UrGs",
   });
-  res.sendStatus(200)
+  res.sendStatus(200);
 });
 
 app.get("/ping", (_, res) => {
   res.send({
     message: "pong!",
   });
+});
+
+app.post("/users", async (req, res) => {
+  let slackUsers = (await web.users.list()) as UsersResponse;
+  const users = await userDataContext.getAll();
+  console.log(slackUsers);
+  slackUsers.members.forEach(async (member) => {
+    if (member.deleted || member.is_bot || member.name == "slackbot") return;
+    // let userSession = session.session(member.team_id, member.id);
+    // userSession.email = member.profile.email;
+    // userSession.name = member.profile.real_name;
+    let user = users.find((u) => u.session.slackUserId == member.id);
+    if (user) return;
+    else {
+      let newUser = await userManager.addUser({
+        name: member.name
+      } as User);
+      await session._context.post({
+        userId: newUser.id,
+        email: member.profile.email,
+        slackTeamId: member.team_id,
+        slackUserId: member.id,
+        name: member.name,
+      } as Session,)
+    }
+  });
+  res.sendStatus(200);
+});
+
+app.delete("/users", async (_, res) => {
+  await userManager.delete();
+  res.sendStatus(200);
 });
 
 // Initialize a server for the express app - you can skip this and the rest if you prefer to use app.listen()
