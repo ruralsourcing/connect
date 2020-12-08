@@ -107,7 +107,7 @@ app.post("/zoom", async (req, res) => {
     console.log("MEETING", meeting);
     if (meeting != null) {
       session.sessions.forEach((s) => {
-        if (s.userId !== "UPKSA9K0V") return;
+        if (s.slackUserId !== "UPKSA9K0V") return;
         web.conversations
           .open({
             users: s.userId,

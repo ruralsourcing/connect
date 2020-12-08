@@ -1,7 +1,7 @@
 import MeetingManager from "../MeetingManager";
-import MeetingContext from "../MeetingDataContext";
+import MeetingDataContext from "../MeetingDataContext";
 import { Meeting } from "../Meeting";
-class TestableMeetingContext implements MeetingContext {
+class TestableMeetingContext implements MeetingDataContext {
   getAll(): Promise<Meeting[]> {
     return new Promise<Meeting[]>((resolve) => {
       resolve([
