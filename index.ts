@@ -110,7 +110,7 @@ app.post("/zoom", async (req, res) => {
         if (s.slackUserId !== "UPKSA9K0V") return;
         web.conversations
           .open({
-            users: s.userId,
+            users: s.slackUserId,
           } as ConversationsOpenArguments)
           .then((result) => {
             let r = result as ConversationOpenResult;
