@@ -1,8 +1,8 @@
 import SessionManager from "../SessionManager";
 import { Session } from "../Session";
-import SessionDataContext from "../SessionDataContext";
+import { IDataContext } from "../../../data/types";
 
-class TestableSessionContext implements SessionDataContext {
+class TestableSessionContext implements IDataContext<Session> {
   getAll(): Promise<Session[]> {
     return new Promise<Session[]>((resolve, reject) => {
       resolve([{} as Session]);

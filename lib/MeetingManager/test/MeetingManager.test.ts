@@ -3,7 +3,7 @@ import MeetingContext from "../MeetingDataContext";
 import { Meeting } from "../Meeting";
 class TestableMeetingContext implements MeetingContext {
   getAll(): Promise<Meeting[]> {
-    return new Promise<Meeting[]>((resolve, reject) => {
+    return new Promise<Meeting[]>((resolve) => {
       resolve([
         {
           uuid: "123",
@@ -14,7 +14,7 @@ class TestableMeetingContext implements MeetingContext {
     });
   }
   get(uuid: string): Promise<Meeting> {
-    return new Promise<Meeting>((resolve, reject) => {
+    return new Promise<Meeting>((resolve) => {
       resolve({
         uuid: uuid,
         start_url: "the place to be",
@@ -23,7 +23,7 @@ class TestableMeetingContext implements MeetingContext {
     });
   }
   post(item: Meeting): Promise<Meeting> {
-    throw new Error("Method not implemented.");
+    return new Promise<Meeting>((resolve) => { resolve(item) });
   }
   delete(id: string): Promise<void> {
     throw new Error("Method not implemented.");
@@ -37,7 +37,7 @@ const context = new TestableMeetingContext();
 const manager = new MeetingManager(context);
 
 test("can add meetings from zoom payload", async () => {
-  manager.addMeeting({
+  await manager.addMeeting({
     uuid: "JtcANK6eSaWGRSAgN8xg+Q==",
     id: 93398173560,
     host_id: "eyxXfnupQvWNjXJcNoD7Xg",

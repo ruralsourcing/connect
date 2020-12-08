@@ -1,14 +1,14 @@
 import Authorization from "../Authorization";
 import { Session } from "../Session";
 
-const session = { teamId: "1", userId: "2" } as Session;
+const session = { slackTeamId: "1", slackUserId: "2" } as Session;
 
 test("should have a team Id", () => {
-  expect(session.teamId).toEqual("1");
+  expect(session.slackTeamId).toEqual("1");
 });
 
 test("should have a user Id", () => {
-  expect(session.teamId).toEqual("1");
+  expect(session.slackTeamId).toEqual("1");
 });
 
 test("should initialize with null Authorization", () => {
