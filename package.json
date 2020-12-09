@@ -5,8 +5,6 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc --project ./",
-    "postbuild": "npm run copy-files",
-    "copy-files": "copyfiles prisma/sqlite.db dist/",
     "start": "nodemon index.ts",
     "prod": "node ./dist/index.js",
     "test": "jest"
