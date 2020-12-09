@@ -335,7 +335,7 @@ app.post("/users", async (req, res) => {
       data: {
         email: member.profile.email,
         name: member.name
-      }
+      },include: {ZoomAuth: {include: {}}}
     });
     // let userSession = session.session(member.team_id, member.id);
     // userSession.email = member.profile.email;
