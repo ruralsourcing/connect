@@ -4,22 +4,24 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = "file:./sqlite.db"
+  url      = "file:sqlite.db"
 }
 
 model User {
-  id       Int       @id @default(autoincrement())
-  email    String    @unique
-  name     String?
-  Meeting  Meeting[]
-  ZoomAuth ZoomAuth?
+  id        Int        @id @default(autoincrement())
+  email     String     @unique
+  name      String?
+  Meeting   Meeting[]
+  ZoomAuth  ZoomAuth?
+  SlackUser SlackUser?
+  Skill     Skill[]
 }
 
 model ZoomAuth {
   id     Int    @id @default(autoincrement())
   token  String
-  userId Int    @unique
-  user   User   @relation(fields: [userId], references: [id])
+  userId Int?   @unique
+  user   User?  @relation(fields: [userId], references: [id])
 }
 
 model Meeting {
@@ -33,4 +35,27 @@ model Meeting {
   password   String
   userId     Int?
   User       User?  @relation(fields: [userId], references: [id])
+}
+
+model SlackUser {
+  id      Int    @id @default(autoincrement())
+  slackId String
+  teamId  String
+  userId  Int?
+  User    User?  @relation(fields: [userId], references: [id])
+}
+
+model Skill {
+  id     Int   @id @default(autoincrement())
+  userId Int
+  User   User @relation(fields: [userId], references: [id])
+  techId Int
+  Tech   Tech @relation(fields: [techId], references: [id])
+  rating Int
+}
+
+model Tech {
+  id    Int     @id @default(autoincrement())
+  name  String
+  Skill Skill[]
 }

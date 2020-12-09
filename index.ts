@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { createServer,  } from "http";
+import { createServer } from "http";
 
 import axios, { AxiosRequestConfig } from "axios";
 axios.defaults.baseURL = process.env.API_BASE_URL || "";
@@ -12,9 +12,8 @@ import jsonServer from "json-server";
 // import CASpR from './data/CASpRData';
 // const db = new CASpR();
 
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, Prisma } from "@prisma/client";
 const prisma = new PrismaClient();
-
 
 // import { Sequelize, DataTypes } from 'sequelize';
 // const sequelize = new Sequelize('sqlite:./data/db.sqlite') // Example for sqlite
@@ -41,7 +40,7 @@ const prisma = new PrismaClient();
 //   // Other model options go here
 // });
 // User.sync();
-  
+
 // })
 // User.create({
 //   firstName: "David",
@@ -53,7 +52,6 @@ const prisma = new PrismaClient();
 //     firstName: "David"
 //   }
 // }).then(console.log));
-
 
 import express from "express";
 import {
@@ -331,12 +329,22 @@ app.post("/users", async (req, res) => {
     //   slackUserId: member.id
     // })
 
-    await prisma.user.create({
+    let user = await prisma.user.create({
       data: {
         email: member.profile.email,
-        name: member.name
-      },include: {ZoomAuth: {include: {}}}
+        name: member.name,
+      },
+      include: { ZoomAuth: { include: {} } },
     });
+    console.log("USER:", user);
+    let skills = prisma.skill.create({
+      data: {
+        User: user as Prisma.UserCreateOneWithoutSkillInput,
+        Tech: { create: { name: "Philosphy" } },
+        rating: 9,
+      },
+    });
+    console.log("SKILLS:", skills);
     // let userSession = session.session(member.team_id, member.id);
     // userSession.email = member.profile.email;
     // userSession.name = member.profile.real_name;
@@ -358,11 +366,13 @@ app.post("/users", async (req, res) => {
   res.sendStatus(200);
 });
 
-app.get('/users', async (req, res) => {
-  res.json(await prisma.user.findMany({
-    take: 10
-  }))
-})
+app.get("/users", async (req, res) => {
+  res.json(
+    await prisma.user.findMany({
+      take: 10,
+    })
+  );
+});
 
 app.delete("/users", async (_, res) => {
   await userManager.delete();
