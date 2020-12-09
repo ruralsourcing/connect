@@ -9,6 +9,52 @@ axios.defaults.baseURL = process.env.API_BASE_URL || "";
 import jwt_decode from "jwt-decode";
 import jsonServer from "json-server";
 
+import CASpR from './data/CASpRData';
+const db = new CASpR();
+
+import { PrismaClient } from '@prisma/client'
+const prisma = new PrismaClient();
+
+
+// import { Sequelize, DataTypes } from 'sequelize';
+// const sequelize = new Sequelize('sqlite:./data/db.sqlite') // Example for sqlite
+
+// try {
+//   sequelize.authenticate().then(_ => {
+//     console.log('Connection has been established successfully.');
+//   })
+// } catch (error) {
+//   console.error('Unable to connect to the database:', error);
+// }
+
+// const User = sequelize.define('User', {
+//   // Model attributes are defined here
+//   firstName: {
+//     type: DataTypes.STRING,
+//     allowNull: false
+//   },
+//   lastName: {
+//     type: DataTypes.STRING
+//     // allowNull defaults to true
+//   }
+// }, {
+//   // Other model options go here
+// });
+// User.sync();
+  
+// })
+// User.create({
+//   firstName: "David",
+//   lastName: "Federspiel"
+// });
+
+// console.log(User.findAll({
+//   where: {
+//     firstName: "David"
+//   }
+// }).then(console.log));
+
+
 import express from "express";
 import {
   ChatPostMessageArguments,
@@ -68,7 +114,8 @@ const slackEvents = SlackEventHandlers(slackSigningSecret);
 const slackInteractions = SlackInteractionHandlers(
   slackSigningSecret,
   session,
-  meetingManager
+  meetingManager,
+  db.Meetings
 );
 
 // Create an express application
@@ -103,6 +150,8 @@ app.post("/zoom", async (req, res) => {
     console.log("PAYLOAD", req.body);
     console.log("UUID", req.body.payload.object.uuid);
     let uuid = req.body.payload.object.uuid;
+    const dbMeeting = await db.Meetings.getMeetingByUuid(uuid);
+    console.log("DBMeeting", dbMeeting);
     let meeting = await meetingManager.getMeeting(uuid);
     console.log("MEETING", meeting);
     if (meeting != null) {
@@ -197,6 +246,9 @@ app.get("/zoom", async (req, res) => {
 
     let token = jwt_decode<any>(response.data.access_token);
     if (userData) {
+      await db.ZoomAuthorizations.addAuthorization({
+        token: response.data.access_token
+      })
       session.addAuthorization(
         userData.teamId,
         userData.userId,
@@ -234,6 +286,17 @@ app.get("/meetings", async (_, res) => {
 });
 
 app.post("/meetings", async (req, res) => {
+  await db.Meetings.addMeeting({
+    uuid: "JtcANK6eSaWGRSAgN8xg+Q==",
+    host_id: "eyxXfnupQvWNjXJcNoD7Xg",
+    host_email: "david@federnet.com",
+    topic: "CASpR Support",
+    start_url:
+      "https://zoom.us/s/93398173560?zak=eyJ6bV9za20iOiJ6bV9vMm0iLCJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjbGllbnQiLCJ1aWQiOiJleXhYZm51cFF2V05qWEpjTm9EN1hnIiwiaXNzIjoid2ViIiwic3R5IjoxLCJ3Y2QiOiJhdzEiLCJjbHQiOjAsInN0ayI6InQ5NUNKWG1rcHo0U0lkMV9aUndTOUduZElhdlNMRGtja3U5aFh2LVcwbUEuQUcuTTFxWFcxc3d0Zmw2TWFQR21hVHczWnU0V0I5Vmt3S1hoc3h5Uk1telplVFBaeXBZMk9lY0RzblpUclJqREMxWExubTJTeFk5djNHS0NwNC5KTGFBZWNkcjJIZ2N6TVFyMllvNE9BLk44bnJubEhSVlA0OFROTVQiLCJleHAiOjE2MDcyMDg0NzgsImlhdCI6MTYwNzIwMTI3OCwiYWlkIjoidV96UmVSbWhSWWlLY0U2dzdhQVpoZyIsImNpZCI6IiJ9.NXPpvZRL80AVFMVyqaXhKO1hKywkFbYyze48LtOxTWw",
+    join_url:
+      "https://zoom.us/j/93398173560?pwd=c2dnaFMzTzkvSmgzZnhaUVZYb2lwdz09",
+    password: "u4UrGs",
+  }, 1).catch(console.log)
   await meetingManager.addMeeting({
     uuid: "JtcANK6eSaWGRSAgN8xg+Q==",
     id: 1,
@@ -261,26 +324,46 @@ app.post("/users", async (req, res) => {
   console.log(slackUsers);
   slackUsers.members.forEach(async (member) => {
     if (member.deleted || member.is_bot || member.name == "slackbot") return;
+    db.Users.addUser({
+      name: member.profile.real_name,
+      preferredName: member.name,
+      email: member.profile.email,
+      slackTeamId: member.team_id,
+      slackUserId: member.id
+    })
+
+    await prisma.user.create({
+      data: {
+        email: member.profile.email,
+        name: member.name
+      }
+    });
     // let userSession = session.session(member.team_id, member.id);
     // userSession.email = member.profile.email;
     // userSession.name = member.profile.real_name;
-    let user = users.find((u) => u.session.slackUserId == member.id);
-    if (user) return;
-    else {
-      let newUser = await userManager.addUser({
-        name: member.name
-      } as User);
-      await session._context.post({
-        userId: newUser.id,
-        email: member.profile.email,
-        slackTeamId: member.team_id,
-        slackUserId: member.id,
-        name: member.name,
-      } as Session,)
-    }
+    // let user = users.find((u) => u.session.slackUserId == member.id);
+    // if (user) return;
+    // else {
+    //   let newUser = await userManager.addUser({
+    //     name: member.name
+    //   } as User);
+    //   await session._context.post({
+    //     userId: newUser.id,
+    //     email: member.profile.email,
+    //     slackTeamId: member.team_id,
+    //     slackUserId: member.id,
+    //     name: member.name,
+    //   } as Session,)
+    // }
   });
   res.sendStatus(200);
 });
+
+app.get('/users', async (req, res) => {
+  res.json(await prisma.user.findMany({
+    take: 10
+  }))
+})
 
 app.delete("/users", async (_, res) => {
   await userManager.delete();
