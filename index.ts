@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { createServer } from "http";
+import { createServer,  } from "http";
 
 import axios, { AxiosRequestConfig } from "axios";
 axios.defaults.baseURL = process.env.API_BASE_URL || "";
@@ -9,8 +9,8 @@ axios.defaults.baseURL = process.env.API_BASE_URL || "";
 import jwt_decode from "jwt-decode";
 import jsonServer from "json-server";
 
-import CASpR from './data/CASpRData';
-const db = new CASpR();
+// import CASpR from './data/CASpRData';
+// const db = new CASpR();
 
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient();
@@ -114,8 +114,7 @@ const slackEvents = SlackEventHandlers(slackSigningSecret);
 const slackInteractions = SlackInteractionHandlers(
   slackSigningSecret,
   session,
-  meetingManager,
-  db.Meetings
+  meetingManager
 );
 
 // Create an express application
@@ -150,8 +149,8 @@ app.post("/zoom", async (req, res) => {
     console.log("PAYLOAD", req.body);
     console.log("UUID", req.body.payload.object.uuid);
     let uuid = req.body.payload.object.uuid;
-    const dbMeeting = await db.Meetings.getMeetingByUuid(uuid);
-    console.log("DBMeeting", dbMeeting);
+    // const dbMeeting = await db.Meetings.getMeetingByUuid(uuid);
+    // console.log("DBMeeting", dbMeeting);
     let meeting = await meetingManager.getMeeting(uuid);
     console.log("MEETING", meeting);
     if (meeting != null) {
@@ -246,9 +245,9 @@ app.get("/zoom", async (req, res) => {
 
     let token = jwt_decode<any>(response.data.access_token);
     if (userData) {
-      await db.ZoomAuthorizations.addAuthorization({
-        token: response.data.access_token
-      })
+      // await db.ZoomAuthorizations.addAuthorization({
+      //   token: response.data.access_token
+      // })
       session.addAuthorization(
         userData.teamId,
         userData.userId,
@@ -286,17 +285,17 @@ app.get("/meetings", async (_, res) => {
 });
 
 app.post("/meetings", async (req, res) => {
-  await db.Meetings.addMeeting({
-    uuid: "JtcANK6eSaWGRSAgN8xg+Q==",
-    host_id: "eyxXfnupQvWNjXJcNoD7Xg",
-    host_email: "david@federnet.com",
-    topic: "CASpR Support",
-    start_url:
-      "https://zoom.us/s/93398173560?zak=eyJ6bV9za20iOiJ6bV9vMm0iLCJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjbGllbnQiLCJ1aWQiOiJleXhYZm51cFF2V05qWEpjTm9EN1hnIiwiaXNzIjoid2ViIiwic3R5IjoxLCJ3Y2QiOiJhdzEiLCJjbHQiOjAsInN0ayI6InQ5NUNKWG1rcHo0U0lkMV9aUndTOUduZElhdlNMRGtja3U5aFh2LVcwbUEuQUcuTTFxWFcxc3d0Zmw2TWFQR21hVHczWnU0V0I5Vmt3S1hoc3h5Uk1telplVFBaeXBZMk9lY0RzblpUclJqREMxWExubTJTeFk5djNHS0NwNC5KTGFBZWNkcjJIZ2N6TVFyMllvNE9BLk44bnJubEhSVlA0OFROTVQiLCJleHAiOjE2MDcyMDg0NzgsImlhdCI6MTYwNzIwMTI3OCwiYWlkIjoidV96UmVSbWhSWWlLY0U2dzdhQVpoZyIsImNpZCI6IiJ9.NXPpvZRL80AVFMVyqaXhKO1hKywkFbYyze48LtOxTWw",
-    join_url:
-      "https://zoom.us/j/93398173560?pwd=c2dnaFMzTzkvSmgzZnhaUVZYb2lwdz09",
-    password: "u4UrGs",
-  }, 1).catch(console.log)
+  // await db.Meetings.addMeeting({
+  //   uuid: "JtcANK6eSaWGRSAgN8xg+Q==",
+  //   host_id: "eyxXfnupQvWNjXJcNoD7Xg",
+  //   host_email: "david@federnet.com",
+  //   topic: "CASpR Support",
+  //   start_url:
+  //     "https://zoom.us/s/93398173560?zak=eyJ6bV9za20iOiJ6bV9vMm0iLCJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjbGllbnQiLCJ1aWQiOiJleXhYZm51cFF2V05qWEpjTm9EN1hnIiwiaXNzIjoid2ViIiwic3R5IjoxLCJ3Y2QiOiJhdzEiLCJjbHQiOjAsInN0ayI6InQ5NUNKWG1rcHo0U0lkMV9aUndTOUduZElhdlNMRGtja3U5aFh2LVcwbUEuQUcuTTFxWFcxc3d0Zmw2TWFQR21hVHczWnU0V0I5Vmt3S1hoc3h5Uk1telplVFBaeXBZMk9lY0RzblpUclJqREMxWExubTJTeFk5djNHS0NwNC5KTGFBZWNkcjJIZ2N6TVFyMllvNE9BLk44bnJubEhSVlA0OFROTVQiLCJleHAiOjE2MDcyMDg0NzgsImlhdCI6MTYwNzIwMTI3OCwiYWlkIjoidV96UmVSbWhSWWlLY0U2dzdhQVpoZyIsImNpZCI6IiJ9.NXPpvZRL80AVFMVyqaXhKO1hKywkFbYyze48LtOxTWw",
+  //   join_url:
+  //     "https://zoom.us/j/93398173560?pwd=c2dnaFMzTzkvSmgzZnhaUVZYb2lwdz09",
+  //   password: "u4UrGs",
+  // }, 1).catch(console.log)
   await meetingManager.addMeeting({
     uuid: "JtcANK6eSaWGRSAgN8xg+Q==",
     id: 1,
@@ -324,13 +323,13 @@ app.post("/users", async (req, res) => {
   console.log(slackUsers);
   slackUsers.members.forEach(async (member) => {
     if (member.deleted || member.is_bot || member.name == "slackbot") return;
-    db.Users.addUser({
-      name: member.profile.real_name,
-      preferredName: member.name,
-      email: member.profile.email,
-      slackTeamId: member.team_id,
-      slackUserId: member.id
-    })
+    // db.Users.addUser({
+    //   name: member.profile.real_name,
+    //   preferredName: member.name,
+    //   email: member.profile.email,
+    //   slackTeamId: member.team_id,
+    //   slackUserId: member.id
+    // })
 
     await prisma.user.create({
       data: {
