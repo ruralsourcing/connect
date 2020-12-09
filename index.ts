@@ -344,9 +344,10 @@ app.post("/users", async (req, res) => {
       console.log("USER:", user);
     } catch (ex) {
       console.log(ex);
-      user = await prisma.user.findUnique({where: {email: member.profile.email}})
     }
-
+    if(!user)
+      user = await prisma.user.findUnique({where: {email: member.profile.email}})
+      
     if (user) {
       try {
         let skills = await prisma.skill.create({
