@@ -5,13 +5,11 @@ import SessionManager from "../lib/SessionManager/SessionManager";
 import jwt_decode from "jwt-decode";
 import axios from "axios";
 import MeetingManager from "../lib/MeetingManager/MeetingManager";
-import { IMeetingRepo } from "../data/repositories/Meeting/MeetingRepo";
 
 export default function SlackInteractionHandlers(
   slackSigningSecret: string,
   session: SessionManager,
-  meetingManager: MeetingManager,
-  meetingRepo: IMeetingRepo
+  meetingManager: MeetingManager
 ) {
   const slackInteractions: SlackMessageAdapter &
     EventEmitter = createMessageAdapter(slackSigningSecret) as any;
@@ -50,7 +48,6 @@ export default function SlackInteractionHandlers(
       );
       // SEND DM to users
       console.log(response.data);
-      await meetingRepo.addMeeting(response.data, 1);
       meetingManager.addMeeting(response.data)
       respond({
         text: `<${response.data.start_url}|Click here to start your meeting: ${response.data.topic}: ${response.data.agenda}>`,
