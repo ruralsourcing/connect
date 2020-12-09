@@ -328,23 +328,39 @@ app.post("/users", async (req, res) => {
     //   slackTeamId: member.team_id,
     //   slackUserId: member.id
     // })
+    let user;
+    try {
+      user = await prisma.user.create({
+        data: {
+          email: member.profile.email,
+          name: member.name,
+          ZoomAuth: {
+            create: {
+              token: "test",
+            },
+          },
+        },
+      });
+      console.log("USER:", user);
+    } catch (ex) {
+      console.log(ex);
+      user = await prisma.user.findUnique({where: {email: member.profile.email}})
+    }
 
-    let user = await prisma.user.create({
-      data: {
-        email: member.profile.email,
-        name: member.name,
-      },
-      include: { ZoomAuth: { include: {} } },
-    });
-    console.log("USER:", user);
-    let skills = prisma.skill.create({
-      data: {
-        User: user as Prisma.UserCreateOneWithoutSkillInput,
-        Tech: { create: { name: "Philosphy" } },
-        rating: 9,
-      },
-    });
-    console.log("SKILLS:", skills);
+    if (user) {
+      try {
+        let skills = await prisma.skill.create({
+          data: {
+            User: { connect: { email: user.email } },
+            Tech: { create: { name: "Philosphy" } },
+            rating: 9,
+          },
+        });
+        console.log("SKILLS:", skills);
+      } catch (ex) {
+        console.log(ex);
+      }
+    }
     // let userSession = session.session(member.team_id, member.id);
     // userSession.email = member.profile.email;
     // userSession.name = member.profile.real_name;
