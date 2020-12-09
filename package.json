@@ -6,6 +6,7 @@
   "scripts": {
     "build": "tsc --project ./",
     "start": "nodemon index.ts",
+    "prod": "node ./dist/index.js",
     "prisma": "prisma",
     "test": "jest"
   },
