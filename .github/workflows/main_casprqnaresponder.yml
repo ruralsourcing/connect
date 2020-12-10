@@ -25,7 +25,7 @@ jobs:
         password: ${{ secrets.REGISTRY_PASSWORD }}
     
     - run: |
-        docker build . -t codefly.azurecr.io/caspr:${{ github.sha }}
+        docker build . -t codefly.azurecr.io/caspr:${{ github.sha }} --file ./DockerFile
         docker push codefly.azurecr.io/caspr:${{ github.sha }} 
       
     - uses: azure/webapps-deploy@v2
