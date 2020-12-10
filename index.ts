@@ -391,16 +391,22 @@ app.post("/users", async (req, res) => {
     });
     res.sendStatus(200);
   } else {
-    res.send('there was an error');
+    res.send("there was an error");
   }
 });
 
 app.get("/users", async (req, res) => {
-  res.json(
-    await prisma.user.findMany({
+  let users;
+  try {
+    users = await prisma.user.findMany({
       take: 10,
-    })
-  );
+    });
+  } catch (ex) {
+    console.log(ex);
+    res.send(ex);
+  }
+  if (users) res.json(users);
+  else res.sendStatus(200);
 });
 
 app.delete("/users", async (_, res) => {
