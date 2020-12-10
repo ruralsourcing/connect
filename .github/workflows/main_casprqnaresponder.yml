@@ -8,7 +8,7 @@ on:
     branches:
       - main
 env:
-  AZURE_WEBAPP_NAME: casprqnaresponder    # set this to your application's name
+  AZURE_WEBAPP_NAME: casprresponder    # set this to your application's name
   AZURE_WEBAPP_PACKAGE_PATH: './'  
 
 jobs:
@@ -16,13 +16,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: 'Checkout Github Action'
     - uses: actions/checkout@master
-
-    #- name: 'Login via Azure CLI'
-    # - uses: azure/login@v1
-    #   with:
-    #     creds: ${{ secrets.AZURE_CREDENTIALS }}
     
     - uses: azure/docker-login@v1
       with:
@@ -36,29 +30,6 @@ jobs:
       
     - uses: azure/webapps-deploy@v2
       with:
-        app-name: 'caspr'
+        app-name: 'casprresponder'
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
         images: 'codefly.azurecr.io/caspr:${{ github.sha }}'
-    
-    - name: Azure logout
-      run: |
-        az logout
-
-    # - name: Set up Node.js version
-    #   uses: actions/setup-node@v1
-    #   with:
-    #     node-version: '12.x'
-
-    # - name: npm install, build, and test
-    #   run: |
-    #     npm install
-    #     npm run build --if-present
-    #     npm run test --if-present
-
-    # - name: 'Deploy to Azure Web App'
-    #   uses: azure/webapps-deploy@v2
-    #   with:
-    #     app-name: ${{ env.AZURE_WEBAPP_NAME }}
-    #     slot-name: 'production'
-    #     publish-profile: ${{ secrets.AzureAppService_PublishProfile_5a2e0c97bd1346809cc1d71c25518166 }}
-    #     package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
