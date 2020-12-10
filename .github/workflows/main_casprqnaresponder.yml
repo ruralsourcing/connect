@@ -19,7 +19,7 @@ jobs:
     - name: 'Checkout Github Action'
     - uses: actions/checkout@master
 
-    - name: 'Login via Azure CLI'
+    #- name: 'Login via Azure CLI'
     # - uses: azure/login@v1
     #   with:
     #     creds: ${{ secrets.AZURE_CREDENTIALS }}
@@ -34,9 +34,10 @@ jobs:
         docker build . -t codefly.azurecr.io/caspr:${{ github.sha }}
         docker push codefly.azurecr.io/caspr:${{ github.sha }} 
       
-    - uses: azure/webapps-container-deploy@v1
+    - uses: azure/webapps-deploy@v2
       with:
         app-name: 'caspr'
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
         images: 'codefly.azurecr.io/caspr:${{ github.sha }}'
     
     - name: Azure logout
