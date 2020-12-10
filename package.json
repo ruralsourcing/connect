@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc --project ./",
+    "postbuild": "prisma migrate deploy --preview-feature",
     "start": "nodemon index.ts",
     "prod": "node ./dist/index.js",
     "test": "jest"
