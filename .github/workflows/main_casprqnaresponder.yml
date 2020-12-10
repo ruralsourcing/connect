@@ -16,23 +16,48 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: 'Checkout Github Action'
     - uses: actions/checkout@master
 
-    - name: Set up Node.js version
-      uses: actions/setup-node@v1
+    - name: 'Login via Azure CLI'
+    # - uses: azure/login@v1
+    #   with:
+    #     creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    - uses: azure/docker-login@v1
       with:
-        node-version: '12.x'
-
-    - name: npm install, build, and test
+        login-server: codefly.azurecr.io
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+    
+    - run: |
+        docker build . -t codefly.azurecr.io/caspr:${{ github.sha }}
+        docker push codefly.azurecr.io/caspr:${{ github.sha }} 
+      
+    - uses: azure/webapps-container-deploy@v1
+      with:
+        app-name: 'caspr'
+        images: 'codefly.azurecr.io/caspr:${{ github.sha }}'
+    
+    - name: Azure logout
       run: |
-        npm install
-        npm run build --if-present
-        npm run test --if-present
+        az logout
 
-    - name: 'Deploy to Azure Web App'
-      uses: azure/webapps-deploy@v2
-      with:
-        app-name: ${{ env.AZURE_WEBAPP_NAME }}
-        slot-name: 'production'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_5a2e0c97bd1346809cc1d71c25518166 }}
-        package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+    # - name: Set up Node.js version
+    #   uses: actions/setup-node@v1
+    #   with:
+    #     node-version: '12.x'
+
+    # - name: npm install, build, and test
+    #   run: |
+    #     npm install
+    #     npm run build --if-present
+    #     npm run test --if-present
+
+    # - name: 'Deploy to Azure Web App'
+    #   uses: azure/webapps-deploy@v2
+    #   with:
+    #     app-name: ${{ env.AZURE_WEBAPP_NAME }}
+    #     slot-name: 'production'
+    #     publish-profile: ${{ secrets.AzureAppService_PublishProfile_5a2e0c97bd1346809cc1d71c25518166 }}
+    #     package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
