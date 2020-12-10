@@ -317,7 +317,7 @@ app.get("/ping", (_, res) => {
 
 app.post("/users", async (req, res) => {
   let slackUsers = (await web.users.list()) as UsersResponse;
-  const users = await userDataContext.getAll();
+  //const users = await userDataContext.getAll();
   console.log(slackUsers);
   slackUsers.members.forEach(async (member) => {
     if (member.deleted || member.is_bot || member.name == "slackbot") return;
@@ -344,10 +344,9 @@ app.post("/users", async (req, res) => {
       console.log("USER:", user);
     } catch (ex) {
       console.log(ex);
-    }
-    if(!user)
       user = await prisma.user.findUnique({where: {email: member.profile.email}})
-      
+    }
+
     if (user) {
       try {
         let skills = await prisma.skill.create({
