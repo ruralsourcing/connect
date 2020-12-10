@@ -104,3 +104,4 @@ dist
 .tern-port
 index.js
 prisma/sqlite.db
+docker-compose.yml

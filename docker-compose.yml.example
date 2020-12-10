@@ -1,0 +1,20 @@
+# docker-compose.yml
+version: "3.3"
+services:
+  postgres:
+    image: postgres:11.2-alpine
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: db
+  app:
+    #image: codefly.azurecr.io/caspr:latest
+    build: .
+    depends_on:
+      - postgres
+    ports:
+      - "80:3000"
+    restart: on-failure
+    command: >
+      bash -c "prisma migrate deploy --preview-feature
+      && node ./dist/index.js"

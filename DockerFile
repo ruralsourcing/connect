@@ -14,6 +14,7 @@ RUN npm install -g @prisma/cli
 RUN npm install
 RUN prisma generate
 RUN npm run build
+#RUN prisma migrate deploy --preview-feature
 # If you are building your code for production
 # RUN npm ci --only=production
 
