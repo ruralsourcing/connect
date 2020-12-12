@@ -23,7 +23,7 @@ export default class UserManager {
     });
   }
 
-  async getUser(id: string): Promise<User> {
+  async getUser(id: string): Promise<User | null> {
     return await this._context.get(id);
   }
 }
