@@ -64,7 +64,7 @@ import SessionManager from "./lib/SessionManager/SessionManager";
 import MeetingManager from "./lib/MeetingManager/MeetingManager";
 import MeetingContext from "./lib/MeetingManager/MeetingDataContext";
 
-import { generateAnswerDetail } from "../generateAnswerDetail";
+import { generateAnswerDetail } from "./generateAnswerDetail";
 
 import SlackEventHandlers from "./handlers/SlackEventHandlers";
 import SlackInteractionHandlers from "./handlers/SlackInteractionHandlers";
