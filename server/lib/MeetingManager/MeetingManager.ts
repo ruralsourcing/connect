@@ -16,7 +16,7 @@ export default class MeetingManager {
     await this._context.post(meeting);
   }
 
-  async getMeeting(uuid: string): Promise<Meeting> {
+  async getMeeting(uuid: string): Promise<Meeting | null> {
     return await this._context.get(uuid);
   }
 }

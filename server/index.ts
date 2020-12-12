@@ -163,7 +163,7 @@ app.post("/zoom", async (req, res) => {
             if (result.ok)
               web.chat
                 .postMessage({
-                  text: `A meeting was requested by ${s.name} for ${meeting.topic}: <${meeting?.join_url}| Join Here>`,
+                  text: `A meeting was requested by ${s.name} for ${meeting?.topic}: <${meeting?.join_url}| Join Here>`,
                   channel: r.channel.id,
                 } as ChatPostMessageArguments)
                 .catch(console.log);
@@ -414,7 +414,7 @@ app.delete("/users", async (_, res) => {
   res.sendStatus(200);
 });
 
-app.use('/', express.static('server/www'));
+app.use("/", express.static("server/www"));
 
 // Initialize a server for the express app - you can skip this and the rest if you prefer to use app.listen()
 const server = createServer(app);
