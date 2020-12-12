@@ -1,16 +1,8 @@
 const webpack = require("webpack");
-const dotenv = require("dotenv");
 const path = require("path");
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 const IgnoreNotFoundExportPlugin = require("./plugins/IgnoreNotFoundExportPlugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
-
-const env = dotenv.config().parsed;
-
-const envKeys = Object.keys(env).reduce((prev, next) => {
-  prev[`process.env.${next}`] = JSON.stringify(env[next]);
-  return prev;
-}, {});
 
 module.exports = {
   resolve: {
@@ -60,7 +52,6 @@ module.exports = {
       favicon: path.resolve(__dirname, "../www", "favicon.ico"),
       filename: "./index.html",
     }),
-    new webpack.DefinePlugin(envKeys),
     new IgnoreNotFoundExportPlugin(),
   ],
 };
