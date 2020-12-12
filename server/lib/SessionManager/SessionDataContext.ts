@@ -33,13 +33,15 @@ export default class SessionDataContext implements IDataContext<Session> {
   }
 
   async post(item: Session): Promise<Session> {
-    return await axios.request<Session>({
-      url: "/api/sessions",
-      method: "post",
-      data: item,
-    }).then(response => {
-      return response.data
-    })
+    return await axios
+      .request<Session>({
+        url: "/api/sessions",
+        method: "post",
+        data: item,
+      })
+      .then((response) => {
+        return response.data;
+      });
   }
   async delete(id: string): Promise<void> {
     await axios.delete(`/api/sessions/${id}`);

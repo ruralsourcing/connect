@@ -18,9 +18,9 @@ export default class UserManager {
 
   async delete(): Promise<void> {
     const users = await this.getAll();
-    users.forEach(async u => {
-        await this._context.delete(u.id);
-    })
+    users.forEach(async (u) => {
+      await this._context.delete(u.id);
+    });
   }
 
   async getUser(id: string): Promise<User> {

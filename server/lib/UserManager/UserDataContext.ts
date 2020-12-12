@@ -22,13 +22,15 @@ export default class UserDataContext implements IDataContext<User> {
       });
   }
   async post(item: User): Promise<User> {
-    return await axios.request<User>({
-      url: "/api/users",
-      method: "post",
-      data: item,
-    }).then(response => {
-        return response.data
-    })
+    return await axios
+      .request<User>({
+        url: "/api/users",
+        method: "post",
+        data: item,
+      })
+      .then((response) => {
+        return response.data;
+      });
   }
   async delete(id: string): Promise<void> {
     await axios.delete(`/api/users/${id}`);
