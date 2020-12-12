@@ -2,6 +2,9 @@ import { Meeting } from "./Meeting";
 import { IDataContext } from "../../data/types";
 import axios from "axios";
 
+import { PrismaClient, Prisma } from "@prisma/client";
+const prisma = new PrismaClient();
+
 const baseUrl = process.env.API_BASE_URL;
 export default class MeetingDataContext implements IDataContext<Meeting> {
   async getAll(): Promise<Meeting[]> {
@@ -13,22 +16,16 @@ export default class MeetingDataContext implements IDataContext<Meeting> {
         return [];
       });
   }
-  async get(uuid: string): Promise<Meeting> {
-    return axios
-      .request<Meeting>({
-        url: `/api/meetings/?uuid=${encodeURIComponent(uuid)}`,
-      })
-      .then((d) => d.data)
-      .catch((e) => {
-        console.log(e);
-        return {} as Meeting;
-      });
+  async get(uuid: string): Promise<Meeting | null> {
+    return await prisma.meeting.findUnique({
+      where: {
+        uuid: uuid,
+      },
+    });
   }
   async post(item: Meeting): Promise<Meeting> {
-    return await axios.request<Meeting, Meeting>({
-      url: "/api/meetings",
-      method: "post",
-      data: item,
+    return await prisma.meeting.create({
+      data: item
     });
   }
   async delete(id: string): Promise<void> {
@@ -38,7 +35,7 @@ export default class MeetingDataContext implements IDataContext<Meeting> {
     return await axios.request<Meeting, Meeting>({
       url: `/api/meetings/${item.id}`,
       data: item,
-      method: "put"
+      method: "put",
     });
   }
 }
