@@ -7,7 +7,7 @@ import axios, { AxiosRequestConfig } from "axios";
 axios.defaults.baseURL = process.env.API_BASE_URL || "";
 
 import jwt_decode from "jwt-decode";
-import jsonServer from "json-server";
+// import jsonServer from "json-server";
 
 // import CASpR from './data/CASpRData';
 // const db = new CASpR();
@@ -64,7 +64,7 @@ import SessionManager from "./lib/SessionManager/SessionManager";
 import MeetingManager from "./lib/MeetingManager/MeetingManager";
 import MeetingContext from "./lib/MeetingManager/MeetingDataContext";
 
-import { generateAnswerDetail } from "./generateAnswerDetail";
+import { generateAnswerDetail } from "../generateAnswerDetail";
 
 import SlackEventHandlers from "./handlers/SlackEventHandlers";
 import SlackInteractionHandlers from "./handlers/SlackInteractionHandlers";
@@ -118,8 +118,8 @@ const slackInteractions = SlackInteractionHandlers(
 // Create an express application
 const app = express();
 
-app.use("/api", jsonServer.defaults());
-app.use("/api", jsonServer.router("./data/db.json"));
+// app.use("/api", jsonServer.defaults());
+// app.use("/api", jsonServer.router("./data/db.json"));
 
 // Plug the adapter in as a middleware
 app.use("/interact", slackInteractions.expressMiddleware());
@@ -413,6 +413,8 @@ app.delete("/users", async (_, res) => {
   await userManager.delete();
   res.sendStatus(200);
 });
+
+app.use('/', express.static('server/www'));
 
 // Initialize a server for the express app - you can skip this and the rest if you prefer to use app.listen()
 const server = createServer(app);
