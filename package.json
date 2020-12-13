@@ -5,8 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon ./index.ts",
-    "prod": "ts-node ./index.ts",
-    "build": "cd www && yarn run build"
+    "prod": "ts-node ./index.ts"
   },
   "author": "David Federspiel",
   "license": "ISC",

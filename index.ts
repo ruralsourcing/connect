@@ -414,7 +414,7 @@ app.delete("/users", async (_, res) => {
   res.sendStatus(200);
 });
 
-app.use("/", express.static("public"));
+app.use("/", express.static("www/build"));
 
 // Initialize a server for the express app - you can skip this and the rest if you prefer to use app.listen()
 const server = createServer(app);
