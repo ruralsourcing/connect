@@ -64,7 +64,7 @@ import SessionManager from "./lib/SessionManager/SessionManager";
 import MeetingManager from "./lib/MeetingManager/MeetingManager";
 import MeetingContext from "./lib/MeetingManager/MeetingDataContext";
 
-import { generateAnswerDetail } from "./generateAnswerDetail";
+import { generateAnswerDetail } from "./lib/generateAnswerDetail";
 
 import SlackEventHandlers from "./handlers/SlackEventHandlers";
 import SlackInteractionHandlers from "./handlers/SlackInteractionHandlers";
@@ -414,7 +414,7 @@ app.delete("/users", async (_, res) => {
   res.sendStatus(200);
 });
 
-app.use("/", express.static("server/www"));
+app.use("/", express.static("public"));
 
 // Initialize a server for the express app - you can skip this and the rest if you prefer to use app.listen()
 const server = createServer(app);

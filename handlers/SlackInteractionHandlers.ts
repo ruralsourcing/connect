@@ -48,6 +48,7 @@ export default function SlackInteractionHandlers(
       );
       // SEND DM to users
       console.log(response.data);
+      // TODO: Clean up data and get rid of id field
       meetingManager.addMeeting(response.data);
       respond({
         text: `<${response.data.start_url}|Click here to start your meeting: ${response.data.topic}: ${response.data.agenda}>`,
