@@ -19,4 +19,4 @@ RUN cd ./www && yarn install && yarn run build
 
 
 EXPOSE 3000
-CMD [ "ts-node", "./index.ts" ]
+CMD [ "ts-node", "./server/index.ts" ]
