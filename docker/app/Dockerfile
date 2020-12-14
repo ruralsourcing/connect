@@ -13,7 +13,6 @@ RUN npm install -g typescript ts-node @prisma/cli
 RUN yarn install
 RUN prisma generate
 RUN cd ./www && yarn install && yarn run build
-#RUN prisma migrate deploy --preview-feature
 # If you are building your code for production
 # RUN npm ci --only=production
 
