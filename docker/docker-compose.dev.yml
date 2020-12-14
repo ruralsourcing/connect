@@ -1,0 +1,31 @@
+# docker-compose.yml
+version: "3.3"
+services:
+  postgres:
+    build:
+      context: ../.
+      dockerfile: docker/db/Dockerfile
+    image: caspr-db
+    env_file: db/psql.env
+    healthcheck:
+        test: ["CMD", "curl", "-f", "http://localhost:5432"]
+        interval: 30s
+        timeout: 10s
+        retries: 5
+  app:
+    build:
+      context: ../.
+      dockerfile: docker/app/Dockerfile
+    image: caspr-app
+    depends_on:
+      - postgres
+    links: 
+      - postgres
+    ports:
+      - "80:3000"
+    volumes:
+      - ./www/src:/usr/src/app/www/src
+      - ./www/public:/usr/src/app/www/public
+    restart: on-failure
+    env_file: app/app.env
+    command: [bash, -c, "prisma migrate deploy --preview-feature && ts-node ./server/index.ts"]

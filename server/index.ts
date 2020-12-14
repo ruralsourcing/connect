@@ -70,8 +70,6 @@ import SlackEventHandlers from "./handlers/SlackEventHandlers";
 import SlackInteractionHandlers from "./handlers/SlackInteractionHandlers";
 import UserManager from "./lib/UserManager/UserManager";
 import UserDataContext from "./lib/UserManager/UserDataContext";
-import { User } from "./lib/UserManager/User";
-import { Session } from "./lib/SessionManager/Session";
 import SessionDataContext from "./lib/SessionManager/SessionDataContext";
 
 const sessionDataContext = new SessionDataContext();

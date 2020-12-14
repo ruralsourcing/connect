@@ -58,5 +58,4 @@ model Skill {
 model Tech {
   id    Int     @id @default(autoincrement())
   name  String
-  Skill Skill[]
 }
