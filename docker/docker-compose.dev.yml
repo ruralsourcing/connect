@@ -1,7 +1,7 @@
 # docker-compose.yml
 version: "3.3"
 services:
-  app:
+  server:
     build:
       context: ../.
       dockerfile: docker/app/Dockerfile
@@ -10,6 +10,8 @@ services:
       - postgres
     links: 
       - postgres
+    volumes:
+      - ../server:/usr/src/app/server
     restart: on-failure
     env_file: app/app.env
     command: [bash, -c, "prisma migrate deploy --preview-feature && npm run start:server"]
@@ -24,9 +26,9 @@ services:
     ports:
       - "80:3000"
     links:
-      - app
+      - server
     depends_on:
-      - app
+      - server
   postgres:
     build:
       context: ../.

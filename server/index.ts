@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 dotenv.config();
+import path from "path";
 
 import { createServer } from "http";
 
@@ -83,7 +84,7 @@ const userManager = new UserManager(userDataContext);
 
 const slackSigningSecret = process.env.SLACK_SIGNING_SECRET || "";
 const token = process.env.SLACK_TOKEN || "";
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 3000;
 const web = new WebClient(token);
 
 interface Profile {
@@ -397,7 +398,7 @@ app.get("/users", async (req, res) => {
   let users;
   try {
     users = await prisma.user.findMany({
-      take: 10,
+      take: 5,
     });
   } catch (ex) {
     console.log(ex);
@@ -411,9 +412,11 @@ app.delete("/users", async (_, res) => {
   await userManager.delete();
   res.sendStatus(200);
 });
-
+var history = require('connect-history-api-fallback');
+app.use(history({
+  logger: console.log.bind(console)
+}));
 app.use("/", express.static("www/build"));
-
 // Initialize a server for the express app - you can skip this and the rest if you prefer to use app.listen()
 const server = createServer(app);
 
