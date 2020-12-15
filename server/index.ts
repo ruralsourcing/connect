@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 dotenv.config();
+import path from "path";
 
 import { createServer } from "http";
 
@@ -411,9 +412,11 @@ app.delete("/users", async (_, res) => {
   await userManager.delete();
   res.sendStatus(200);
 });
-
+var history = require('connect-history-api-fallback');
+app.use(history({
+  logger: console.log.bind(console)
+}));
 app.use("/", express.static("www/build"));
-
 // Initialize a server for the express app - you can skip this and the rest if you prefer to use app.listen()
 const server = createServer(app);
 
