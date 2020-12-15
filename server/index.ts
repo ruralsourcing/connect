@@ -8,51 +8,9 @@ import axios, { AxiosRequestConfig } from "axios";
 axios.defaults.baseURL = process.env.API_BASE_URL || "";
 
 import jwt_decode from "jwt-decode";
-// import jsonServer from "json-server";
-
-// import CASpR from './data/CASpRData';
-// const db = new CASpR();
 
 import { PrismaClient, Prisma } from "@prisma/client";
 const prisma = new PrismaClient();
-
-// import { Sequelize, DataTypes } from 'sequelize';
-// const sequelize = new Sequelize('sqlite:./data/db.sqlite') // Example for sqlite
-
-// try {
-//   sequelize.authenticate().then(_ => {
-//     console.log('Connection has been established successfully.');
-//   })
-// } catch (error) {
-//   console.error('Unable to connect to the database:', error);
-// }
-
-// const User = sequelize.define('User', {
-//   // Model attributes are defined here
-//   firstName: {
-//     type: DataTypes.STRING,
-//     allowNull: false
-//   },
-//   lastName: {
-//     type: DataTypes.STRING
-//     // allowNull defaults to true
-//   }
-// }, {
-//   // Other model options go here
-// });
-// User.sync();
-
-// })
-// User.create({
-//   firstName: "David",
-//   lastName: "Federspiel"
-// });
-
-// console.log(User.findAll({
-//   where: {
-//     firstName: "David"
-//   }
-// }).then(console.log));
 
 import express from "express";
 import {
@@ -117,13 +75,10 @@ const slackInteractions = SlackInteractionHandlers(
 // Create an express application
 const app = express();
 
-// app.use("/api", jsonServer.defaults());
-// app.use("/api", jsonServer.router("./data/db.json"));
-
 // Plug the adapter in as a middleware
 app.use("/interact", slackInteractions.expressMiddleware());
 app.use("/events", slackEvents.expressMiddleware());
-
+app.get('/test', (req, res) => { res.json({cool: false }) })
 // Example: If you're using a body parser, always put it after the event adapter in the middleware stack
 // ALWAYS PUT BEFORE REGULAR ROUTES
 app.use(express.json()); // for parsing application/json
@@ -142,12 +97,9 @@ interface ConversationOpenResult extends WebAPICallResult {
 app.post("/zoom", async (req, res) => {
   console.log("ZOOM POST", req.body);
   if (req.body.event == "meeting.started") {
-    // instead of getting every user, get users based on matched skills
     console.log("PAYLOAD", req.body);
     console.log("UUID", req.body.payload.object.uuid);
     let uuid = req.body.payload.object.uuid;
-    // const dbMeeting = await db.Meetings.getMeetingByUuid(uuid);
-    // console.log("DBMeeting", dbMeeting);
     let meeting = await meetingManager.getMeeting(uuid);
     console.log("MEETING", meeting);
     if (meeting != null) {
@@ -242,9 +194,6 @@ app.get("/zoom", async (req, res) => {
 
     let token = jwt_decode<any>(response.data.access_token);
     if (userData) {
-      // await db.ZoomAuthorizations.addAuthorization({
-      //   token: response.data.access_token
-      // })
       session.addAuthorization(
         userData.teamId,
         userData.userId,
@@ -282,17 +231,6 @@ app.get("/meetings", async (_, res) => {
 });
 
 app.post("/meetings", async (req, res) => {
-  // await db.Meetings.addMeeting({
-  //   uuid: "JtcANK6eSaWGRSAgN8xg+Q==",
-  //   host_id: "eyxXfnupQvWNjXJcNoD7Xg",
-  //   host_email: "david@federnet.com",
-  //   topic: "CASpR Support",
-  //   start_url:
-  //     "https://zoom.us/s/93398173560?zak=eyJ6bV9za20iOiJ6bV9vMm0iLCJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjbGllbnQiLCJ1aWQiOiJleXhYZm51cFF2V05qWEpjTm9EN1hnIiwiaXNzIjoid2ViIiwic3R5IjoxLCJ3Y2QiOiJhdzEiLCJjbHQiOjAsInN0ayI6InQ5NUNKWG1rcHo0U0lkMV9aUndTOUduZElhdlNMRGtja3U5aFh2LVcwbUEuQUcuTTFxWFcxc3d0Zmw2TWFQR21hVHczWnU0V0I5Vmt3S1hoc3h5Uk1telplVFBaeXBZMk9lY0RzblpUclJqREMxWExubTJTeFk5djNHS0NwNC5KTGFBZWNkcjJIZ2N6TVFyMllvNE9BLk44bnJubEhSVlA0OFROTVQiLCJleHAiOjE2MDcyMDg0NzgsImlhdCI6MTYwNzIwMTI3OCwiYWlkIjoidV96UmVSbWhSWWlLY0U2dzdhQVpoZyIsImNpZCI6IiJ9.NXPpvZRL80AVFMVyqaXhKO1hKywkFbYyze48LtOxTWw",
-  //   join_url:
-  //     "https://zoom.us/j/93398173560?pwd=c2dnaFMzTzkvSmgzZnhaUVZYb2lwdz09",
-  //   password: "u4UrGs",
-  // }, 1).catch(console.log)
   await meetingManager.addMeeting({
     uuid: "JtcANK6eSaWGRSAgN8xg+Q==",
     id: 1,
@@ -324,17 +262,9 @@ app.post("/users", async (req, res) => {
   }
 
   if (slackUsers) {
-    //const users = await userDataContext.getAll();
     console.log(slackUsers);
     slackUsers.members.forEach(async (member) => {
       if (member.deleted || member.is_bot || member.name == "slackbot") return;
-      // db.Users.addUser({
-      //   name: member.profile.real_name,
-      //   preferredName: member.name,
-      //   email: member.profile.email,
-      //   slackTeamId: member.team_id,
-      //   slackUserId: member.id
-      // })
       let user;
       try {
         user = await prisma.user.create({
@@ -370,23 +300,6 @@ app.post("/users", async (req, res) => {
           console.log(ex);
         }
       }
-      // let userSession = session.session(member.team_id, member.id);
-      // userSession.email = member.profile.email;
-      // userSession.name = member.profile.real_name;
-      // let user = users.find((u) => u.session.slackUserId == member.id);
-      // if (user) return;
-      // else {
-      //   let newUser = await userManager.addUser({
-      //     name: member.name
-      //   } as User);
-      //   await session._context.post({
-      //     userId: newUser.id,
-      //     email: member.profile.email,
-      //     slackTeamId: member.team_id,
-      //     slackUserId: member.id,
-      //     name: member.name,
-      //   } as Session,)
-      // }
     });
     res.sendStatus(200);
   } else {
@@ -412,15 +325,16 @@ app.delete("/users", async (_, res) => {
   await userManager.delete();
   res.sendStatus(200);
 });
+
+app.use("/", express.static("www/build"));
+
 var history = require('connect-history-api-fallback');
 app.use(history({
   logger: console.log.bind(console)
 }));
-app.use("/", express.static("www/build"));
-// Initialize a server for the express app - you can skip this and the rest if you prefer to use app.listen()
+
 const server = createServer(app);
 
 server.listen(port, () => {
-  // Log a message when the server is ready
   console.log(`Listening for events on ${port}`);
 });
