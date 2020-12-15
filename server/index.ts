@@ -84,7 +84,7 @@ const userManager = new UserManager(userDataContext);
 
 const slackSigningSecret = process.env.SLACK_SIGNING_SECRET || "";
 const token = process.env.SLACK_TOKEN || "";
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 3000;
 const web = new WebClient(token);
 
 interface Profile {
@@ -398,7 +398,7 @@ app.get("/users", async (req, res) => {
   let users;
   try {
     users = await prisma.user.findMany({
-      take: 10,
+      take: 5,
     });
   } catch (ex) {
     console.log(ex);
