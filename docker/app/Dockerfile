@@ -8,11 +8,36 @@ WORKDIR /usr/src/app
 # where available (npm@5+)
 #COPY package*.json ./
 # Bundle app source
-COPY . .
-RUN npm install -g typescript ts-node @prisma/cli
+
+RUN mkdir www
+COPY www/package*.json www/
+COPY www/tsconfig.json www/tsconfig.json
+COPY www/public www/public
+COPY www/src www/src
+
+RUN cd www && yarn install && yarn run build
+
+
+COPY package*.json .
+COPY tsconfig.json .
 RUN yarn install
+
+RUN mkdir server
+COPY server server
+
+RUN npm install -g typescript ts-node @prisma/cli
+
+RUN mkdir prisma
+COPY prisma prisma
+
 RUN prisma generate
-RUN cd ./www && yarn install && yarn run build
+
+
+#COPY . .
+#RUN npm install -g typescript ts-node @prisma/cli
+#RUN yarn install
+#RUN prisma generate
+#RUN cd ./www && yarn install && yarn run build
 # If you are building your code for production
 # RUN npm ci --only=production
 
