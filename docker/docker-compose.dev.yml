@@ -10,14 +10,23 @@ services:
       - postgres
     links: 
       - postgres
-    ports:
-      - "80:3000"
-    volumes:
-      - ./www/src:/usr/src/app/www/src
-      - ./www/public:/usr/src/app/www/public
     restart: on-failure
     env_file: app/app.env
-    command: [bash, -c, "prisma migrate deploy --preview-feature && ts-node ./server/index.ts"]
+    command: [bash, -c, "prisma migrate deploy --preview-feature && npm run start:server"]
+  www:
+    build:
+      context: ../.
+      dockerfile:  docker/app/Dockerfile
+    command: "npm run start:www"
+    volumes:
+      - ../www/src:/usr/src/app/www/src
+      - ../www/public:/usr/src/app/www/public
+    ports:
+      - "80:3000"
+    links:
+      - app
+    depends_on:
+      - app
   postgres:
     build:
       context: ../.
