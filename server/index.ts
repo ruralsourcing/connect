@@ -326,12 +326,12 @@ app.delete("/users", async (_, res) => {
   res.sendStatus(200);
 });
 
-app.use("/", express.static("www/build"));
 
 var history = require('connect-history-api-fallback');
 app.use(history({
-  logger: console.log.bind(console)
+  logger: console.log.bind(console),
 }));
+app.use("/", express.static("www/build"));
 
 const server = createServer(app);
 
