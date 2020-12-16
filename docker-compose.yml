@@ -3,7 +3,7 @@ version: "3.3"
 services:
   server:
     build:
-      context: ../.
+      context: .
       dockerfile: docker/app/Dockerfile
     image: caspr-app
     depends_on:
@@ -11,18 +11,18 @@ services:
     links: 
       - postgres
     volumes:
-      - ../server:/usr/src/app/server
+      - ./server:/usr/src/app/server
     restart: on-failure
-    env_file: app/.env
+    env_file: docker/app/.env
     command: [bash, -c, "prisma migrate deploy --preview-feature && npm run start:server"]
   www:
     build:
-      context: ../.
+      context: .
       dockerfile:  docker/app/Dockerfile
     command: "npm run start:www"
     volumes:
-      - ../www/src:/usr/src/app/www/src
-      - ../www/public:/usr/src/app/www/public
+      - ./www/src:/usr/src/app/www/src
+      - ./www/public:/usr/src/app/www/public
     ports:
       - "80:3000"
     links:
@@ -31,10 +31,10 @@ services:
       - server
   postgres:
     build:
-      context: ../.
+      context: .
       dockerfile: docker/db/Dockerfile
     image: caspr-db
-    env_file: db/.env
+    env_file: docker/db/.env
     healthcheck:
         test: ["CMD", "curl", "-f", "http://localhost:5432"]
         interval: 30s

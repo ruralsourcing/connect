@@ -1,19 +1,21 @@
 # Get Started 
+## Prerequisites
+[Docker Desktop](https://www.docker.com/products/docker-desktop)
 
-## Step One: 
+## Installation:
 
-
-Fist things first
+**Run the following scripts**  
 ```
-yarn install
+yarn run install:server
+yarn run install:www
 ```
-Build the dev environment:
+**Build the dev environment**
 ```
-docker-compose -f ./docker/docker-compose.dev.yml build
+docker-compose build
 ```
-An run the environment:
+**Start the environment**
 ```
-docker-compose -f ./docker/docker-compose.dev.yml up
+docker-compose up
 ```
 
 ## What Next?

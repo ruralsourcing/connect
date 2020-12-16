@@ -6,7 +6,9 @@
   "scripts": {
     "start:www": "(cd www && npm start)",
     "start:server": "nodemon ./server/index.ts",
-    "start:production": "ts-node ./server/index.ts"
+    "start:production": "ts-node ./server/index.ts",
+    "install:www": "(cd www && yarn install)",
+    "install:server": "yarn install"
   },
   "author": "David Federspiel",
   "license": "ISC",
