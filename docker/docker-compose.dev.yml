@@ -13,7 +13,7 @@ services:
     volumes:
       - ../server:/usr/src/app/server
     restart: on-failure
-    env_file: app/app.env
+    env_file: app/.env
     command: [bash, -c, "prisma migrate deploy --preview-feature && npm run start:server"]
   www:
     build:
@@ -34,7 +34,7 @@ services:
       context: ../.
       dockerfile: docker/db/Dockerfile
     image: caspr-db
-    env_file: db/psql.env
+    env_file: db/.env
     healthcheck:
         test: ["CMD", "curl", "-f", "http://localhost:5432"]
         interval: 30s

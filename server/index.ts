@@ -1,6 +1,5 @@
 import dotenv from "dotenv";
 dotenv.config();
-import path from "path";
 
 import { createServer } from "http";
 
@@ -78,7 +77,6 @@ const app = express();
 // Plug the adapter in as a middleware
 app.use("/interact", slackInteractions.expressMiddleware());
 app.use("/events", slackEvents.expressMiddleware());
-app.get('/test', (req, res) => { res.json({cool: false }) })
 // Example: If you're using a body parser, always put it after the event adapter in the middleware stack
 // ALWAYS PUT BEFORE REGULAR ROUTES
 app.use(express.json()); // for parsing application/json
