@@ -11,11 +11,22 @@ datasource db {
 model User {
   id        Int        @id @default(autoincrement())
   email     String     @unique
-  name      String?
-  Meeting   Meeting[]
+  domain    String?
+  Profile   Profile?
   ZoomAuth  ZoomAuth?
   SlackUser SlackUser?
+  Meeting   Meeting[]
   Skill     Skill[]
+}
+
+model Profile {
+  id         Int     @id @default(autoincrement())
+  name       String?
+  givenName  String?
+  familyName String?
+  picture    String?
+  userId     Int?    @unique
+  User       User?   @relation(fields: [userId], references: [id])
 }
 
 model ZoomAuth {
@@ -58,4 +69,5 @@ model Skill {
 model Tech {
   id    Int     @id @default(autoincrement())
   name  String
+  Skill Skill[]
 }

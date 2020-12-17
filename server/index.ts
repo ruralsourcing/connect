@@ -1,6 +1,13 @@
 import dotenv from "dotenv";
 dotenv.config();
-import path from "path";
+
+import { google } from "googleapis";
+
+const oauth2Client = new google.auth.OAuth2(
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET,
+  process.env.GOOGLE_REDIRECT_URI
+);
 
 import { createServer } from "http";
 
@@ -12,7 +19,7 @@ import jwt_decode from "jwt-decode";
 import { PrismaClient, Prisma } from "@prisma/client";
 const prisma = new PrismaClient();
 
-import express from "express";
+import express, { response } from "express";
 import {
   ChatPostMessageArguments,
   ConversationsOpenArguments,
@@ -30,6 +37,7 @@ import SlackInteractionHandlers from "./handlers/SlackInteractionHandlers";
 import UserManager from "./lib/UserManager/UserManager";
 import UserDataContext from "./lib/UserManager/UserDataContext";
 import SessionDataContext from "./lib/SessionManager/SessionDataContext";
+import { exception } from "console";
 
 const sessionDataContext = new SessionDataContext();
 const session = new SessionManager(sessionDataContext);
@@ -78,7 +86,6 @@ const app = express();
 // Plug the adapter in as a middleware
 app.use("/interact", slackInteractions.expressMiddleware());
 app.use("/events", slackEvents.expressMiddleware());
-app.get('/test', (req, res) => { res.json({cool: false }) })
 // Example: If you're using a body parser, always put it after the event adapter in the middleware stack
 // ALWAYS PUT BEFORE REGULAR ROUTES
 app.use(express.json()); // for parsing application/json
@@ -209,6 +216,73 @@ app.get("/zoom", async (req, res) => {
   }
 });
 
+const url = oauth2Client.generateAuthUrl({
+  access_type: "offline",
+  scope: [
+    "openid",
+    "email",
+    "https://www.googleapis.com/auth/userinfo.email",
+    "https://www.googleapis.com/auth/userinfo.profile",
+  ],
+});
+
+app.get("/login", (req, res) => {
+  res.json({ url });
+});
+
+app.post("/login", async (req, res) => {
+  console.log(req.body);
+  if (req?.body?.code) {
+    // Now that we have the code, use that to acquire tokens.
+    try {
+      const { tokens } = await oauth2Client.getToken(req.body.code);
+      oauth2Client.setCredentials(tokens);
+
+      const { data } = await google.oauth2("v2").userinfo.get({
+        oauth_token: tokens.access_token ? tokens.access_token : undefined,
+      });
+      console.log(data);
+
+      if (!data.email) throw "email is required beyond this point";
+
+      let user = await prisma.user.findUnique({
+        where: {
+          email: data.email,
+        },
+      });
+      if (!user) {
+        await prisma.user.create({
+          data: {
+            email: data.email,
+            domain: data.hd,
+            Profile: {
+              create: {
+                name: data.name,
+                familyName: data.family_name,
+                givenName: data.given_name,
+                picture: data.picture,
+              },
+            },
+            ZoomAuth: {
+              create: {
+                token: "test",
+              },
+            },
+          },
+        });
+      } else {
+        console.log('user already exists, skip or update?');
+      }
+      res.json(tokens);
+      // if (data) data.console.log(data);
+    } catch (ex) {
+      console.log(ex);
+      res.sendStatus(500);
+    }
+  }
+ 
+});
+
 app.get("/policy", (req, res) => {
   res.send("<h1>Policy...</h1>");
 });
@@ -252,66 +326,15 @@ app.get("/ping", (_, res) => {
   });
 });
 
-app.post("/users", async (req, res) => {
-  let slackUsers;
-  try {
-    slackUsers = (await web.users.list()) as UsersResponse;
-  } catch (ex) {
-    console.log(ex);
-    res.json(ex);
-  }
-
-  if (slackUsers) {
-    console.log(slackUsers);
-    slackUsers.members.forEach(async (member) => {
-      if (member.deleted || member.is_bot || member.name == "slackbot") return;
-      let user;
-      try {
-        user = await prisma.user.create({
-          data: {
-            email: member.profile.email,
-            name: member.name,
-            ZoomAuth: {
-              create: {
-                token: "test",
-              },
-            },
-          },
-        });
-        console.log("USER:", user);
-      } catch (ex) {
-        console.log(ex);
-        user = await prisma.user.findUnique({
-          where: { email: member.profile.email },
-        });
-      }
-
-      if (user) {
-        try {
-          let skills = await prisma.skill.create({
-            data: {
-              User: { connect: { email: user.email } },
-              Tech: { create: { name: "Philosphy" } },
-              rating: 9,
-            },
-          });
-          console.log("SKILLS:", skills);
-        } catch (ex) {
-          console.log(ex);
-        }
-      }
-    });
-    res.sendStatus(200);
-  } else {
-    res.send("there was an error");
-  }
-});
-
 app.get("/users", async (req, res) => {
   let users;
   try {
     users = await prisma.user.findMany({
       take: 5,
+      include: {
+        Profile: true,
+        ZoomAuth: true,
+      }
     });
   } catch (ex) {
     console.log(ex);
@@ -321,16 +344,6 @@ app.get("/users", async (req, res) => {
   else res.sendStatus(200);
 });
 
-app.delete("/users", async (_, res) => {
-  await userManager.delete();
-  res.sendStatus(200);
-});
-
-
-var history = require('connect-history-api-fallback');
-app.use(history({
-  logger: console.log.bind(console),
-}));
 app.use("/", express.static("www/build"));
 
 const server = createServer(app);
