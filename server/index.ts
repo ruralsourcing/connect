@@ -224,6 +224,7 @@ const url = oauth2Client.generateAuthUrl({
     "https://www.googleapis.com/auth/userinfo.email",
     "https://www.googleapis.com/auth/userinfo.profile",
   ],
+  prompt: 'consent'
 });
 
 app.get("/login", (req, res) => {
