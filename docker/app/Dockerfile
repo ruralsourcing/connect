@@ -43,5 +43,5 @@ RUN prisma generate
 
 
 
-EXPOSE 3000
+EXPOSE 3000 2222
 CMD [ "ts-node", "./server/index.ts" ]
