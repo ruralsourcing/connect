@@ -29,6 +29,7 @@ services:
       - server
     depends_on:
       - server
+    env_file: docker/app/.env
   postgres:
     build:
       context: .

@@ -1,14 +1,23 @@
-interface UserProfile {
+import { AuthenticationResult, AccountInfo } from '@azure/msal-browser';
+
+type Policy = {
+    policyId: number;
+    url: string;
+};
+
+type UserProfile = {
     name: string;
     email: string;
 };
 
-interface AuthContext {
-    user?: string;
-    profile?: UserProfile;
+type AuthContext = {
+    user: string | null;
+    //profile: UserProfile;
+    //getPolicy(): Promise<void | Policy>;
     signin(): void;
     signout(): void;
-    getToken(): any;
+    getToken(acct: AccountInfo): Promise<void | AuthenticationResult>;
+    handleResponse(response: AuthenticationResult): void;
 };
 
-export type { AuthContext, UserProfile };
+export type { AuthContext, Policy, UserProfile };
