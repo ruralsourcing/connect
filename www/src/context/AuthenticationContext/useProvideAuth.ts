@@ -78,7 +78,7 @@ export const useProvideAuth = (msal: PublicClientApplication): AuthContext => {
         ...LOGIN_REQUEST,
         ...{
           authority: policy,
-          redirectUri: 'http://localhost',
+          redirectUri: `${window.location.protocol}//${window.location.host}`,
         },
       });
     }
