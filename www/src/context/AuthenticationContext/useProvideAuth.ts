@@ -87,7 +87,7 @@ export const useProvideAuth = (msal: PublicClientApplication, account: AccountIn
             authority: policy,
             redirectUri: `${window.location.protocol}//${window.location.host}`,
           },
-        })
+        }).catch((e) => { console.log(e) })
       });
     }
   };
