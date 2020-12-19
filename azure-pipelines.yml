@@ -14,7 +14,7 @@ variables:
   imageRepository: 'caspr'
   containerRegistry: 'codefly.azurecr.io'
   dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile.production'
-  tag: '$(Build.BuildId)'
+  tag: 'latest'
   
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
