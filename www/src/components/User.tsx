@@ -15,6 +15,14 @@ const User = (): JSX.Element => {
       >
         Login
       </button>
+      <button
+        type="button"
+        onClick={() => {
+          auth.signout();
+        }}
+      >
+        Logout
+      </button>
     </>
   );
 };

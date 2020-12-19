@@ -17,7 +17,7 @@ type AuthContext = {
     signin(): void;
     signout(): void;
     getToken(acct: AccountInfo): Promise<void | AuthenticationResult>;
-    handleResponse(response: AuthenticationResult): void;
+    handleResponse(response: AuthenticationResult | null): void;
 };
 
 export type { AuthContext, Policy, UserProfile };
