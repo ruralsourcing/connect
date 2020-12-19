@@ -22,6 +22,7 @@ const getUserProfile = (account: AccountInfo | null) => {
   }
   return null;
 };
+
 const getActiveAccount = (msal: PublicClientApplication) => {
   if (msal.getAllAccounts().length > 0) {
     return msal.getAllAccounts()[0];
@@ -29,12 +30,10 @@ const getActiveAccount = (msal: PublicClientApplication) => {
   return null;
 };
 
-export const useProvideAuth = (msal: PublicClientApplication): AuthContext => {
+export const useProvideAuth = (msal: PublicClientApplication, account: AccountInfo): AuthContext => {
   const notifier = useNotifier();
-  const [currentPolicy, setCurrentPolicy] = useState(
-    localStorage.getItem("currentPolicy") || null
-  );
-  const account = getActiveAccount(msal);
+  
+  //const account = getActiveAccount(msal);
   const [user, setUser] = useState((account && account.name) || null);
   // const [profile, setProfile] = useState<UserProfile>(
   //   account && getUserProfile(account)
@@ -80,12 +79,25 @@ export const useProvideAuth = (msal: PublicClientApplication): AuthContext => {
           authority: policy,
           redirectUri: `${window.location.protocol}//${window.location.host}`,
         },
+      }).catch((ex) => {
+        console.log(ex);
+        msal.loginPopup({
+          ...LOGIN_REQUEST,
+          ...{
+            authority: policy,
+            redirectUri: `${window.location.protocol}//${window.location.host}`,
+          },
+        })
       });
     }
   };
   const signout = (): void => {
-    window.location.href = `https://codeflyb2c.b2clogin.com/codeflyb2c.onmicrosoft.com/${currentPolicy}/oauth2/v2.0/logout?post_logout_redirect_uri=${window.location.protocol}//${window.location.host}`;
-    localStorage.clear();
+    msal.logout({
+      postLogoutRedirectUri: `${window.location.protocol}//${window.location.host}`,
+      authority: 'https://codeflyb2c.b2clogin.com/codeflyb2c.onmicrosoft.com/B2C_1_CASpR'
+    })
+    // window.location.href = `https://codeflyb2c.b2clogin.com/codeflyb2c.onmicrosoft.com/B2C_1_CASpR/oauth2/v2.0/logout?post_logout_redirect_uri=${window.location.protocol}//${window.location.host}`;
+    // localStorage.clear();
   };
   const handleResponse = (response: AuthenticationResult | null) => {
     if (response === null) {
