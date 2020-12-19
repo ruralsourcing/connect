@@ -4,7 +4,7 @@ FROM node:latest
 WORKDIR /usr/src/app
 
 RUN mkdir www
-COPY ./www/package*.json www/
+COPY ./www/package.json www/
 COPY ./www/yarn.lock www/
 
 COPY ./www/tsconfig.json www/tsconfig.json
@@ -14,7 +14,7 @@ COPY ./www/src www/src
 RUN cd www && yarn install && yarn run build
 
 
-COPY package*.json .
+COPY package.json .
 COPY yarn.lock .
 COPY tsconfig.json .
 RUN yarn install
