@@ -1,0 +1,36 @@
+FROM node:latest
+
+# Create app directory
+WORKDIR /usr/src/app
+
+RUN mkdir www
+COPY www/package.json www/
+COPY www/yarn.lock www/
+
+COPY www/tsconfig.json www/tsconfig.json
+COPY www/public www/public
+COPY www/src www/src
+
+RUN cd www && yarn install && yarn run build
+
+
+COPY package.json .
+COPY yarn.lock .
+COPY tsconfig.json .
+RUN yarn install
+
+RUN mkdir server
+COPY server server
+
+RUN npm install -g typescript ts-node @prisma/cli
+
+RUN mkdir prisma
+COPY prisma prisma
+
+RUN prisma generate
+
+#The following shows an example of enabling SSH
+#https://github.com/Azure-App-Service/node/tree/master/10.14
+
+EXPOSE 3000
+CMD [ "ts-node", "./server/index.ts" ]
