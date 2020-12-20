@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthenticationContext";
 
 const User = (): JSX.Element => {
