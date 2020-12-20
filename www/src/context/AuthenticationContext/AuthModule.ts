@@ -6,13 +6,17 @@ import {
 } from "@azure/msal-browser";
 import { MSAL_CONFIG, LOGIN_REQUEST } from "./constants";
 
-const redirectRequest: RedirectRequest = {
-  scopes: ["openid", "profile", "email"],
-  redirectUri: "B2C_1A_WhiteHatB2CDevSamlAndLocal_PasswordReset",
-};
-
 const POLICY =
   "https://codeflyb2c.b2clogin.com/codeflyb2c.onmicrosoft.com/B2C_1_CASpR";
+
+const RESET_POLICY =
+  "https://codeflyb2c.b2clogin.com/codeflyb2c.onmicrosoft.com/B2C_1_CASpR_RESET";
+
+const redirectRequest: RedirectRequest = {
+  scopes: ["openid", "profile", "email"],
+  redirectUri: `${window.location.protocol}//${window.location.host}`,
+  authority: RESET_POLICY,
+};
 
 class AuthModule {
   msal: PublicClientApplication;
