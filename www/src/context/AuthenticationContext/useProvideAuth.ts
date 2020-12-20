@@ -10,7 +10,6 @@ export const useProvideAuth = (auth: AuthModule): AuthContext => {
 
   auth.onAccount((user: string) => {
     notifier.setNotification({appearance: NotificationEnum.SUCCESS, message: "Logged In!"})
-
     notifier.setNotification({appearance: NotificationEnum.ERROR, message: "FIRE!!!!!!"})
     setUser(user)
   })
