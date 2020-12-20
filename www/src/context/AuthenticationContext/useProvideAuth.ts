@@ -1,5 +1,4 @@
 import { useState } from "react";
-
 import { AuthContext } from "../AuthenticationContext";
 import { useNotifier, NotificationEnum } from "../NotificationContext";
 import AuthModule from "./AuthModule";

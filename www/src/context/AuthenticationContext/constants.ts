@@ -41,6 +41,5 @@ export const MSAL_CONFIG: Configuration = {
 
 // request to signin - returns an idToken
 export const LOGIN_REQUEST = {
-    //scopes: [process.env.B2C_SCOPES],
     scopes: ['openid', 'profile', 'email'],
 };
