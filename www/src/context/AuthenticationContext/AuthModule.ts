@@ -16,6 +16,7 @@ const redirectRequest: RedirectRequest = {
   scopes: ["openid", "profile", "email"],
   redirectUri: `${window.location.protocol}//${window.location.host}`,
   authority: RESET_POLICY,
+  redirectStartPage: `${window.location.protocol}//${window.location.host}`,
 };
 
 class AuthModule {
