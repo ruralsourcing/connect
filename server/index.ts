@@ -232,62 +232,62 @@ const url = oauth2Client.generateAuthUrl({
   prompt: 'consent'
 });
 
-app.get("/login", (req, res) => {
-  res.json({ url });
-});
+// app.get("/login", (req, res) => {
+//   res.json({ url });
+// });
 
-app.post("/login", async (req, res) => {
-  console.log(req.body);
-  if (req?.body?.code) {
-    // Now that we have the code, use that to acquire tokens.
-    try {
-      const { tokens } = await oauth2Client.getToken(req.body.code);
-      oauth2Client.setCredentials(tokens);
+// app.post("/login", async (req, res) => {
+//   console.log(req.body);
+//   if (req?.body?.code) {
+//     // Now that we have the code, use that to acquire tokens.
+//     try {
+//       const { tokens } = await oauth2Client.getToken(req.body.code);
+//       oauth2Client.setCredentials(tokens);
 
-      const { data } = await google.oauth2("v2").userinfo.get({
-        oauth_token: tokens.access_token ? tokens.access_token : undefined,
-      });
-      console.log(data);
+//       const { data } = await google.oauth2("v2").userinfo.get({
+//         oauth_token: tokens.access_token ? tokens.access_token : undefined,
+//       });
+//       console.log(data);
 
-      if (!data.email) throw "email is required beyond this point";
+//       if (!data.email) throw "email is required beyond this point";
 
-      let user = await prisma.user.findUnique({
-        where: {
-          email: data.email,
-        },
-      });
-      if (!user) {
-        await prisma.user.create({
-          data: {
-            email: data.email,
-            domain: data.hd,
-            Profile: {
-              create: {
-                name: data.name,
-                familyName: data.family_name,
-                givenName: data.given_name,
-                picture: data.picture,
-              },
-            },
-            ZoomAuth: {
-              create: {
-                token: "test",
-              },
-            },
-          },
-        });
-      } else {
-        console.log('user already exists, skip or update?');
-      }
-      res.json(tokens);
-      // if (data) data.console.log(data);
-    } catch (ex) {
-      console.log(ex);
-      res.sendStatus(500);
-    }
-  }
+//       let user = await prisma.user.findUnique({
+//         where: {
+//           email: data.email,
+//         },
+//       });
+//       if (!user) {
+//         await prisma.user.create({
+//           data: {
+//             email: data.email,
+//             domain: data.hd,
+//             Profile: {
+//               create: {
+//                 name: data.name,
+//                 familyName: data.family_name,
+//                 givenName: data.given_name,
+//                 picture: data.picture,
+//               },
+//             },
+//             ZoomAuth: {
+//               create: {
+//                 token: "test",
+//               },
+//             },
+//           },
+//         });
+//       } else {
+//         console.log('user already exists, skip or update?');
+//       }
+//       res.json(tokens);
+//       // if (data) data.console.log(data);
+//     } catch (ex) {
+//       console.log(ex);
+//       res.sendStatus(500);
+//     }
+//   }
  
-});
+// });
 
 app.get("/policy", (req, res) => {
   res.send("<h1>Policy...</h1>");
