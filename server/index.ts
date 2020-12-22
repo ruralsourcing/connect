@@ -16,7 +16,7 @@ axios.defaults.baseURL = process.env.API_BASE_URL || "";
 
 import jwt_decode from "jwt-decode";
 
-import { PrismaClient, Prisma } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 import express, { response } from "express";
