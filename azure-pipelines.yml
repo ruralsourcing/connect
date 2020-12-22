@@ -13,7 +13,7 @@ variables:
   dockerRegistryServiceConnection: 'a31f3f7a-47e8-4995-82b0-423139402b9b'
   imageRepository: 'caspr'
   containerRegistry: 'codefly.azurecr.io'
-  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile.production'
+  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
   tag: 'latest'
   
   # Agent VM image name
