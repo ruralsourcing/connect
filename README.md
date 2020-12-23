@@ -4,11 +4,6 @@
 
 ## Installation:
 
-**Run the following scripts**  
-```
-yarn run install:server
-yarn run install:www
-```
 **Build the dev environment**
 ```
 docker-compose build
