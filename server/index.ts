@@ -42,7 +42,7 @@ import SlackInteractionHandlers from "./handlers/SlackInteractionHandlers";
 import UserManager from "./lib/UserManager/UserManager";
 import UserDataContext from "./lib/UserManager/UserDataContext";
 import SessionDataContext from "./lib/SessionManager/SessionDataContext";
-import { exception } from "console";
+import history from 'connect-history-api-fallback';
 
 const sessionDataContext = new SessionDataContext();
 const session = new SessionManager(sessionDataContext);
@@ -349,6 +349,11 @@ app.get("/users", async (req, res) => {
   if (users) res.json(users);
   else res.sendStatus(200);
 });
+
+
+app.use(history({
+  logger: console.log.bind(console)
+}));
 
 app.use("/", express.static("www/build"));
 
