@@ -11,18 +11,20 @@ services:
     links: 
       - postgres
     volumes:
-      - ./server:/usr/src/app/server
+      - ./server:/usr/src/app
     restart: on-failure
     env_file: docker/app/.env
-    command: [bash, -c, "cd ./server && prisma migrate deploy --preview-feature && yarn run start"]
+    command: [bash, -c, "prisma migrate deploy --preview-feature && yarn run start"]
   www:
     build:
       context: .
-      dockerfile:  docker/app/Dockerfile
-    command: [bash, -c, "cd ./www && yarn run start"]
+      dockerfile:  docker/www/Dockerfile
+    #command: [bash, -c, "cd ./www && yarn run start"]
     volumes:
-       - ./www/src:/usr/src/app/www/src
-       - ./www/public:/usr/src/app/www/public
+      #  - ./www/src:/usr/src/app/src
+      #  - ./www/public:/usr/src/app/public
+      #  - ./www/node_modules:/usr/src/app/node_modules
+      - ./www:/usr/src/app
     ports:
       - "80:3000"
     links:

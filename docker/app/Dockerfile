@@ -4,9 +4,8 @@ WORKDIR /usr/src/app
 
 RUN npm install -g typescript nodemon ts-node @prisma/cli
 
-COPY . .
-RUN cd www && yarn install && yarn run build
-RUN cd server && yarn install
+COPY ./server .
+RUN yarn install
 
 EXPOSE 3000
 CMD [ "ts-node", "./server/index.ts" ]
