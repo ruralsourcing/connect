@@ -10,7 +10,7 @@ dotenv.config();
 // );
 
 // const t = 'eyJhbGciOiJSUzI1NiIsImtpZCI6ImUxOTdiZjJlODdiZDE5MDU1NzVmOWI2ZTVlYjQyNmVkYTVkNTc0ZTMiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiI3MDc0Mzg3ODg2MTktZnU4a3FpN2hqZWQ3NHZoMzJwbDhiMjM4ZGI0amRyZmsuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiI3MDc0Mzg3ODg2MTktZnU4a3FpN2hqZWQ3NHZoMzJwbDhiMjM4ZGI0amRyZmsuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMTY2ODY4ODM0NTI0NjAyNDYxODciLCJoZCI6ImZlZGVybmV0LmNvbSIsImVtYWlsIjoiZGF2aWRAZmVkZXJuZXQuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImF0X2hhc2giOiJCR3RKNmFvWUwwZVdldGdtRUQtb3V3IiwibmFtZSI6IkRhdmlkIEZlZGVyc3BpZWwiLCJwaWN0dXJlIjoiaHR0cHM6Ly9saDMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL2EtL0FPaDE0R2lVVHpuSGNQQ0QxclNVRmlaR1YyR0YydUhwdWptMkZLaHdZS0JrT3c9czk2LWMiLCJnaXZlbl9uYW1lIjoiRGF2aWQiLCJmYW1pbHlfbmFtZSI6IkZlZGVyc3BpZWwiLCJsb2NhbGUiOiJlbiIsImlhdCI6MTYwODM0OTc3NiwiZXhwIjoxNjA4MzUzMzc2fQ.Xj8338uof5r5fzE80k0vVZ2496cb-SZSMv2Qao-kUfULFXkptZHXAeVPClDxhwWwRIi22MzUutdFaGiQP63LwurEyrxOPxl9mu6d6hFF1d69LINgdVVfXeHlNW3CxR2NnGR_vVEt25iEcZdV9QDNPFaitp1bEBoLcnbtT7HyDUzR85GXCyQJptFsgi047eiAqRhO0eScOIt2pzpXFrVBF09cYmAnf52ivqrb5IedAcELUxr1XadOX8H5zKhOsmxrvaaJO8D2eDRQ0-TFdUVhO9Vt0vZBfgxWsbgpIPjIMQ0cF73Pttjjn--bO-sg9_H2DEjjpUk-8D5rBdADaM1SQQ';
-// import jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 
 // const test = jwt.verify(t, process.env.GOOGLE_CLIENT_SECRET || '');
 // console.log(test);
@@ -31,17 +31,17 @@ import {
   WebAPICallResult,
   WebClient,
 } from "@slack/web-api";
-import SessionManager from "./src/lib/SessionManager/SessionManager";
-import MeetingManager from "./src/lib/MeetingManager/MeetingManager";
-import MeetingContext from "./src/lib/MeetingManager/MeetingDataContext";
+import SessionManager from "./lib/SessionManager/SessionManager";
+import MeetingManager from "./lib/MeetingManager/MeetingManager";
+import MeetingContext from "./lib/MeetingManager/MeetingDataContext";
 
-import { generateAnswerDetail } from "./src/lib/generateAnswerDetail";
+import { generateAnswerDetail } from "./lib/generateAnswerDetail";
 
-import SlackEventHandlers from "./src/handlers/SlackEventHandlers";
-import SlackInteractionHandlers from "./src/handlers/SlackInteractionHandlers";
-import UserManager from "./src/lib/UserManager/UserManager";
-import UserDataContext from "./src/lib/UserManager/UserDataContext";
-import SessionDataContext from "./src/lib/SessionManager/SessionDataContext";
+import SlackEventHandlers from "./handlers/SlackEventHandlers";
+import SlackInteractionHandlers from "./handlers/SlackInteractionHandlers";
+import UserManager from "./lib/UserManager/UserManager";
+import UserDataContext from "./lib/UserManager/UserDataContext";
+import SessionDataContext from "./lib/SessionManager/SessionDataContext";
 import history from 'connect-history-api-fallback';
 
 const sessionDataContext = new SessionDataContext();

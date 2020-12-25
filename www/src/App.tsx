@@ -43,7 +43,7 @@ function App() {
         <Layout>
           <Header>
             <Row>
-              <Menu theme="light" mode="horizontal" defaultSelectedKeys={["2"]}>
+              <Menu theme="dark" mode="horizontal" defaultSelectedKeys={["2"]}>
                 <Menu.Item key="1">
                   <Link to="/">Home</Link>
                 </Menu.Item>
