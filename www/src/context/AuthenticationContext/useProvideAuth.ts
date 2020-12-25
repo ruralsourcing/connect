@@ -1,16 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AuthContext } from "../AuthenticationContext";
-import { useNotifier, NotificationEnum } from "../NotificationContext";
 import AuthModule from "./AuthModule";
+import {  message  } from 'antd';
 
 export const useProvideAuth = (auth: AuthModule): AuthContext => {
-  const notifier = useNotifier();
   const [user, setUser] = useState<string>(auth?.account?.username || '');
 
   auth.onAccount((user: string) => {
-    notifier.setNotification({appearance: NotificationEnum.SUCCESS, message: "Logged In!"})
-    notifier.setNotification({appearance: NotificationEnum.ERROR, message: "FIRE!!!!!!"})
-    setUser(user)
+    setUser(user);
   })
 
   const signin = async (): Promise<void> => {
@@ -19,6 +16,10 @@ export const useProvideAuth = (auth: AuthModule): AuthContext => {
   const signout = (): void => {
     auth.logout();
   };
+
+  useEffect(() => {
+    user && message.success(`Hello, ${user}`)
+  }, [user])
 
   return {
     user,

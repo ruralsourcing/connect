@@ -1,20 +1,20 @@
 import React from "react";
 import "./App.css";
 import { AuthProvider, useAuth } from "./context/AuthenticationContext";
-import { ToastProvider } from "react-toast-notifications";
-import { NotificationProvider } from './context/NotificationContext';
 import {
   BrowserRouter as Router,
   Switch,
   Route,
   Link,
   Redirect,
-  RouteProps
+  RouteProps,
 } from "react-router-dom";
+import { Layout, Row, Menu, Breadcrumb, Col } from "antd";
 import Home from "./pages/Home";
 import Skills from "./pages/Skills";
 import User from "./components/User";
 
+const { Header, Content, Footer } = Layout;
 const PrivateRoute = ({ children, ...rest }: RouteProps): JSX.Element => {
   let auth = useAuth();
   return (
@@ -24,58 +24,63 @@ const PrivateRoute = ({ children, ...rest }: RouteProps): JSX.Element => {
         auth.user ? (
           children
         ) : (
-            <Redirect
-              to={{
-                pathname: "/login",
-                state: { from: location }
-              }}
-            />
-          )
+          <Redirect
+            to={{
+              pathname: "/login",
+              state: { from: location },
+            }}
+          />
+        )
       }
     />
   );
-}
+};
 
 function App() {
   return (
-    <ToastProvider autoDismiss>
-      <NotificationProvider>
-        <AuthProvider>
-          <User />
-          {/* <div className="App">
-            <header className="App-header">
-              <img src={logo} className="App-logo" alt="logo" />
-              
-            </header>
-          </div> */}
-          <Router>
-            <div>
-              <nav>
-                <ul>
-                  <li>
-                    <Link to="/">Home</Link>
-                  </li>
-                  <li>
-                    <Link to="/skills">Skills</Link>
-                  </li>
-                </ul>
-              </nav>
-
-              {/* A <Switch> looks through its children <Route>s and
-            renders the first one that matches the current URL. */}
-              <Switch>
-                <PrivateRoute path="/skills">
-                  <Skills />
-                </PrivateRoute>
-                <Route path="/">
-                  <Home />
-                </Route>
-              </Switch>
-            </div>
-          </Router>
-        </AuthProvider>
-      </NotificationProvider>
-    </ToastProvider>
+    <AuthProvider>
+      <Router>
+        <Layout>
+          <Header>
+            <Row>
+              <Menu theme="light" mode="horizontal" defaultSelectedKeys={["2"]}>
+                <Menu.Item key="1">
+                  <Link to="/">Home</Link>
+                </Menu.Item>
+                <Menu.Item key="2">
+                  <Link to="/skills">Skills</Link>
+                </Menu.Item>
+              </Menu>
+            </Row>
+          </Header>
+          <Content style={{ padding: "0 50px" }}>
+            <Row>
+              <Col span={20}>
+                <Breadcrumb style={{ margin: "16px 0" }}>
+                  <Breadcrumb.Item>Home</Breadcrumb.Item>
+                  <Breadcrumb.Item>List</Breadcrumb.Item>
+                  <Breadcrumb.Item>App</Breadcrumb.Item>
+                </Breadcrumb>
+              </Col>
+              <Col style={{ textAlign: "right" }} span={4}>
+                <User />
+              </Col>
+            </Row>
+            <Switch>
+              <PrivateRoute path="/skills">
+                <Skills />
+              </PrivateRoute>
+              <Route path="/">
+                <Home />
+              </Route>
+            </Switch>
+          </Content>
+          <Footer style={{ textAlign: "center" }}>
+            CASpR © 2020 Created by David Federspiel
+          </Footer>
+        </Layout>
+      </Router>
+    </AuthProvider>
   );
 }
 
