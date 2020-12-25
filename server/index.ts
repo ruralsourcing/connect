@@ -31,17 +31,17 @@ import {
   WebAPICallResult,
   WebClient,
 } from "@slack/web-api";
-import SessionManager from "./lib/SessionManager/SessionManager";
-import MeetingManager from "./lib/MeetingManager/MeetingManager";
-import MeetingContext from "./lib/MeetingManager/MeetingDataContext";
+import SessionManager from "./src/lib/SessionManager/SessionManager";
+import MeetingManager from "./src/lib/MeetingManager/MeetingManager";
+import MeetingContext from "./src/lib/MeetingManager/MeetingDataContext";
 
-import { generateAnswerDetail } from "./lib/generateAnswerDetail";
+import { generateAnswerDetail } from "./src/lib/generateAnswerDetail";
 
-import SlackEventHandlers from "./handlers/SlackEventHandlers";
-import SlackInteractionHandlers from "./handlers/SlackInteractionHandlers";
-import UserManager from "./lib/UserManager/UserManager";
-import UserDataContext from "./lib/UserManager/UserDataContext";
-import SessionDataContext from "./lib/SessionManager/SessionDataContext";
+import SlackEventHandlers from "./src/handlers/SlackEventHandlers";
+import SlackInteractionHandlers from "./src/handlers/SlackInteractionHandlers";
+import UserManager from "./src/lib/UserManager/UserManager";
+import UserDataContext from "./src/lib/UserManager/UserDataContext";
+import SessionDataContext from "./src/lib/SessionManager/SessionDataContext";
 import history from 'connect-history-api-fallback';
 
 const sessionDataContext = new SessionDataContext();
