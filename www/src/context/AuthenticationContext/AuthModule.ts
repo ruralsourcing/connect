@@ -6,11 +6,9 @@ import {
 } from "@azure/msal-browser";
 import { MSAL_CONFIG, LOGIN_REQUEST } from "./constants";
 
-const POLICY =
-  "https://codeflyb2c.b2clogin.com/codeflyb2c.onmicrosoft.com/B2C_1_CASpR";
-
-const RESET_POLICY =
-  "https://codeflyb2c.b2clogin.com/codeflyb2c.onmicrosoft.com/B2C_1_CASpR_RESET";
+console.log("ENV", process.env);
+const POLICY = `${process.env.REACT_APP_B2C_AUTHORITY}/${process.env.REACT_APP_B2C_LOGIN_POLICY}`;
+const RESET_POLICY = `${process.env.REACT_APP_B2C_AUTHORITY}/${process.env.REACT_APP_B2C_RESET_POLICY}`;
 
 const redirectRequest: RedirectRequest = {
   scopes: ["openid", "profile", "email"],

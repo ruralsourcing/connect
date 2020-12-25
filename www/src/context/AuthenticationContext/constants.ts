@@ -2,12 +2,12 @@ import {Configuration, LogLevel} from '@azure/msal-browser';
 
 export const MSAL_CONFIG: Configuration = {
     auth: {
-        clientId: '2b08acb3-4c70-4b1f-8925-b00158883f1a', // This is your client ID
-        authority: 'https://codeflyb2c.b2clogin.com/codeflyb2c.onmicrosoft.com/B2C_1_CASpR',
+        clientId: process.env.REACT_APP_B2C_APPLICATION_ID || '',
+        authority: `${process.env.REACT_APP_B2C_AUTHORITY}/${process.env.REACT_APP_B2C_LOGIN_POLICY}`,
         redirectUri: `${window.location.protocol}//${window.location.host}`,
         postLogoutRedirectUri: `${window.location.protocol}//${window.location.host}`,
         navigateToLoginRequestUrl: true,
-        knownAuthorities: ['codeflyb2c.b2clogin.com'],
+        knownAuthorities: [process.env.REACT_APP_B2C_KNOWN_AUTHORITIES || ''],
         cloudDiscoveryMetadata: '',
     },
     cache: {
