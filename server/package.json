@@ -4,8 +4,8 @@
   "description": "",
   "main": "./index.ts",
   "scripts": {
-    "start": "nodemon ./index.ts",
-    "start:production": "ts-node ./index.ts"
+    "start": "nodemon ./src/index.ts",
+    "start:production": "ts-node ./src/index.ts"
   },
   "author": "David Federspiel",
   "license": "ISC",
