@@ -10,6 +10,7 @@ export async function answerQuestionAsync(
   question: string
 ): Promise<QnAMakerRuntimeModels.QnASearchResult[] | void> {
   const top = 10;
+  console.log(question, top)
   const result = await client.runtime.generateAnswer(
     kbid,
     { question, top },

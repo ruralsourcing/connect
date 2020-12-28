@@ -93,6 +93,32 @@ class AuthModule {
       });
   }
 
+  async token() {
+    if (!this.account) return null;
+
+    try {
+      const result = await this.msal.acquireTokenSilent({
+        account: this.account,
+        ...LOGIN_REQUEST,
+      });
+      console.log("[TOKEN RESPONSE]", result);
+      return result;
+    } catch (ex) {
+      console.log(ex);
+      return null;
+    }
+
+    //   return this.msal.acquireTokenSilent({
+    //     account: this.account,
+    //     ...LOGIN_REQUEST,
+    //     forceRefresh: true,
+    //   }).catch((reason) => {
+    //     console.log("[FAILED]", reason);
+    //     return null;
+    //   })
+    // }
+  }
+
   logout() {
     this.msal.logout({
       postLogoutRedirectUri: `${window.location.protocol}//${window.location.host}`,

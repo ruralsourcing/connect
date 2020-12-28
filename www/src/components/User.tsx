@@ -5,7 +5,9 @@ const { Text } = Typography;
 
 const User = (): JSX.Element => {
   const auth = useAuth();
-
+  auth.token().then((t) => {
+    console.log("[TOKEN]", t)
+  });
   return (
     <>
       <Text>

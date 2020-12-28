@@ -1,19 +1,47 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-// import { google } from "googleapis";
+import jwksClient from "jwks-rsa";
+import jwt from "jsonwebtoken";
 
-// const oauth2Client = new google.auth.OAuth2(
-//   process.env.GOOGLE_CLIENT_ID,
-//   process.env.GOOGLE_CLIENT_SECRET,
-//   process.env.GOOGLE_REDIRECT_URI
+// let client = jwksClient({
+//   jwksUri:
+//     "https://codeflyb2c.b2clogin.com/codeflyb2c.onmicrosoft.com/B2C_1_CASpR/discovery/v2.0/keys",
+// });
+// let tk =
+//   "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Ilg1ZVhrNHh5b2pORnVtMWtsMll0djhkbE5QNC1jNTdkTzZRR1RWQndhTmsifQ.eyJleHAiOjE2MDg5NTE4NDcsIm5iZiI6MTYwODk0ODI0NywidmVyIjoiMS4wIiwiaXNzIjoiaHR0cHM6Ly9jb2RlZmx5YjJjLmIyY2xvZ2luLmNvbS8zOTZiZTFiMy1kM2MzLTRlYWMtYjdhZS0wZDNhNGQwOGU5ZGEvdjIuMC8iLCJzdWIiOiIxN2I4Njg4MS1kYzNiLTQ5NmEtYWE3OS1jZjZmZDVlZmFlZTciLCJhdWQiOiIyYjA4YWNiMy00YzcwLTRiMWYtODkyNS1iMDAxNTg4ODNmMWEiLCJub25jZSI6IjgyZmI2ZWNhLWVkNWEtNDQ4MS1iNGMwLWYwMzc4NzJlNGVjOSIsImlhdCI6MTYwODk0ODI0NywiYXV0aF90aW1lIjoxNjA4OTQ4MjQ3LCJuYW1lIjoiRGF2aWQgRmVkZXJzcGllbCIsImlkcCI6Imdvb2dsZS5jb20iLCJjaXR5IjoiRk9SVCBXQVlORSIsImVtYWlscyI6WyJkYXZpZEBmZWRlcm5ldC5jb20iXSwidGZwIjoiQjJDXzFfQ0FTcFIifQ.BnCNzBnEhkPn6Ia6BeQooTZzPBPqpb6Akqa6M8mskXv0RROX9GMbCBOFqOlNNlaLOrdx7z1Uc8ziRCllw_N4HgvF8jt2LdX2FCp6QiPh6wT1nDHQp9-Sc-qlZMoi32J05uzyWwRnbw0EtQp1rMli4xHSmA5hD-NNixj64ba3Y1w5pSvcQLfXrdk63ryD5tLeTPlLn-QAQ-WwmbrLyXh23tMIl-Bsuq-XZxMnB46TSFmQFEPsk7DSolUTmvtJKamSrR121oB8IpQarvU7nAl0lDwiVJhjQFppjIh7IlTWvmAliyU-3Ku7i3pNL-gEsEkU5aiL3ZKHf2OPFv-AhOYx5Q";
+// const t =
+//   "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Ilg1ZVhrNHh5b2pORnVtMWtsMll0djhkbE5QNC1jNTdkTzZRR1RWQndhTmsifQ.eyJleHAiOjE2MDg4ODIwNzksIm5iZiI6MTYwODg3ODQ3OSwidmVyIjoiMS4wIiwiaXNzIjoiaHR0cHM6Ly9jb2RlZmx5YjJjLmIyY2xvZ2luLmNvbS8zOTZiZTFiMy1kM2MzLTRlYWMtYjdhZS0wZDNhNGQwOGU5ZGEvdjIuMC8iLCJzdWIiOiIxN2I4Njg4MS1kYzNiLTQ5NmEtYWE3OS1jZjZmZDVlZmFlZTciLCJhdWQiOiIyYjA4YWNiMy00YzcwLTRiMWYtODkyNS1iMDAxNTg4ODNmMWEiLCJub25jZSI6ImVlMWM3MDM3LWIwMGYtNGQxYy05NDhhLWM3Nzg3ZmZlM2QwNyIsImlhdCI6MTYwODg3ODQ3OSwiYXV0aF90aW1lIjoxNjA4ODc4NDc5LCJuYW1lIjoiRGF2aWQgRmVkZXJzcGllbCIsImlkcCI6Imdvb2dsZS5jb20iLCJjaXR5IjoiRk9SVCBXQVlORSIsImVtYWlscyI6WyJkYXZpZEBmZWRlcm5ldC5jb20iXSwidGZwIjoiQjJDXzFfQ0FTcFIifQ.GAiqHLwY9QHeq7NTRLr1y9eJTKDClc7Gl92yogBUDat3S71MbT8Xh0FOdLPDogE2aDK4lSZCl0tnWxnQG9KdfEbOW37lkoRTcBQ8mDfmBbeNndWmBgpQEj8NWG3KlOVsst_nHqgdtTzOGf_DOaVZSIImToIkxhalNlDFbNe2N0gOK9sOGJH9acc_xOLyFsgFFYN1cKW6lINimjvA7URQuEKOjE7CCprTj2mEuJ4vF7k2M_IPOWb3QblQQ9Tge6l_h30U_GlD6ECdrvYWvVgGfG3v011AqN0kiS1EBpCGXt8n8g0dUoyA9pO6kfL5weC1EL7Dmn_tCD9VhLr3Pff2ow";
+
+// client.getSigningKey(
+//   "X5eXk4xyojNFum1kl2Ytv8dlNP4-c57dO6QGTVBwaNk",
+//   (err, key) => {
+//     if (err != null) {
+//       console.log("err:" + err);
+//     } else {
+//       const signingKey = key.getPublicKey();
+//       console.log("signingKey:" + signingKey);
+//       try {
+//         const decoded: any = jwt.verify(tk, signingKey, {
+//           algorithms: ["RS256"],
+//         });
+//         console.log(
+//           "decoded with signature verification: " + JSON.stringify(decoded)
+//         );
+//       } catch (ex) {
+//         console.log(ex);
+//       }
+//     }
+//   }
 // );
+// public key https://codeflyb2c.b2clogin.com/codeflyb2c.onmicrosoft.com/B2C_1_CASpR/discovery/v2.0/keys
+// const k = '-----BEGIN PUBLIC KEY-----\ntVKUtcx_n9rt5afY_2WFNvU6PlFMggCatsZ3l4RjKxH0jgdLq6CScb0P3ZGXYbPzXvmmLiWZizpb-h0qup5jznOvOr-Dhw9908584BSgC83YacjWNqEK3urxhyE2jWjwRm2N95WGgb5mzE5XmZIvkvyXnn7X8dvgFPF5QwIngGsDG8LyHuJWlaDhr_EPLMW4wHvH0zZCuRMARIJmmqiMy3VD4ftq4nS5s8vJL0pVSrkuNojtokp84AtkADCDU_BUhrc2sIgfnvZ03koCQRoZmWiHu86SuJZYkDFstVTVSR0hiXudFlfQ2rOhPlpObmku68lXw-7V-P7jwrQRFfQVXw\n-----END PUBLIC KEY-----';
+// import jwt from 'jsonwebtoken';
 
-// const t = 'eyJhbGciOiJSUzI1NiIsImtpZCI6ImUxOTdiZjJlODdiZDE5MDU1NzVmOWI2ZTVlYjQyNmVkYTVkNTc0ZTMiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiI3MDc0Mzg3ODg2MTktZnU4a3FpN2hqZWQ3NHZoMzJwbDhiMjM4ZGI0amRyZmsuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiI3MDc0Mzg3ODg2MTktZnU4a3FpN2hqZWQ3NHZoMzJwbDhiMjM4ZGI0amRyZmsuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMTY2ODY4ODM0NTI0NjAyNDYxODciLCJoZCI6ImZlZGVybmV0LmNvbSIsImVtYWlsIjoiZGF2aWRAZmVkZXJuZXQuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImF0X2hhc2giOiJCR3RKNmFvWUwwZVdldGdtRUQtb3V3IiwibmFtZSI6IkRhdmlkIEZlZGVyc3BpZWwiLCJwaWN0dXJlIjoiaHR0cHM6Ly9saDMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL2EtL0FPaDE0R2lVVHpuSGNQQ0QxclNVRmlaR1YyR0YydUhwdWptMkZLaHdZS0JrT3c9czk2LWMiLCJnaXZlbl9uYW1lIjoiRGF2aWQiLCJmYW1pbHlfbmFtZSI6IkZlZGVyc3BpZWwiLCJsb2NhbGUiOiJlbiIsImlhdCI6MTYwODM0OTc3NiwiZXhwIjoxNjA4MzUzMzc2fQ.Xj8338uof5r5fzE80k0vVZ2496cb-SZSMv2Qao-kUfULFXkptZHXAeVPClDxhwWwRIi22MzUutdFaGiQP63LwurEyrxOPxl9mu6d6hFF1d69LINgdVVfXeHlNW3CxR2NnGR_vVEt25iEcZdV9QDNPFaitp1bEBoLcnbtT7HyDUzR85GXCyQJptFsgi047eiAqRhO0eScOIt2pzpXFrVBF09cYmAnf52ivqrb5IedAcELUxr1XadOX8H5zKhOsmxrvaaJO8D2eDRQ0-TFdUVhO9Vt0vZBfgxWsbgpIPjIMQ0cF73Pttjjn--bO-sg9_H2DEjjpUk-8D5rBdADaM1SQQ';
-import jwt from 'jsonwebtoken';
+// const test = jwt.verify(t, k,{ algorithms: ['RS256']},  (err, decoded) => {
+//   console.log(err, decoded);
+// });
 
-// const test = jwt.verify(t, process.env.GOOGLE_CLIENT_SECRET || '');
-// console.log(test);
 import { createServer } from "http";
 
 import axios, { AxiosRequestConfig } from "axios";
@@ -42,7 +70,7 @@ import SlackInteractionHandlers from "./handlers/SlackInteractionHandlers";
 import UserManager from "./lib/UserManager/UserManager";
 import UserDataContext from "./lib/UserManager/UserDataContext";
 import SessionDataContext from "./lib/SessionManager/SessionDataContext";
-import history from 'connect-history-api-fallback';
+import history from "connect-history-api-fallback";
 
 const sessionDataContext = new SessionDataContext();
 const session = new SessionManager(sessionDataContext);
@@ -88,6 +116,11 @@ const slackInteractions = SlackInteractionHandlers(
 // Create an express application
 const app = express();
 
+app.use(async (req, res, next) => {
+  console.log(req);
+  next()
+})
+
 // Plug the adapter in as a middleware
 app.use("/interact", slackInteractions.expressMiddleware());
 app.use("/events", slackEvents.expressMiddleware());
@@ -97,8 +130,14 @@ app.use(express.json()); // for parsing application/json
 app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
 app.post("/slash", async (req, res) => {
-  let message = await generateAnswerDetail(req.body);
-  res.json(message);
+  console.log(req.body, process.env);
+  try {
+    let message = await generateAnswerDetail(req.body);
+    res.json(message);
+  } catch (ex) {
+    console.log(ex);
+    res.sendStatus(500);
+  }
 });
 
 interface ConversationOpenResult extends WebAPICallResult {
@@ -286,7 +325,7 @@ app.get("/zoom", async (req, res) => {
 //       res.sendStatus(500);
 //     }
 //   }
- 
+
 // });
 
 app.get("/policy", (req, res) => {
@@ -340,7 +379,7 @@ app.get("/users", async (req, res) => {
       include: {
         Profile: true,
         ZoomAuth: true,
-      }
+      },
     });
   } catch (ex) {
     console.log(ex);
@@ -350,10 +389,11 @@ app.get("/users", async (req, res) => {
   else res.sendStatus(200);
 });
 
-
-app.use(history({
-  logger: console.log.bind(console)
-}));
+app.use(
+  history({
+    logger: console.log.bind(console),
+  })
+);
 
 app.use("/", express.static("www/build"));
 
