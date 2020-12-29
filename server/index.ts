@@ -4,10 +4,9 @@ dotenv.config();
 import jwksClient from "jwks-rsa";
 import jwt from "jsonwebtoken";
 
-// let client = jwksClient({
-//   jwksUri:
-//     "https://codeflyb2c.b2clogin.com/codeflyb2c.onmicrosoft.com/B2C_1_CASpR/discovery/v2.0/keys",
-// });
+let client = jwksClient({
+  jwksUri: `${process.env.B2C_AUTHORITY}/${process.env.B2C_LOGIN_POLICY}/discovery/v2.0/keys`,
+});
 // let tk =
 //   "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Ilg1ZVhrNHh5b2pORnVtMWtsMll0djhkbE5QNC1jNTdkTzZRR1RWQndhTmsifQ.eyJleHAiOjE2MDg5NTE4NDcsIm5iZiI6MTYwODk0ODI0NywidmVyIjoiMS4wIiwiaXNzIjoiaHR0cHM6Ly9jb2RlZmx5YjJjLmIyY2xvZ2luLmNvbS8zOTZiZTFiMy1kM2MzLTRlYWMtYjdhZS0wZDNhNGQwOGU5ZGEvdjIuMC8iLCJzdWIiOiIxN2I4Njg4MS1kYzNiLTQ5NmEtYWE3OS1jZjZmZDVlZmFlZTciLCJhdWQiOiIyYjA4YWNiMy00YzcwLTRiMWYtODkyNS1iMDAxNTg4ODNmMWEiLCJub25jZSI6IjgyZmI2ZWNhLWVkNWEtNDQ4MS1iNGMwLWYwMzc4NzJlNGVjOSIsImlhdCI6MTYwODk0ODI0NywiYXV0aF90aW1lIjoxNjA4OTQ4MjQ3LCJuYW1lIjoiRGF2aWQgRmVkZXJzcGllbCIsImlkcCI6Imdvb2dsZS5jb20iLCJjaXR5IjoiRk9SVCBXQVlORSIsImVtYWlscyI6WyJkYXZpZEBmZWRlcm5ldC5jb20iXSwidGZwIjoiQjJDXzFfQ0FTcFIifQ.BnCNzBnEhkPn6Ia6BeQooTZzPBPqpb6Akqa6M8mskXv0RROX9GMbCBOFqOlNNlaLOrdx7z1Uc8ziRCllw_N4HgvF8jt2LdX2FCp6QiPh6wT1nDHQp9-Sc-qlZMoi32J05uzyWwRnbw0EtQp1rMli4xHSmA5hD-NNixj64ba3Y1w5pSvcQLfXrdk63ryD5tLeTPlLn-QAQ-WwmbrLyXh23tMIl-Bsuq-XZxMnB46TSFmQFEPsk7DSolUTmvtJKamSrR121oB8IpQarvU7nAl0lDwiVJhjQFppjIh7IlTWvmAliyU-3Ku7i3pNL-gEsEkU5aiL3ZKHf2OPFv-AhOYx5Q";
 // const t =
@@ -52,7 +51,7 @@ import jwt_decode from "jwt-decode";
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
-import express, { response } from "express";
+import express, { NextFunction, response } from "express";
 import {
   ChatPostMessageArguments,
   ConversationsOpenArguments,
@@ -116,11 +115,6 @@ const slackInteractions = SlackInteractionHandlers(
 // Create an express application
 const app = express();
 
-app.use(async (req, res, next) => {
-  console.log(req);
-  next()
-})
-
 // Plug the adapter in as a middleware
 app.use("/interact", slackInteractions.expressMiddleware());
 app.use("/events", slackEvents.expressMiddleware());
@@ -128,6 +122,48 @@ app.use("/events", slackEvents.expressMiddleware());
 // ALWAYS PUT BEFORE REGULAR ROUTES
 app.use(express.json()); // for parsing application/json
 app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+
+const authCheck = (
+  req: express.Request,
+  res: express.Response,
+  next: NextFunction
+) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (token === undefined) res.sendStatus(401);
+    else {
+      const decodedToken = jwt.decode(token) as {
+        [key: string]: any;
+      };
+      console.log(decodedToken);
+
+      client.getSigningKey(decodedToken.kid, (err, key) => {
+        if (err != null) {
+          console.log("err:" + err);
+        } else {
+          const signingKey = key.getPublicKey();
+          console.log("signingKey:" + signingKey);
+          try {
+            const decoded: any = jwt.verify(token, signingKey, {
+              algorithms: ["RS256"],
+            });
+            console.log(
+              "decoded with signature verification: " + JSON.stringify(decoded)
+            );
+            next();
+          } catch (ex) {
+            console.log(ex);
+            res.sendStatus(401)
+          }
+        }
+      });
+    }
+  } catch {
+    response;
+  }
+};
+
+// app.use(authCheck);
 
 app.post("/slash", async (req, res) => {
   console.log(req.body, process.env);
@@ -371,7 +407,7 @@ app.get("/ping", (_, res) => {
   });
 });
 
-app.get("/users", async (req, res) => {
+app.get("/users", authCheck, async (req, res) => {
   let users;
   try {
     users = await prisma.user.findMany({
@@ -381,12 +417,12 @@ app.get("/users", async (req, res) => {
         ZoomAuth: true,
       },
     });
+    if (users) res.json(users);
+    else res.sendStatus(200);
   } catch (ex) {
     console.log(ex);
     res.send(ex);
   }
-  if (users) res.json(users);
-  else res.sendStatus(200);
 });
 
 app.use(
