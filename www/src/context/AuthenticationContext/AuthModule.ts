@@ -32,14 +32,14 @@ class AuthModule {
         if (response === null) {
           this.msal.getAllAccounts().forEach((acct) => {
             // eslint-disable-next-line no-console
-            console.log(acct);
+            // console.log(acct);
             this.account = acct;
             //setUser(acct.name || "");
             this.cb && this.cb(acct.username);
           });
         } else {
           // eslint-disable-next-line no-console
-          console.log(response);
+          // console.log(response);
           if (response?.account) {
             this.account = response?.account;
             this.cb && this.cb(response?.account?.username);
@@ -56,6 +56,17 @@ class AuthModule {
             this.msal.loginRedirect(redirectRequest).then((response) => {
               console.log(response);
             });
+          } catch (e) {
+            // eslint-disable-next-line no-console
+            console.error(`error: ${e}`);
+          }
+        }
+        if (err.errorMessage.indexOf("AADB2C90077") > -1) {
+          try {
+            // Password reset
+            // this.msal.loginRedirect(redirectRequest).then((response) => {
+            //   console.log(response);
+            // });
           } catch (e) {
             // eslint-disable-next-line no-console
             console.error(`error: ${e}`);
@@ -101,12 +112,48 @@ class AuthModule {
         account: this.account,
         ...LOGIN_REQUEST,
       });
-      console.log("[TOKEN RESPONSE]", result);
       return result;
     } catch (ex) {
+      console.log("[REFRESH]");
       console.log(ex);
+      await this.msal.acquireTokenRedirect({
+        account: this.account,
+        ...LOGIN_REQUEST,
+      });
       return null;
     }
+
+    // return await this.msal
+    //   .acquireTokenSilent({
+    //     account: this.account,
+    //     ...LOGIN_REQUEST,
+    //   })
+    //   .then((response) => {
+    //     if (response.accessToken) {
+    //       let accessToken = response.accessToken;
+    //       console.log("Request made to Web API:");
+
+    //       if (accessToken) {
+    //         console.log(accessToken);
+    //         // try {
+    //         //   callApiWithAccessToken(apiConfig.webApi, accessToken);
+    //         // } catch (err) {
+    //         //   console.log(err);
+    //         // }
+    //       }
+    //     }
+    //   })
+    //   .catch((error) => {
+    //     console.log(
+    //       "Silent token acquisition fails. Acquiring token using redirect"
+    //     );
+    //     console.log(error);
+    //     // fallback to interaction when silent call fails
+    //     return this.msal.acquireTokenRedirect({
+    //       account: this.account,
+    //       ...LOGIN_REQUEST,
+    //     });
+    //   });
 
     //   return this.msal.acquireTokenSilent({
     //     account: this.account,
