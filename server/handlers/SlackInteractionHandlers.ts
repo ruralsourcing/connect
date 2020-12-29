@@ -5,11 +5,17 @@ import SessionManager from "../lib/SessionManager/SessionManager";
 import jwt_decode from "jwt-decode";
 import axios from "axios";
 import MeetingManager from "../lib/MeetingManager/MeetingManager";
+import MeetingContext from "../lib/MeetingManager/MeetingDataContext";
+import SessionDataContext from "../lib/SessionManager/SessionDataContext";
+
+const dbContext = new MeetingContext();
+const meetingManager = new MeetingManager(dbContext);
+
+const sessionDataContext = new SessionDataContext();
+const session = new SessionManager(sessionDataContext);
 
 export default function SlackInteractionHandlers(
-  slackSigningSecret: string,
-  session: SessionManager,
-  meetingManager: MeetingManager
+  slackSigningSecret: string
 ) {
   const slackInteractions: SlackMessageAdapter &
     EventEmitter = createMessageAdapter(slackSigningSecret) as any;
