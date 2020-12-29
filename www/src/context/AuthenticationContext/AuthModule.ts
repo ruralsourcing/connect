@@ -29,23 +29,17 @@ class AuthModule {
     this.msal
       .handleRedirectPromise()
       .then((response: AuthenticationResult | null) => {
+        console.log("[HANDLE REDIRECT]", response);
         if (response === null) {
           this.msal.getAllAccounts().forEach((acct) => {
-            // eslint-disable-next-line no-console
-            // console.log(acct);
             this.account = acct;
-            //setUser(acct.name || "");
             this.cb && this.cb(acct.username);
           });
         } else {
-          // eslint-disable-next-line no-console
-          // console.log(response);
           if (response?.account) {
             this.account = response?.account;
             this.cb && this.cb(response?.account?.username);
           }
-          //setUser(response?.account?.name || "");
-          //setProfile(getUserProfile(response.account));
         }
       })
       .catch((err) => {
@@ -106,11 +100,14 @@ class AuthModule {
 
   async token() {
     if (!this.account) return null;
-
+    // https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-acquire-cache-tokens#recommended-call-pattern-for-public-client-applications
+    // Auth Code Flow might require another way to get cache.
+    // Currently all token requests hit B2C and never pulls from cache
     try {
       const result = await this.msal.acquireTokenSilent({
         account: this.account,
-        ...LOGIN_REQUEST,
+        scopes: [],
+        forceRefresh: false,
       });
       return result;
     } catch (ex) {
@@ -122,48 +119,6 @@ class AuthModule {
       });
       return null;
     }
-
-    // return await this.msal
-    //   .acquireTokenSilent({
-    //     account: this.account,
-    //     ...LOGIN_REQUEST,
-    //   })
-    //   .then((response) => {
-    //     if (response.accessToken) {
-    //       let accessToken = response.accessToken;
-    //       console.log("Request made to Web API:");
-
-    //       if (accessToken) {
-    //         console.log(accessToken);
-    //         // try {
-    //         //   callApiWithAccessToken(apiConfig.webApi, accessToken);
-    //         // } catch (err) {
-    //         //   console.log(err);
-    //         // }
-    //       }
-    //     }
-    //   })
-    //   .catch((error) => {
-    //     console.log(
-    //       "Silent token acquisition fails. Acquiring token using redirect"
-    //     );
-    //     console.log(error);
-    //     // fallback to interaction when silent call fails
-    //     return this.msal.acquireTokenRedirect({
-    //       account: this.account,
-    //       ...LOGIN_REQUEST,
-    //     });
-    //   });
-
-    //   return this.msal.acquireTokenSilent({
-    //     account: this.account,
-    //     ...LOGIN_REQUEST,
-    //     forceRefresh: true,
-    //   }).catch((reason) => {
-    //     console.log("[FAILED]", reason);
-    //     return null;
-    //   })
-    // }
   }
 
   logout() {
@@ -182,32 +137,3 @@ class AuthModule {
 }
 
 export default AuthModule;
-
-// const getToken = async (
-//     acct: AccountInfo
-//   ): Promise<AuthenticationResult | void> => {
-//     const request: SilentRequest = {
-//       scopes: ["openid", "profile", "email"],
-//       forceRefresh: false,
-//       account: acct,
-//     };
-//     try {
-//       return auth.msal.acquireTokenSilent(request).catch(async (ex) => {
-//         notifier.setNotification({
-//           message: `Cannot silently refresh token, trying with a popup... ${ex}`,
-//           appearance: NotificationEnum.ERROR,
-//         });
-//         return auth.msal.acquireTokenPopup(request).catch((e) => {
-//           notifier.setNotification({
-//             message: `Acquiring token via popup also failed, you'll have to log in manually. ${e}`,
-//             appearance: NotificationEnum.ERROR,
-//           });
-//         });
-//       });
-//     } catch (ex) {
-//       notifier.setNotification({
-//         message: `Token request failed: ${ex}`,
-//         appearance: NotificationEnum.ERROR,
-//       });
-//     }
-//   };

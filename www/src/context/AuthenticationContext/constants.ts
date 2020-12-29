@@ -12,7 +12,7 @@ export const MSAL_CONFIG: Configuration = {
     },
     cache: {
         cacheLocation: 'sessionStorage',
-        storeAuthStateInCookie: true,
+        storeAuthStateInCookie: false,
     },
     system: {
         loggerOptions: {
@@ -39,7 +39,6 @@ export const MSAL_CONFIG: Configuration = {
     }
 };
 
-// request to signin - returns an idToken
 export const LOGIN_REQUEST = {
     scopes: ['openid', 'profile', 'email'],
 };
