@@ -1,7 +1,5 @@
-import { Meeting } from "./Meeting";
 import { IDataContext } from "../../data/types";
-
-import { PrismaClient, Prisma } from "@prisma/client";
+import { PrismaClient, Meeting } from "@prisma/client";
 const prisma = new PrismaClient();
 export default class MeetingDataContext implements IDataContext<Meeting> {
   async getAll(): Promise<Meeting[]> {

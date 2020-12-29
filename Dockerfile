@@ -5,6 +5,7 @@ WORKDIR /usr/src/app
 RUN npm install -g typescript nodemon ts-node @prisma/cli
 
 COPY . .
+RUN yarn install
 RUN cd www && yarn install && yarn run build
 RUN cd server && yarn install
 

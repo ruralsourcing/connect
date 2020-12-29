@@ -2,11 +2,14 @@ FROM node:latest
 
 WORKDIR /usr/src/app
 
-COPY ./www .
+COPY ./package.json .
+COPY ./prisma ./prisma
 RUN yarn install
+COPY ./www ./www
+RUN cd www && yarn install
 
 EXPOSE 3000
-CMD [ "yarn", "run", "start" ]
+
 
 #   yarn global add serve
 #   serve -s build

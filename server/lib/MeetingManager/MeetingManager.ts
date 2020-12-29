@@ -1,5 +1,5 @@
+import { Meeting } from "@prisma/client";
 import { IDataContext } from "../../data/types";
-import { Meeting } from "./Meeting";
 
 export default class MeetingManager {
   private _context: IDataContext<Meeting>;
