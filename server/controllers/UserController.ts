@@ -12,21 +12,21 @@ export default class UserController {
 
   routes() {
     this.app.get("/users", authCheck, async (req, res) => {
-        let users;
-        try {
-          users = await this.client.user.findMany({
-            take: 10,
-            include: {
-              Profile: true,
-              ZoomAuth: true,
-            },
-          });
-          if (users) res.json(users);
-          else res.sendStatus(200);
-        } catch (ex) {
-          console.log(ex);
-          res.send(ex);
-        }
-      });
+      let users;
+      try {
+        users = await this.client.user.findMany({
+          take: 10,
+          include: {
+            Profile: true,
+            ZoomAuth: true,
+          },
+        });
+        if (users) res.json(users);
+        else res.sendStatus(200);
+      } catch (ex) {
+        console.log(ex);
+        res.send(ex);
+      }
+    });
   }
 }

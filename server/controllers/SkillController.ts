@@ -12,10 +12,8 @@ export default class SkillController {
   }
 
   routes() {
-    this.app.get(
-      "/api/skills",
-      authCheck,
-      async (req, res) => res.json(await this.manager.getAll())
+    this.app.get("/api/skills", authCheck, async (req, res) =>
+      res.json(await this.manager.getAll())
     );
   }
 }

@@ -24,12 +24,13 @@ const PrivateRoute = ({ children, ...rest }: RouteProps): JSX.Element => {
         auth.user ? (
           children
         ) : (
-          <Redirect
-            to={{
-              pathname: "/login",
-              state: { from: location },
-            }}
-          />
+          // <Redirect
+          //   to={{
+          //     pathname: "/",
+          //     state: { from: location },
+          //   }}
+          // />
+          <h1>Not Authorized</h1>
         )
       }
     />
@@ -43,7 +44,7 @@ function App() {
         <Layout>
           <Header>
             <Row>
-              <Menu theme="dark" mode="horizontal" defaultSelectedKeys={["2"]}>
+              <Menu theme="dark" mode="horizontal">
                 <Menu.Item key="1">
                   <Link to="/">Home</Link>
                 </Menu.Item>
