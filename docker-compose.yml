@@ -12,6 +12,7 @@ services:
       - postgres
     volumes:
       - ./server:/usr/src/app
+      - /usr/src/app/node_modules/
     restart: on-failure
     env_file: docker/app/.env
     command: [bash, -c, "prisma migrate deploy --preview-feature && yarn run start"]
