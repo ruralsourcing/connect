@@ -16,6 +16,7 @@ import SkillController from "./controllers/SkillController";
 import ZoomController from "./controllers/ZoomController";
 import MeetingController from "./controllers/MeetingController";
 import UserController from "./controllers/UserController";
+import apollo from "./graphql/server";
 
 const slackSigningSecret = process.env.SLACK_SIGNING_SECRET || "";
 const port = process.env.PORT || 3000;
@@ -70,6 +71,9 @@ new ZoomController(app).routes();
 new MeetingController(app).routes();
 new UserController(app).routes();
 
+const server = createServer(app);
+apollo.applyMiddleware({ app });
+apollo.installSubscriptionHandlers(server);
 app.use(
   history({
     logger: console.log.bind(console),
@@ -78,7 +82,8 @@ app.use(
 
 app.use("/", express.static("www/build"));
 
-const server = createServer(app);
+
+console.log("[APOLLO]", apollo.graphqlPath);
 
 server.listen(port, () => {
   console.log(`Listening for events on ${port}`);
