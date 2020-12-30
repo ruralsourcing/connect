@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@azure/msal-browser": "^2.8.0",
+    "@casl/ability": "^5.1.1",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
@@ -14,6 +15,7 @@
     "@types/react-toast-notifications": "^2.4.0",
     "antd": "^4.9.4",
     "axios": "^0.21.0",
+    "http-proxy-middleware": "^1.0.6",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-router-dom": "^5.2.0",
@@ -27,8 +29,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "prisma": "prisma generate --schema=../prisma/schema.prisma"
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
