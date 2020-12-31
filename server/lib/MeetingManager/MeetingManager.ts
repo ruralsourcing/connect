@@ -1,10 +1,10 @@
-import { Meeting } from "@prisma/client";
+import { Meeting, Prisma } from "@prisma/client";
 import { IDataContext } from "../../data/types";
 
 export default class MeetingManager {
-  private _context: IDataContext<Meeting>;
+  private _context: IDataContext<Meeting, Prisma.MeetingCreateInput>;
 
-  constructor(context: IDataContext<Meeting>) {
+  constructor(context: IDataContext<Meeting, Prisma.MeetingCreateInput>) {
     this._context = context;
   }
 
@@ -12,7 +12,7 @@ export default class MeetingManager {
     return await this._context.getAll();
   }
 
-  async addMeeting(meeting: Meeting) {
+  async addMeeting(meeting: Prisma.MeetingCreateInput) {
     await this._context.post(meeting);
   }
 

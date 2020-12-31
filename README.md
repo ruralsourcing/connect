@@ -44,4 +44,11 @@ Several environment variables are needed for the docker app to run:
 
 **DATABASE_URL**={Database Connection String}  
 
+**B2C_AUTHORITY**=https://codeflyb2c.b2clogin.com/codeflyb2c.onmicrosoft.com
+**B2C_LOGIN_POLICY**=B2C_1_CASpR
+**B2C_APPLICATION_ID**=2b08acb3-4c70-4b1f-8925-b00158883f1a
+**B2C_KNOWN_AUTHORITIES**=codeflyb2c.b2clogin.com
+
+**JWT_KID**=X5eXk4xyojNFum1kl2Ytv8dlNP4-c57dO6QGTVBwaNk
+
 ## DB Service

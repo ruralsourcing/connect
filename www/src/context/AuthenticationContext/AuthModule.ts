@@ -4,6 +4,7 @@ import {
   PublicClientApplication,
   RedirectRequest,
 } from "@azure/msal-browser";
+import { User } from "@prisma/client";
 import { MSAL_CONFIG, LOGIN_REQUEST } from "./constants";
 
 console.log("ENV", process.env);
@@ -20,8 +21,9 @@ const redirectRequest: RedirectRequest = {
 class AuthModule {
   msal: PublicClientApplication;
   account?: AccountInfo;
+  user?: User;
 
-  private cb?: Function;
+  private cb?: ( user?: string ) => void;
 
   constructor() {
     this.msal = new PublicClientApplication(MSAL_CONFIG);
@@ -33,12 +35,22 @@ class AuthModule {
         if (response === null) {
           this.msal.getAllAccounts().forEach((acct) => {
             this.account = acct;
-            this.cb && this.cb(acct.username);
+            this.user = {
+              id: 0,
+              email: this.account.username,
+              domain: ''
+            }
+            this.cb && this.cb(this.account.username);
           });
         } else {
           if (response?.account) {
             this.account = response?.account;
-            this.cb && this.cb(response?.account?.username);
+            this.user = {
+              id: 0,
+              email: this.account.username,
+              domain: ''
+            }
+            this.cb && this.cb(this.account.username);
           }
         }
       })
@@ -69,7 +81,7 @@ class AuthModule {
       });
   }
 
-  onAccount(cb: Function) {
+  onAccount(cb: ( user?: string ) => void) {
     this.cb = cb;
   }
 

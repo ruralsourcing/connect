@@ -8,4 +8,12 @@ module.exports = function (app) {
       changeOrigin: true,
     })
   );
+
+  app.use(
+    "/users",
+    createProxyMiddleware({
+      target: "http://server:3000",
+      changeOrigin: true,
+    })
+  );
 };

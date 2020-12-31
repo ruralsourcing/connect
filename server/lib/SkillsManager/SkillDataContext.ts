@@ -1,8 +1,8 @@
 import { IDataContext } from "../../data/types";
-import { PrismaClient, Skill } from "@prisma/client";
+import { Prisma, PrismaClient, Skill } from "@prisma/client";
 const prisma = new PrismaClient();
 
-export default class SkillDataContext implements IDataContext<Skill> {
+export default class SkillDataContext implements IDataContext<Skill, Prisma.SkillCreateInput> {
     getAll(): Promise<Skill[]> {
         return prisma.skill.findMany({
             where: {
@@ -15,7 +15,7 @@ export default class SkillDataContext implements IDataContext<Skill> {
     get(id: string): Promise<Skill> {
         throw new Error("Method not implemented.");
     }
-    post(item: Skill): Promise<Skill> {
+    post(item: Prisma.SkillCreateInput): Promise<Skill> {
         throw new Error("Method not implemented.");
     }
     delete(id: string): void {

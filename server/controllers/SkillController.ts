@@ -1,19 +1,23 @@
-import { Application } from "express";
+import { Skill } from "@prisma/client";
+import { Router } from "express";
 import SkillDataContext from "../lib/SkillsManager/SkillDataContext";
 import SkillManager from "../lib/SkillsManager/SkillManager";
-import { authCheck } from "../middleware/AuthMiddleware";
 
 export default class SkillController {
-  private app: Application;
+  private path: string = "/skills";
+  private router: Router;
   private manager: SkillManager;
-  constructor(app: Application) {
-    this.app = app;
+  constructor(router: Router) {
+    this.router = router;
     this.manager = new SkillManager(new SkillDataContext());
+    this.initializeRoutes();
   }
 
-  routes() {
-    this.app.get("/api/skills", authCheck, async (req, res) =>
-      res.json(await this.manager.getAll())
-    );
+  private initializeRoutes = () => {
+    this.router.get(`${this.path}`, this.getAllSkills);
+  };
+
+  private getAllSkills = async (req: any, res: { json: (arg0: Skill[]) => void; }) => {
+    res.json(await this.manager.getAll())
   }
 }
