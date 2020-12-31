@@ -1,4 +1,5 @@
 import { AuthenticationResult } from "@azure/msal-browser";
+import { User } from "@prisma/client";
 
 type Policy = {
     policyId: number;
@@ -11,7 +12,7 @@ type UserProfile = {
 };
 
 type AuthContext = {
-    user: string | null;
+    user?: string;
     signin(): void;
     signout(): void;
     token(): Promise<AuthenticationResult | null>;

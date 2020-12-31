@@ -1,45 +1,40 @@
-import { User } from "./User";
 import { IDataContext } from "../../data/types";
-import axios from "axios";
+import { PrismaClient, User, Prisma } from "@prisma/client";
 
-export default class UserDataContext implements IDataContext<User> {
+export interface IUserDataContext extends IDataContext<User, User> {
+  getByEmail(email: string): Promise<User | null>;
+}
+
+export default class UserDataContext implements IUserDataContext {
+
+  client: PrismaClient;
+
+  constructor(){
+    this.client = new PrismaClient();
+  }
+
+  async getByEmail(email: string): Promise<User | null> {
+    return await this.client.user.findUnique({
+      where: {
+        email: email
+      }
+    })
+  }
   async getAll(): Promise<User[]> {
-    return axios
-      .get<User[]>("/api/users?")
-      .then((d) => d.data)
-      .catch((e) => {
-        console.log(e);
-        return [];
-      });
+    throw new Error("Method not implemented.");
   }
   async get(id: string): Promise<User> {
-    return axios
-      .get<User>(`/api/users/${id}?_embed=skills&_expand=session`)
-      .then((d) => d.data)
-      .catch((e) => {
-        console.log(e);
-        return {} as User;
-      });
+    throw new Error("Method not implemented.");
   }
   async post(item: User): Promise<User> {
-    return await axios
-      .request<User>({
-        url: "/api/users",
-        method: "post",
-        data: item,
-      })
-      .then((response) => {
-        return response.data;
-      });
+    return await this.client.user.create({
+      data: item
+    })
   }
   async delete(id: string): Promise<void> {
-    await axios.delete(`/api/users/${id}`);
+    throw new Error("Method not implemented.");
   }
   async put(item: User): Promise<User> {
-    return await axios.request({
-      url: `/api/users/${item.id}`,
-      data: item,
-      method: "put",
-    });
+    throw new Error("Method not implemented.");
   }
 }

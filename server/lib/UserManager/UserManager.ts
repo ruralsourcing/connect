@@ -1,29 +1,36 @@
-import { IDataContext } from "../../data/types";
-import { User } from "./User";
+import { Prisma, User } from "@prisma/client";
+import { IUserDataContext } from "./UserDataContext";
 
-export default class UserManager {
-  private _context: IDataContext<User>;
+export interface IUserManager {
+  create(user: Prisma.UserCreateInput): Promise<User>;
+  getAll(): Promise<User[]>;
+  getByEmail(email: string): Promise<User | null>;
+}
 
-  constructor(context: IDataContext<User>) {
+export default class UserManager implements IUserManager {
+  private _context: IUserDataContext;
+
+  constructor(context: IUserDataContext) {
     this._context = context;
   }
 
-  async getAll(): Promise<User[]> {
-    return await this._context.getAll();
+  async getByEmail(email: string): Promise<User | null> {
+    return await this._context.getByEmail(email);
   }
 
-  async addUser(user: User): Promise<User> {
+  async getAll(): Promise<User[]> {
+    throw new Error("Method not implemented.");
+  }
+
+  async create(user: User): Promise<User> {
     return await this._context.post(user);
   }
 
   async delete(): Promise<void> {
-    const users = await this.getAll();
-    users.forEach(async (u) => {
-      await this._context.delete(u.id);
-    });
+    throw new Error("Method not implemented.");
   }
 
   async getUser(id: string): Promise<User | null> {
-    return await this._context.get(id);
+    throw new Error("Method not implemented.");
   }
 }

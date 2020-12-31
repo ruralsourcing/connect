@@ -1,7 +1,7 @@
 import { IDataContext } from "../../data/types";
-import { PrismaClient, Meeting } from "@prisma/client";
+import { PrismaClient, Meeting, Prisma } from "@prisma/client";
 const prisma = new PrismaClient();
-export default class MeetingDataContext implements IDataContext<Meeting> {
+export default class MeetingDataContext implements IDataContext<Meeting, Prisma.MeetingCreateInput> {
   async getAll(): Promise<Meeting[]> {
     return prisma.meeting.findMany();
   }
@@ -12,7 +12,7 @@ export default class MeetingDataContext implements IDataContext<Meeting> {
       },
     });
   }
-  async post(item: Meeting): Promise<Meeting> {
+  async post(item: Prisma.MeetingCreateInput): Promise<Meeting> {
     return await prisma.meeting.create({
       data: item,
     });
