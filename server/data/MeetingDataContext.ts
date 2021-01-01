@@ -1,7 +1,12 @@
-import { IDataContext } from "../../data/types";
+import { IDataContext } from "./types";
 import { PrismaClient, Meeting, Prisma } from "@prisma/client";
 const prisma = new PrismaClient();
-export default class MeetingDataContext implements IDataContext<Meeting, Prisma.MeetingCreateInput> {
+
+export interface IMeetingDataContext extends IDataContext<Meeting, Prisma.MeetingCreateInput> {
+
+}
+
+export default class MeetingDataContext implements IMeetingDataContext {
   async getAll(): Promise<Meeting[]> {
     return prisma.meeting.findMany();
   }

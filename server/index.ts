@@ -17,10 +17,12 @@ import ZoomController from "./controllers/ZoomController";
 import MeetingController from "./controllers/MeetingController";
 import UserController from "./controllers/UserController";
 import apollo from "./graphql/server";
-import { AuthContext } from "./middleware/AuthContext"; //
+import { AuthContext } from "./middleware/AuthContext";
 import { UserContext } from "./middleware/UserContext";
-import UserManager from './lib/UserManager/UserManager';
-import UserDataContext from "./lib/UserManager/UserDataContext";
+import UserDataContext from "./data/UserDataContext";
+import SkillDataContext from "./data/SkillDataContext";
+import MeetingDataContext from "./data/MeetingDataContext";
+import ZoomDataContext from "./data/ZoomDataContext";
 
 const slackSigningSecret = process.env.SLACK_SIGNING_SECRET || "";
 const port = process.env.PORT || 3000;
@@ -31,17 +33,9 @@ const slackInteractions = SlackInteractionHandlers(slackSigningSecret);
 // Create an express application
 const app = express();
 
-var sess = {
-  secret: 'keyboard cat',
-  cookie: {
-    secure: false
-  }
-}
-
 const userDataContext = new UserDataContext();
-const userManager = new UserManager(userDataContext);
-const userContext = new AuthContext(userManager);
-app.use(userContext.middleware);
+const authContext = new AuthContext(userDataContext);
+app.use(authContext.middleware);
 
 // Plug the adapter in as a middleware
 app.use("/interact", slackInteractions.expressMiddleware());
@@ -91,10 +85,14 @@ app.get("/ping", (_, res) => {
 
 const router = express.Router();
 
-new SkillController(router);
-new ZoomController(router);
-new MeetingController(router);
-new UserController(router);
+const skillDataContext = new SkillDataContext();
+const meetingDataContext = new MeetingDataContext();
+const zoomDataContext = new ZoomDataContext();
+
+new SkillController(router, skillDataContext);
+new ZoomController(router, zoomDataContext);
+new MeetingController(router, meetingDataContext);
+new UserController(router, userDataContext);
 
 app.use('/api', UserContext, router);
 

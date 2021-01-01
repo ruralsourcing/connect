@@ -2,20 +2,29 @@ import { User } from "@prisma/client";
 import express, { NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import jwksClient from "jwks-rsa";
-import { IUserManager } from "../lib/UserManager/UserManager";
+import { IUserDataContext } from "../data/UserDataContext";
 
 let client = jwksClient({
   jwksUri: `${process.env.B2C_AUTHORITY}/${process.env.B2C_LOGIN_POLICY}/discovery/v2.0/keys`,
 });
 
 export class AuthContext {
-  private manager: IUserManager;
-  private test: number = 10;
+  private context: IUserDataContext;
 
-  constructor(manager: IUserManager) {
-    this.manager = manager;
-    console.log("[manager]", this.manager);
+  constructor(context: IUserDataContext) {
+    this.context = context;
   }
+
+  private getUser = async (token: any): Promise<User> => {
+    const email = token.emails.length > 0 && token.emails[0];
+    let user = await this.context.getByEmail(email);
+    if (!user) {
+      user = await this.context.post({
+        email: email as string,
+      });
+    }
+    return user;
+  };
 
   middleware = async (
     req: express.Request,
@@ -35,15 +44,7 @@ export class AuthContext {
               const decoded: any = jwt.verify(token, signingKey, {
                 algorithms: ["RS256"],
               });
-              // set user in 
-              let user;
-              user = await this.manager.getByEmail(decoded.emails[0]);
-              if(!user) {
-                user = await this.manager.create({
-                  email: decoded.emails[0],
-                })
-              }
-              res.locals.user = user;
+              res.locals.user = await this.getUser(decoded);
               next();
             } catch (ex) {
               console.log(ex);
@@ -57,39 +58,3 @@ export class AuthContext {
     }
   };
 }
-
-// export const AuthContext = (
-//   req: express.Request,
-//   res: express.Response,
-//   next: NextFunction
-// ) => {
-//   try {
-//     const token = req.headers.authorization?.split(" ")[1];
-//     if (token === undefined) next();
-//     else {
-//       //console.log("[KID]", process.env.JWT_KID)
-//       client.getSigningKey(process.env.JWT_KID || "", (err, key) => {
-//         if (err != null) {
-//           console.log("err:" + err);
-//         } else {
-//           const signingKey = key.getPublicKey();
-//           //console.log("signingKey:" + signingKey);
-//           try {
-//             const decoded: any = jwt.verify(token, signingKey, {
-//               algorithms: ["RS256"],
-//             });
-//             //console.log("[DECODED]", decoded);
-//             req.app.set("user", decoded);
-//             next();
-//           } catch (ex) {
-//             console.log(ex);
-//             //res.sendStatus(403);
-//             next();
-//           }
-//         }
-//       });
-//     }
-//   } catch (ex) {
-//     console.log(ex);
-//   }
-// };

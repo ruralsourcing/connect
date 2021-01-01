@@ -1,7 +1,7 @@
-import { IDataContext } from "../../data/types";
+import { IDataContext } from "./types";
 import { PrismaClient, User, Prisma } from "@prisma/client";
 
-export interface IUserDataContext extends IDataContext<User, User> {
+export interface IUserDataContext extends IDataContext<User, Prisma.UserCreateInput> {
   getByEmail(email: string): Promise<User | null>;
 }
 
@@ -21,12 +21,12 @@ export default class UserDataContext implements IUserDataContext {
     })
   }
   async getAll(): Promise<User[]> {
-    throw new Error("Method not implemented.");
+    return await this.client.user.findMany();
   }
   async get(id: string): Promise<User> {
     throw new Error("Method not implemented.");
   }
-  async post(item: User): Promise<User> {
+  async post(item: Prisma.UserCreateInput): Promise<User> {
     return await this.client.user.create({
       data: item
     })

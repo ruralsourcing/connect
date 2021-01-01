@@ -1,16 +1,12 @@
-import { Application, IRouter, Router } from "express";
-import axios, { AxiosRequestConfig } from "axios";
-import MeetingManager from "../lib/MeetingManager/MeetingManager";
-import MeetingDataContext from "../lib/MeetingManager/MeetingDataContext";
+import { IRouter } from "express";
 import SessionManager from "../lib/SessionManager/SessionManager";
 import SessionDataContext from "../lib/SessionManager/SessionDataContext";
 import {
-  ChatPostMessageArguments,
-  ConversationsOpenArguments,
   WebAPICallResult,
   WebClient,
 } from "@slack/web-api";
-import jwt_decode from "jwt-decode";
+import { IZoomDataContext } from "../data/ZoomDataContext";
+import { ZoomAuth } from "@prisma/client";
 
 const sessionDataContext = new SessionDataContext();
 const session = new SessionManager(sessionDataContext);
@@ -25,23 +21,26 @@ interface ConversationOpenResult extends WebAPICallResult {
 export default class ZoomController {
   private path: string = "/zoom";
   private router: IRouter;
-  constructor(router: IRouter) {
+  private context: IZoomDataContext;
+  constructor(router: IRouter, context: IZoomDataContext) {
     this.router = router;
+    this.context = context;
     this.initialize();
   }
 
   private initialize = () => {
-    this.router.get(`${this.path}`, this.getAllMeetings);
-    this.router.post(`${this.path}`, this.createMeeting);
+    // this.router.get(`${this.path}`, this.getAllMeetings);
+    // this.router.post(`${this.path}`, this.createMeeting);
   };
 
-  private getAllMeetings = () => {
-    console.log("[MEETING GET]");
-  };
+//   private getAllMeetings = async (_, res: { json: ( meetings: ZoomAuth[]) => void}) => {
+//     console.log("[MEETING GET]");
+//     res.json(await this.context.getAll())
+//   };
 
-  private createMeeting = () => {
-    console.log("[MEETING CREATE]");
-  };
+//   private createMeeting = () => {
+//     console.log("[MEETING CREATE]");
+//   };
 
   //routes() {
   // this.app.get(
