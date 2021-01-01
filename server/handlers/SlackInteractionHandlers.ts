@@ -4,12 +4,10 @@ import SlackMessageAdapter from "@slack/interactive-messages/dist/adapter";
 import SessionManager from "../lib/SessionManager/SessionManager";
 import jwt_decode from "jwt-decode";
 import axios from "axios";
-import MeetingManager from "../lib/MeetingManager/MeetingManager";
-import MeetingContext from "../lib/MeetingManager/MeetingDataContext";
+import MeetingDataContext from "../data/MeetingDataContext";
 import SessionDataContext from "../lib/SessionManager/SessionDataContext";
 
-const dbContext = new MeetingContext();
-const meetingManager = new MeetingManager(dbContext);
+const dbContext = new MeetingDataContext();
 
 const sessionDataContext = new SessionDataContext();
 const session = new SessionManager(sessionDataContext);
@@ -55,7 +53,7 @@ export default function SlackInteractionHandlers(
       // SEND DM to users
       console.log(response.data);
       // TODO: Clean up data and get rid of id field
-      meetingManager.addMeeting(response.data);
+      dbContext.post(response.data);
       respond({
         text: `<${response.data.start_url}|Click here to start your meeting: ${response.data.topic}: ${response.data.agenda}>`,
         response_type: "ephemeral",

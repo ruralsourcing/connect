@@ -3,7 +3,6 @@ import { AuthContext } from "../AuthenticationContext";
 import AuthModule from "./AuthModule";
 import { message } from "antd";
 import { AuthenticationResult } from "@azure/msal-browser";
-import { User } from "@prisma/client";
 
 export const useProvideAuth = (auth: AuthModule): AuthContext => {
   const [user, setUser] = useState<string | undefined>(auth?.user?.email);

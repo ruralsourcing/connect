@@ -1,5 +1,4 @@
 import { AuthenticationResult } from "@azure/msal-browser";
-import { User } from "@prisma/client";
 
 type Policy = {
     policyId: number;
