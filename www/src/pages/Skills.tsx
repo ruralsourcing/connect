@@ -2,29 +2,28 @@ import { useEffect, useState } from 'react';
 import { useAuth } from "../context/AuthenticationContext";
 import axios from 'axios';
 import { Form, Button, Select, Rate } from 'antd';
-import { Skill } from '@prisma/client';
+import { Skill, Tech } from '@prisma/client';
+
+
 
 const Skills = () => {
-    const auth = useAuth();
-    const [skills, setSkills] = useState<Skill[]>([]);
+    const [tech, setTech] = useState<Tech[]>();
+    const [userSkills, setUserSkills] = useState<Skill[]>();
 
     useEffect(() => {
-        const f = async (url: string) => {
-            const token = await auth.token()
-            if (!token) return '';
-            return axios.get(url, {
-                headers: {
-                    Authorization: `Bearer ${token.idToken}`
-                }
-            }).then((users) => {
-                setSkills(users.data);
-            })
-        }
-        f('/api/skills');
-    }, [auth])
+        axios.get('/api/tech').then((tech) => {
+            setTech(tech.data)
+        })
+    }, [])
+
+    useEffect(() => {
+        axios.get('/api/user/skills').then((userSkills) => {
+            setUserSkills(userSkills.data);
+        })
+    }, [])
 
     const addSkill = (skill: Skill) => {
-        setSkills([...skills, skill])
+        //setSkills([...skills, skill])
     }
 
     return <>
@@ -40,7 +39,7 @@ const Skills = () => {
             layout="horizontal">
             <Form.Item name="techId" label="Technology">
                 <Select>
-                    <Select.Option value={1}>React</Select.Option>
+                    {tech && tech.map((t) => <Select.Option value={t.id}>{t.name}</Select.Option>)}
                 </Select>
             </Form.Item>
             <Form.Item name="rating" label="Rating">
@@ -50,7 +49,7 @@ const Skills = () => {
                 <Button type="primary" htmlType="submit">Submit</Button>
             </Form.Item>
         </Form>
-        { skills && skills.map((skill) => <div>{skill.techId}</div>)}
+        { userSkills && userSkills.map((skill) => <div>{skill.rating}</div>)}
     </>
 };
 

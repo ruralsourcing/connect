@@ -5,6 +5,7 @@ import {
   RedirectRequest,
 } from "@azure/msal-browser";
 import { User } from "@prisma/client";
+import axios from "axios";
 import { MSAL_CONFIG, LOGIN_REQUEST } from "./constants";
 
 console.log("ENV", process.env);
@@ -23,7 +24,7 @@ class AuthModule {
   account?: AccountInfo;
   user?: User;
 
-  private cb?: ( user?: string ) => void;
+  private cb?: (user?: string) => void;
 
   constructor() {
     this.msal = new PublicClientApplication(MSAL_CONFIG);
@@ -38,8 +39,8 @@ class AuthModule {
             this.user = {
               id: 0,
               email: this.account.username,
-              domain: ''
-            }
+              domain: "",
+            };
             this.cb && this.cb(this.account.username);
           });
         } else {
@@ -48,8 +49,8 @@ class AuthModule {
             this.user = {
               id: 0,
               email: this.account.username,
-              domain: ''
-            }
+              domain: "",
+            };
             this.cb && this.cb(this.account.username);
           }
         }
@@ -79,9 +80,15 @@ class AuthModule {
           }
         }
       });
-  }
+  
+      axios.interceptors.request.use(async (config) => {
+        const token = await this.token();
+        config.headers.Authorization = `Bearer ${token?.idToken}`;
+        return config;
+      });
+    }
 
-  onAccount(cb: ( user?: string ) => void) {
+  onAccount(cb: (user?: string) => void) {
     this.cb = cb;
   }
 
@@ -123,8 +130,6 @@ class AuthModule {
       });
       return result;
     } catch (ex) {
-      console.log("[REFRESH]");
-      console.log(ex);
       await this.msal.acquireTokenRedirect({
         account: this.account,
         ...LOGIN_REQUEST,

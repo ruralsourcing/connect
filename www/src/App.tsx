@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "./App.css";
 import { AuthProvider, useAuth } from "./context/AuthenticationContext";
 import {
@@ -6,17 +6,17 @@ import {
   Switch,
   Route,
   Link,
-  Redirect,
   RouteProps,
 } from "react-router-dom";
 import { Layout, Row, Menu, Breadcrumb, Col } from "antd";
 import Home from "./pages/Home";
 import Skills from "./pages/Skills";
 import User from "./components/User";
+import axios from "axios";
 
 const { Header, Content, Footer } = Layout;
 const PrivateRoute = ({ children, ...rest }: RouteProps): JSX.Element => {
-  let auth = useAuth();
+  const auth = useAuth();
   return (
     <Route
       {...rest}
@@ -24,14 +24,8 @@ const PrivateRoute = ({ children, ...rest }: RouteProps): JSX.Element => {
         auth.user ? (
           children
         ) : (
-          // <Redirect
-          //   to={{
-          //     pathname: "/",
-          //     state: { from: location },
-          //   }}
-          // />
-          <h1>Not Authorized</h1>
-        )
+            <h1>Not Authorized</h1>
+          )
       }
     />
   );

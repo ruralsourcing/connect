@@ -13,8 +13,8 @@ export default class MeetingController {
   }
 
   private initializeRoutes() {
-    this.router.get(`${this.path}`, this.getAllMeetings);
-    this.router.all(`${this.path}/*`, ).post(this.path, this.createMeeting);
+    this.router.get(this.path, this.getAllMeetings);
+    this.router.post(this.path, this.createMeeting);
   }
 
   private getAllMeetings = async (
