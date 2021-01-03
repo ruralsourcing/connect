@@ -3,13 +3,13 @@ import { PrismaClient, Meeting } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export interface MeetingInput {
-  uuid: string
-  host_id: string
-  host_email: string
-  topic: string
-  start_url: string
-  join_url: string
-  password: string
+  uuid: string;
+  host_id: string;
+  host_email: string;
+  topic: string;
+  start_url: string;
+  join_url: string;
+  password: string;
 }
 
 export interface IMeetingDataContext extends IDataContext<Meeting> {
@@ -17,18 +17,21 @@ export interface IMeetingDataContext extends IDataContext<Meeting> {
 }
 
 export default class MeetingDataContext implements IMeetingDataContext {
-  createMeetingForUser = async (meeting: MeetingInput, userId: number): Promise<Meeting> => {
+  createMeetingForUser = async (
+    meeting: MeetingInput,
+    userId: number
+  ): Promise<Meeting> => {
     return await prisma.meeting.create({
       data: {
         ...meeting,
         User: {
           connect: {
-            id: userId
-          }
-        }
-      }
+            id: userId,
+          },
+        },
+      },
     });
-  }
+  };
   async getAll(): Promise<Meeting[]> {
     return prisma.meeting.findMany();
   }
@@ -50,9 +53,9 @@ export default class MeetingDataContext implements IMeetingDataContext {
   async put(item: Meeting): Promise<Meeting> {
     return prisma.meeting.update({
       where: {
-        id: item.id
+        id: item.id,
       },
-      data: item
-    })
+      data: item,
+    });
   }
 }

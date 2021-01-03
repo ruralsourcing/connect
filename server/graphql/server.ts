@@ -1,9 +1,10 @@
-import { ApolloServer, gql } from "apollo-server-express";
+import { ApolloServer, AuthenticationError, gql } from "apollo-server-express";
 import TechDataSource from "./datasources/TechDataSource";
 import { DataSources } from "apollo-server-core/dist/graphqlOptions";
 import TechDataContext from "../data/TechDataContext";
 import SkillDataSource from "./datasources/SkillsDataSource";
 import SkillDataContext from "../data/SkillDataContext";
+import { User } from "@prisma/client";
 
 const typeDefs = gql`
   type Tech {
@@ -12,13 +13,14 @@ const typeDefs = gql`
   }
   type Skill {
     id: ID!
-    tech: Tech!
+    technology: Tech!
     rating: Int
   }
   type Query {
-    techs: [Tech]!
-    tech(techId: ID!): Tech
+    technologies: [Tech]!
+    technology(technologyId: ID!): Tech
     skills: [Skill]
+    skill(skillId: ID!): Skill
   }
 
   #   type Mutation {
@@ -29,24 +31,24 @@ const typeDefs = gql`
 
 const resolvers = {
   Query: {
-    techs: (
+    technologies: (
       _: any,
       args: any,
       context: { dataSources: { techApi: TechDataSource } },
       info: any
     ) => {
-      console.log("[ARGS]", args);
-      console.log("[INFO]", info);
-      console.log("[CONTEXT]", dataSources);
+    //   console.log("[ARGS]", args);
+    //   console.log("[INFO]", info);
+    //   console.log("[CONTEXT]", dataSources);
       return context.dataSources.techApi.getAllTech();
     },
-    tech: (
+    technology: (
       _: any,
       args: any,
       context: { dataSources: { techApi: TechDataSource } }
     ) => {
-      const { techId } = args;
-      return context.dataSources.techApi.getById(techId);
+      const { technologyId } = args;
+      return context.dataSources.techApi.getById(technologyId);
     },
     skills: (
       _: any,
@@ -54,19 +56,31 @@ const resolvers = {
       context: { dataSources: { skillApi: SkillDataSource } },
       info: any
     ) => {
-      console.log("[ARGS]", args);
-      console.log("[INFO]", info);
-      console.log("[CONTEXT]", dataSources);
+    //   console.log("[ARGS]", args);
+    //   console.log("[INFO]", info);
+    //   console.log("[CONTEXT]", dataSources);
       return context.dataSources.skillApi.getAllSkills();
+    },
+    skill: (
+      _: any,
+      args: any,
+      context: { dataSources: { skillApi: SkillDataSource } },
+      info: any
+    ) => {
+      const { skillId } = args;
+    //   console.log("[ARGS]", args);
+    //   console.log("[INFO]", info);
+    //   console.log("[CONTEXT]", dataSources);
+      return context.dataSources.skillApi.getById(skillId);
     },
   },
   Skill: {
-    async tech(
+    async technology(
       parent: any,
       __: any,
       context: { dataSources: { techApi: TechDataSource } }
     ) {
-      console.log('[Linking Tech to Skill]', parent)
+      console.log("[Linking Tech to Skill]", parent);
       return await context.dataSources.techApi.getById(parent.id);
     },
   },
@@ -86,19 +100,22 @@ export default new ApolloServer({
   typeDefs,
   resolvers,
   dataSources: () => dataSources,
-  //   context: ({ req }) => {
-  //     console.log(req);
-  //     // get the user token from the headers
-  //     const token = req.headers.authorization || "";
-  //     console.log(token);
-  //     // try to retrieve a user with the token
-  //     const user = null;
+  context: ({ req }) => {
+    console.log(req);
+    // get the user token from the headers
+    const token = req.headers.authorization || "";
+    // try to retrieve a user with the token
+    const user = {
+        id: 0,
+        email: 'david@federnet.com',
+        domain: ''
+    } as User;
 
-  //     // optionally block the user
-  //     // we could also check user roles/permissions here
-  //     if (!user) throw new AuthenticationError("you must be logged in");
+    // optionally block the user
+    // we could also check user roles/permissions here
+    if (!user) throw new AuthenticationError("you must be logged in");
 
-  //     // add the user to the context
-  //     return { user };
-  //   },
+    // add the user to the context
+    return { user };
+  },
 });

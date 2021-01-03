@@ -1,5 +1,5 @@
 import { Tech } from '@prisma/client';
-import TechDataContext, { ITechDataContext } from '../../data/TechDataContext';
+import { ITechDataContext } from '../../data/TechDataContext';
 import {DataSource} from "apollo-datasource";
 
 export default class TechDataSource extends DataSource {

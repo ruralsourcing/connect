@@ -9,6 +9,10 @@ export default class SkillDataSource extends DataSource {
     this.context = new SkillDataContext();
   }
 
+  getById = async (id: string): Promise<Skill | null> => {
+    return await this.context.get(id);
+  }
+
   getAllSkills = async (): Promise<Skill[]> => {
     return await this.context.getAll();
   }

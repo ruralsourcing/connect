@@ -1,4 +1,4 @@
-import { Prisma, ZoomAuth } from "@prisma/client";
+import { ZoomAuth } from "@prisma/client";
 import { IDataContext } from "./types";
 
 

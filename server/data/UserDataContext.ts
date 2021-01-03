@@ -1,5 +1,5 @@
 import { IDataContext } from "./types";
-import { PrismaClient, User, Prisma } from "@prisma/client";
+import { PrismaClient, User } from "@prisma/client";
 
 export interface IUserDataContext extends IDataContext<User> {
   getByEmail(email: string): Promise<User | null>;

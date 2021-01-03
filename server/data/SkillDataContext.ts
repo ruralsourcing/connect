@@ -1,5 +1,5 @@
 import { IDataContext } from "./types";
-import { Prisma, PrismaClient, Skill } from "@prisma/client";
+import { PrismaClient, Skill } from "@prisma/client";
 
 export interface ISkillDataContext extends IDataContext<Skill> {
   getSkillsForUser(userId: number): Promise<Skill[]>;
@@ -72,8 +72,12 @@ export default class SkillDataContext implements ISkillDataContext {
     });
   }
 
-  get(id: string): Promise<Skill> {
-    throw new Error("Method not implemented.");
+  get(id: string): Promise<Skill | null> {
+    return this.client.skill.findFirst({
+      where: {
+        id: parseInt(id),
+      },
+    });
   }
   post(item: Skill): Promise<Skill> {
     throw new Error("Method not implemented.");

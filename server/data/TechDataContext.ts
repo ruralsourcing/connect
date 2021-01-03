@@ -1,5 +1,5 @@
 import { IDataContext } from "./types";
-import { Prisma, PrismaClient, Tech } from "@prisma/client";
+import { PrismaClient, Tech } from "@prisma/client";
 
 export interface ITechDataContext
   extends IDataContext<Tech> {}
