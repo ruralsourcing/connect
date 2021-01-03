@@ -101,7 +101,6 @@ export default new ApolloServer({
   resolvers,
   dataSources: () => dataSources,
   context: ({ req }) => {
-    console.log(req);
     // get the user token from the headers
     const token = req.headers.authorization || "";
     // try to retrieve a user with the token
