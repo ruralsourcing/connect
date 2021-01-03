@@ -1,8 +1,9 @@
 import { IDataContext } from "./types";
 import { PrismaClient, User, Prisma } from "@prisma/client";
 
-export interface IUserDataContext extends IDataContext<User, Prisma.UserCreateInput> {
+export interface IUserDataContext extends IDataContext<User> {
   getByEmail(email: string): Promise<User | null>;
+  createUser(email?: string): Promise<User>;
 }
 
 export default class UserDataContext implements IUserDataContext {
@@ -11,6 +12,14 @@ export default class UserDataContext implements IUserDataContext {
 
   constructor(){
     this.client = new PrismaClient();
+  }
+  
+  async createUser(email: string): Promise<User> {
+    return await this.client.user.create({
+      data: {
+        email: email
+      }
+    })
   }
 
   async getByEmail(email: string): Promise<User | null> {
@@ -26,7 +35,7 @@ export default class UserDataContext implements IUserDataContext {
   async get(id: string): Promise<User> {
     throw new Error("Method not implemented.");
   }
-  async post(item: Prisma.UserCreateInput): Promise<User> {
+  async post(item: User): Promise<User> {
     return await this.client.user.create({
       data: item
     })

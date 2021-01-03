@@ -2,6 +2,8 @@ import { ApolloServer, gql } from "apollo-server-express";
 import TechDataSource from "./datasources/TechDataSource";
 import { DataSources } from "apollo-server-core/dist/graphqlOptions";
 import TechDataContext from "../data/TechDataContext";
+import SkillDataSource from "./datasources/SkillsDataSource";
+import SkillDataContext from "../data/SkillDataContext";
 
 const typeDefs = gql`
   type Tech {
@@ -14,7 +16,8 @@ const typeDefs = gql`
     rating: Int
   }
   type Query {
-    tech: [Tech]
+    techs: [Tech]!
+    tech(techId: ID!): Tech
     skills: [Skill]
   }
 
@@ -26,28 +29,57 @@ const typeDefs = gql`
 
 const resolvers = {
   Query: {
-    tech: (
+    techs: (
       _: any,
       args: any,
       context: { dataSources: { techApi: TechDataSource } },
       info: any
     ) => {
-    //   console.log("[REQUEST]", _);
-    //   console.log("[ARGS]", args);
-    //   console.log("[INFO]", info);
-    //   console.log("[CONTEXT]", dataSources);
+      console.log("[ARGS]", args);
+      console.log("[INFO]", info);
+      console.log("[CONTEXT]", dataSources);
       return context.dataSources.techApi.getAllTech();
+    },
+    tech: (
+      _: any,
+      args: any,
+      context: { dataSources: { techApi: TechDataSource } }
+    ) => {
+      const { techId } = args;
+      return context.dataSources.techApi.getById(techId);
+    },
+    skills: (
+      _: any,
+      args: any,
+      context: { dataSources: { skillApi: SkillDataSource } },
+      info: any
+    ) => {
+      console.log("[ARGS]", args);
+      console.log("[INFO]", info);
+      console.log("[CONTEXT]", dataSources);
+      return context.dataSources.skillApi.getAllSkills();
+    },
+  },
+  Skill: {
+    async tech(
+      parent: any,
+      __: any,
+      context: { dataSources: { techApi: TechDataSource } }
+    ) {
+      console.log('[Linking Tech to Skill]', parent)
+      return await context.dataSources.techApi.getById(parent.id);
     },
   },
 };
 
 interface IDataSources {
   techApi: TechDataSource;
+  skillApi: SkillDataSource;
 }
 
 const dataSources: DataSources<IDataSources> = {
   techApi: new TechDataSource(new TechDataContext()),
-  techApi2: new TechDataSource(new TechDataContext()),
+  skillApi: new SkillDataSource(new SkillDataContext()),
 };
 
 export default new ApolloServer({

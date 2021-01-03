@@ -2,7 +2,7 @@ import { Session } from "./Session";
 import { IDataContext } from "../../data/types";
 import axios from "axios";
 
-export default class SessionDataContext implements IDataContext<Session, Session> {
+export default class SessionDataContext implements IDataContext<Session> {
   async getAll(): Promise<Session[]> {
     return axios
       .get<Session[]>("/api/sessions")

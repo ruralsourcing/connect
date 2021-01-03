@@ -6,7 +6,11 @@ export default class TechDataSource extends DataSource {
   private context: ITechDataContext;
   constructor(context: ITechDataContext) {
     super();
-    this.context = new TechDataContext();
+    this.context = context;
+  }
+
+  getById = async (id: string): Promise<Tech | null> => {
+    return await this.context.get(id);
   }
 
   getAllTech = async (): Promise<Tech[]> => {

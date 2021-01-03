@@ -2,7 +2,7 @@ import { IDataContext } from "./types";
 import { Prisma, PrismaClient, Tech } from "@prisma/client";
 
 export interface ITechDataContext
-  extends IDataContext<Tech, Prisma.TechCreateInput> {}
+  extends IDataContext<Tech> {}
 
 export default class TechDataContext implements ITechDataContext {
   client: PrismaClient;
@@ -18,12 +18,18 @@ export default class TechDataContext implements ITechDataContext {
     });
   }
 
-  get(id: string): Promise<Tech> {
-    throw new Error("Method not implemented.");
+  get(id: string): Promise<Tech | null> {
+    return this.client.tech.findFirst({
+      where: {
+        id: parseInt(id)
+      }
+    })
   }
-  post(data: Prisma.TechCreateInput): Promise<Tech> {
+  post(data: Tech): Promise<Tech> {
     return this.client.tech.create({
-      data,
+      data: {
+        name: data.name
+      }
     });
   }
   delete(id: string): void {

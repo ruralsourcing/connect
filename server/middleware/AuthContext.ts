@@ -19,9 +19,7 @@ export class AuthContext {
     const email = token.emails.length > 0 && token.emails[0];
     let user = await this.context.getByEmail(email);
     if (!user) {
-      user = await this.context.post({
-        email: email as string,
-      });
+      user = await this.context.createUser(email);
     }
     return user;
   };

@@ -12,7 +12,7 @@ export default class SessionManager {
   private _sessions: Session[];
   _context: SessionDataContext;
 
-  constructor(context: IDataContext<Session, Session>) {
+  constructor(context: IDataContext<Session>) {
     this._sessions = [];
     this._context = context as SessionDataContext;
   }
