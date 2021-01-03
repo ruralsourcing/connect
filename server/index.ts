@@ -23,6 +23,8 @@ import UserDataContext from "./data/UserDataContext";
 import SkillDataContext from "./data/SkillDataContext";
 import MeetingDataContext from "./data/MeetingDataContext";
 import ZoomDataContext from "./data/ZoomDataContext";
+import TechDataContext from "./data/TechDataContext";
+import TechController from "./controllers/TechController";
 
 const slackSigningSecret = process.env.SLACK_SIGNING_SECRET || "";
 const port = process.env.PORT || 3000;
@@ -88,11 +90,13 @@ const router = express.Router();
 const skillDataContext = new SkillDataContext();
 const meetingDataContext = new MeetingDataContext();
 const zoomDataContext = new ZoomDataContext();
+const techDataContext = new TechDataContext();
 
 new SkillController(router, skillDataContext);
 new ZoomController(router, zoomDataContext);
 new MeetingController(router, meetingDataContext);
 new UserController(router, userDataContext);
+new TechController(router, techDataContext);
 
 app.use('/api', UserContext, router);
 
