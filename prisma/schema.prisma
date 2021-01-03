@@ -61,8 +61,8 @@ model Skill {
   id     Int  @id @default(autoincrement())
   userId Int
   User   User @relation(fields: [userId], references: [id])
-  techId Int
-  Tech   Tech @relation(fields: [techId], references: [id])
+  techId Int?
+  Tech   Tech? @relation(fields: [techId], references: [id])
   rating Int
 }
 
