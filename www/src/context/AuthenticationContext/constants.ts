@@ -40,5 +40,6 @@ export const MSAL_CONFIG: Configuration = {
 };
 
 export const LOGIN_REQUEST = {
-    scopes: ['openid', 'profile', 'email'],
+    scopes: ["openid", "offline_access", "https://codeflyb2c.onmicrosoft.com/codefly/user_impersonation"],
+    forceRefresh: false,
 };

@@ -1,5 +1,3 @@
-import { AuthenticationResult } from "@azure/msal-browser";
-
 type Policy = {
     policyId: number;
     url: string;
@@ -14,7 +12,7 @@ type AuthContext = {
     user?: string;
     signin(): void;
     signout(): void;
-    token(): Promise<AuthenticationResult | null>;
+    token(): Promise<string | null>;
 };
 
 export type { AuthContext, Policy, UserProfile };
