@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@apollo/client": "^3.3.6",
     "@azure/msal-browser": "^2.8.0",
     "@casl/ability": "^5.1.1",
     "@testing-library/jest-dom": "^5.11.4",
@@ -15,6 +16,7 @@
     "@types/react-toast-notifications": "^2.4.0",
     "antd": "^4.9.4",
     "axios": "^0.21.0",
+    "graphql": "^15.4.0",
     "http-proxy-middleware": "^1.0.6",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",

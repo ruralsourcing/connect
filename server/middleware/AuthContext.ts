@@ -45,7 +45,7 @@ export class AuthContext {
               res.locals.user = await this.getUser(decoded);
               next();
             } catch (ex) {
-              console.log(ex);
+              //console.log(ex);
               next();
             }
           }
