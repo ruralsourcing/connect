@@ -1,6 +1,7 @@
 import {
   AccountInfo,
   AuthenticationResult,
+  InteractionRequiredAuthError,
   PublicClientApplication,
   RedirectRequest,
 } from "@azure/msal-browser";
@@ -13,7 +14,7 @@ const POLICY = `${process.env.REACT_APP_B2C_AUTHORITY}/${process.env.REACT_APP_B
 const RESET_POLICY = `${process.env.REACT_APP_B2C_AUTHORITY}/${process.env.REACT_APP_B2C_RESET_POLICY}`;
 
 const redirectRequest: RedirectRequest = {
-  scopes: ["openid", "profile", "email"],
+  scopes: ["openid", "offline_access", "https://codeflyb2c.onmicrosoft.com/codefly/user_impersonation"],
   redirectUri: `${window.location.protocol}//${window.location.host}`,
   authority: RESET_POLICY,
   redirectStartPage: `${window.location.protocol}//${window.location.host}`,
@@ -27,8 +28,9 @@ class AuthModule {
   private cb?: (user?: string) => void;
 
   constructor() {
+    console.log(MSAL_CONFIG);
     this.msal = new PublicClientApplication(MSAL_CONFIG);
-    this.account = this.getActiveAccount();
+    //this.account = this.getActiveAccount();
     this.msal
       .handleRedirectPromise()
       .then((response: AuthenticationResult | null) => {
@@ -80,13 +82,14 @@ class AuthModule {
           }
         }
       });
-  
-      axios.interceptors.request.use(async (config) => {
-        const token = await this.token();
-        config.headers.Authorization = `Bearer ${token?.idToken}`;
-        return config;
-      });
-    }
+
+    axios.interceptors.request.use(async (config) => {
+      if (!this.account) return config;
+      const token = await this.token();
+      if (token) config.headers.Authorization = `Bearer ${token}`;
+      return config;
+    });
+  }
 
   onAccount(cb: (user?: string) => void) {
     this.cb = cb;
@@ -122,20 +125,42 @@ class AuthModule {
     // https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-acquire-cache-tokens#recommended-call-pattern-for-public-client-applications
     // Auth Code Flow might require another way to get cache.
     // Currently all token requests hit B2C and never pulls from cache
-    try {
-      const result = await this.msal.acquireTokenSilent({
-        account: this.account,
-        scopes: [],
-        forceRefresh: false,
-      });
-      return result;
-    } catch (ex) {
-      await this.msal.acquireTokenRedirect({
+
+    return this.msal
+      .acquireTokenSilent({
         account: this.account,
         ...LOGIN_REQUEST,
+      })
+      .then((result) => {
+        if (!result.accessToken || result.accessToken === "") {
+          throw new InteractionRequiredAuthError();
+        }
+        return result.accessToken;
+      })
+      .catch((error) => {
+        if (error instanceof InteractionRequiredAuthError) {
+          // fallback to interaction when silent call fails
+          return this.msal.acquireTokenRedirect({
+            account: this.account,
+            ...LOGIN_REQUEST,
+          });
+        } else {
+          console.log(error);
+        }
       });
-      return null;
-    }
+
+    // try {
+    //   const result = await this.msal.acquireTokenSilent({
+    //     account: this.account,
+    //     ...LOGIN_REQUEST
+    //   });
+    //   if (!result.accessToken || result.accessToken === "") {
+    //     throw new InteractionRequiredAuthError();
+    //   }
+    //   return result.accessToken;
+    // } catch (error) {
+
+    // }
   }
 
   logout() {

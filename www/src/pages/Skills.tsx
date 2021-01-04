@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Form, Button, Select, Rate } from "antd";
-import { Skill, Tech } from "@prisma/client";
+import { Tech } from "@prisma/client";
 import { gql, useMutation, useQuery } from "@apollo/client";
 
 const GET_SKILLS = gql`
@@ -15,12 +15,12 @@ const GET_SKILLS = gql`
   }
 `;
 
-const GET_TECH = gql`
-  query technologies {
-    id
-    name
-  }
-`;
+// const GET_TECH = gql`
+//   query technologies {
+//     id
+//     name
+//   }
+// `;
 
 const ADD_SKILL = gql`
   mutation addSkill($technologyId: Int!, $rating: Int!) {
@@ -97,12 +97,12 @@ const Skills = () => {
         (data &&
           data.skills.map(
             (skill: {
-              rating: Number;
+              rating: number;
               technology: {
                 name: string;
               };
-            }) => (
-              <div>
+            }, idx: string) => (
+              <div key={idx}>
                 User Skill {skill.technology?.name} with rating {skill.rating}
               </div>
             )
