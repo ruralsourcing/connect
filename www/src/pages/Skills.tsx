@@ -55,6 +55,7 @@ const Skills = () => {
       <Form
         onFinish={(data) => {
           console.log(data);
+          if(!data.rating || !data.techId) return;
           addSkill({
             variables: {
               technologyId: data.techId,
