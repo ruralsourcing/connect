@@ -3,7 +3,7 @@ import TechDataSource from "./datasources/TechDataSource";
 import { DataSources } from "apollo-server-core/dist/graphqlOptions";
 import TechDataContext from "../data/TechDataContext";
 import SkillDataSource from "./datasources/SkillsDataSource";
-import SkillDataContext from "../data/SkillDataContext";
+import SkillDataContext, { SkillInput } from "../data/SkillDataContext";
 import { User } from "@prisma/client";
 
 const typeDefs = gql`
@@ -16,6 +16,19 @@ const typeDefs = gql`
     technology: Tech!
     rating: Int
   }
+
+  type SkillWithTech {
+    id: ID!
+    userId: ID!
+    rating: Int!
+    Tech: Tech!
+  }
+
+  input SkillInput {
+    technologyId: Int
+    rating: Int
+  }
+
   type Query {
     technologies: [Tech]!
     technology(technologyId: ID!): Tech
@@ -23,10 +36,9 @@ const typeDefs = gql`
     skill(skillId: ID!): Skill
   }
 
-  #   type Mutation {
-  #     addTech(name: String): Tech!
-  #     addSkill(skill: Skill): Skill!
-  #   }
+  type Mutation {
+    addSkill(skill: SkillInput!): SkillWithTech!
+  }
 `;
 
 const resolvers = {
@@ -37,9 +49,6 @@ const resolvers = {
       context: { dataSources: { techApi: TechDataSource } },
       info: any
     ) => {
-    //   console.log("[ARGS]", args);
-    //   console.log("[INFO]", info);
-    //   console.log("[CONTEXT]", dataSources);
       return context.dataSources.techApi.getAllTech();
     },
     technology: (
@@ -47,19 +56,17 @@ const resolvers = {
       args: any,
       context: { dataSources: { techApi: TechDataSource } }
     ) => {
+      console.log("[ARGS]", args);
       const { technologyId } = args;
       return context.dataSources.techApi.getById(technologyId);
     },
     skills: (
       _: any,
       args: any,
-      context: { dataSources: { skillApi: SkillDataSource } },
+      context: { user: User; dataSources: { skillApi: SkillDataSource } },
       info: any
     ) => {
-    //   console.log("[ARGS]", args);
-    //   console.log("[INFO]", info);
-    //   console.log("[CONTEXT]", dataSources);
-      return context.dataSources.skillApi.getAllSkills();
+      return context.dataSources.skillApi.getAllSkills(context.user.id);
     },
     skill: (
       _: any,
@@ -68,20 +75,34 @@ const resolvers = {
       info: any
     ) => {
       const { skillId } = args;
-    //   console.log("[ARGS]", args);
-    //   console.log("[INFO]", info);
-    //   console.log("[CONTEXT]", dataSources);
       return context.dataSources.skillApi.getById(skillId);
     },
   },
   Skill: {
-    async technology(
+    technology: async (
       parent: any,
       __: any,
       context: { dataSources: { techApi: TechDataSource } }
-    ) {
+    ) => {
       console.log("[Linking Tech to Skill]", parent);
-      return await context.dataSources.techApi.getById(parent.id);
+      return await context.dataSources.techApi.getById(parent.techId);
+    },
+  },
+  Mutation: {
+    addSkill: async (
+      _: any,
+      { skill }: any,
+      context: { user: User; dataSources: { skillApi: SkillDataSource } }
+    ) => {
+      console.log(skill, context);
+      console.log("[USER]", context.user);
+      let response = await context.dataSources.skillApi.create(
+        skill.technologyId,
+        skill.rating,
+        context.user.id
+      );
+      console.log("[QUERY RESULT]", response);
+      return response;
     },
   },
 };
@@ -105,9 +126,9 @@ export default new ApolloServer({
     const token = req.headers.authorization || "";
     // try to retrieve a user with the token
     const user = {
-        id: 0,
-        email: 'david@federnet.com',
-        domain: ''
+      id: 1,
+      email: "david@federnet.com",
+      domain: null,
     } as User;
 
     // optionally block the user

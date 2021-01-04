@@ -1,5 +1,6 @@
 import { IDataContext } from "./types";
 import { PrismaClient, Skill } from "@prisma/client";
+import { analytics } from "googleapis/build/src/apis/analytics";
 
 export interface ISkillDataContext extends IDataContext<Skill> {
   getSkillsForUser(userId: number): Promise<Skill[]>;
@@ -7,7 +8,7 @@ export interface ISkillDataContext extends IDataContext<Skill> {
 }
 
 export interface SkillInput {
-  techId: number;
+  technologyId: number;
   rating: number;
 }
 
@@ -53,14 +54,14 @@ export default class SkillDataContext implements ISkillDataContext {
     });
   }
 
-  createSkillForUser(skill: SkillInput, userId: number) {
+  createSkillForUser(skill: SkillInput, userId: number): Promise<Skill> {
     console.log("[CREATE SKILL]", skill, userId);
     return this.client.skill.create({
       data: {
         rating: skill.rating,
         Tech: {
           connect: {
-            id: skill.techId,
+            id: skill.technologyId,
           },
         },
         User: {
@@ -69,6 +70,9 @@ export default class SkillDataContext implements ISkillDataContext {
           },
         },
       },
+      include: {
+          Tech: true
+      }
     });
   }
 
