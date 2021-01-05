@@ -21,11 +21,7 @@ services:
     build:
       context: .
       dockerfile:  docker/www/Dockerfile
-    #command: [bash, -c, "cd ./www && yarn run start"]
     volumes:
-      #  - ./www/src:/usr/src/app/src
-      #  - ./www/public:/usr/src/app/public
-      #  - ./www/node_modules:/usr/src/app/node_modules
       - ./www:/usr/src/app/www
       - /usr/src/app/node_modules/
     ports:

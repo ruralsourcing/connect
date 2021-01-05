@@ -98,11 +98,13 @@ new MeetingController(router, meetingDataContext);
 new UserController(router, userDataContext);
 new TechController(router, techDataContext);
 
-app.use('/api', UserContext, router);
+app.use("/api", UserContext, router);
 
-const server = createServer(app);
 apollo.applyMiddleware({ app });
-apollo.installSubscriptionHandlers(server);
+
+const httpServer = createServer(app);
+apollo.installSubscriptionHandlers(httpServer);
+
 app.use(
   history({
     logger: console.log.bind(console),
@@ -111,6 +113,12 @@ app.use(
 
 app.use("/", express.static("www/build"));
 
-server.listen(port, () => {
-  console.log(`Listening for events on ${port}`);
+httpServer.listen(port, () => {
+  console.log(`Server started on port: ${port}`);
+  console.log(
+    `GraphQL Playground ready at http://localhost:${port}/${apollo.graphqlPath}`
+  );
+  console.log(
+    `Subscriptions ready at ws://localhost:${port}/${apollo.subscriptionsPath}`
+  );
 });
