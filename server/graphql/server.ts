@@ -1,10 +1,19 @@
-import { ApolloServer, AuthenticationError, gql } from "apollo-server-express";
+import {
+  ApolloServer,
+  AuthenticationError,
+  PubSub,
+  gql,
+} from "apollo-server-express";
 import TechDataSource from "./datasources/TechDataSource";
 import { DataSources } from "apollo-server-core/dist/graphqlOptions";
 import TechDataContext from "../data/TechDataContext";
 import SkillDataSource from "./datasources/SkillsDataSource";
 import SkillDataContext, { SkillInput } from "../data/SkillDataContext";
 import { User } from "@prisma/client";
+
+const pubsub = new PubSub();
+
+const SKILL_ADDED = "SKILL_ADDED";
 
 const typeDefs = gql`
   type Tech {
@@ -38,6 +47,10 @@ const typeDefs = gql`
 
   type Mutation {
     addSkill(skill: SkillInput!): SkillWithTech!
+  }
+
+  type Subscription {
+    skillAdded: SkillWithTech
   }
 `;
 
@@ -102,7 +115,13 @@ const resolvers = {
         context.user.id
       );
       console.log("[QUERY RESULT]", response);
+      pubsub.publish(SKILL_ADDED, { skillAdded: response });
       return response;
+    },
+  },
+  Subscription: {
+    skillAdded: {
+      subscribe: () => pubsub.asyncIterator([SKILL_ADDED]),
     },
   },
 };
@@ -121,21 +140,26 @@ export default new ApolloServer({
   typeDefs,
   resolvers,
   dataSources: () => dataSources,
-  context: ({ req }) => {
-    // get the user token from the headers
-    const token = req.headers.authorization || "";
-    // try to retrieve a user with the token
-    const user = {
-      id: 1,
-      email: "david@federnet.com",
-      domain: null,
-    } as User;
+  context: ({ req, connection }) => {
+    if (connection) {
+      // check connection for metadata
+      return connection.context;
+    } else {
+      // get the user token from the headers
+      const token = req?.headers?.authorization;
+      // try to retrieve a user with the token
+      const user = {
+        id: 1,
+        email: "david@federnet.com",
+        domain: null,
+      } as User;
 
-    // optionally block the user
-    // we could also check user roles/permissions here
-    if (!user) throw new AuthenticationError("you must be logged in");
+      // optionally block the user
+      // we could also check user roles/permissions here
+      if (!user) throw new AuthenticationError("you must be logged in");
 
-    // add the user to the context
-    return { user };
+      // add the user to the context
+      return { user };
+    }
   },
 });

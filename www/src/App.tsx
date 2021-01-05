@@ -13,13 +13,57 @@ import Home from "./pages/Home";
 import Skills from "./pages/Skills";
 import User from "./components/User";
 
-import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
+import { ApolloClient, InMemoryCache, ApolloProvider, split, createHttpLink } from '@apollo/client';
+import { WebSocketLink } from '@apollo/client/link/ws';
+import { getMainDefinition } from '@apollo/client/utilities';
+import { setContext } from '@apollo/client/link/context';
+import { OperationDefinitionNode } from "graphql";
 
 console.log(process.env);
-console.log("[APOLLO]", process.env.REACT_APP_APOLLO_SERVER)
+console.log("[APOLLO SERVER]", process.env.REACT_APP_APOLLO_SERVER)
+console.log("[APOLLO WS HOST]", process.env.REACT_APP_APOLLO_WS_HOST)
+
+
+// const client = new ApolloClient({
+//   uri: '/graphql',
+//   cache: new InMemoryCache(),
+// });
+
+const httpLink = createHttpLink({
+  uri: '/graphql'
+});
+
+const authLink = setContext((_, { headers }) => {
+  const token = '123';
+  return {
+    headers: {
+      ...headers,
+      authorization: token ? `Bearer ${token}` : ''
+    }
+  };
+});
+
+const wsLink = new WebSocketLink({
+  uri: `ws://${process.env.REACT_APP_APOLLO_WS_HOST}/graphql`,
+  options: {
+    reconnect: true
+  }
+});
+
+const link = split(
+  ({ query }) => {
+    const { kind, operation } = getMainDefinition(query) as OperationDefinitionNode;
+    return (
+      kind === 'OperationDefinition' &&
+      operation === 'subscription'
+    );
+  },
+  wsLink,
+  authLink.concat(httpLink)
+);
 
 const client = new ApolloClient({
-  uri: 'http://localhost/graphql',
+  link,
   cache: new InMemoryCache()
 });
 
