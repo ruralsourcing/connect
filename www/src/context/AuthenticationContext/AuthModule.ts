@@ -6,7 +6,6 @@ import {
   RedirectRequest,
 } from "@azure/msal-browser";
 import { User } from "@prisma/client";
-import axios from "axios";
 import { MSAL_CONFIG, LOGIN_REQUEST } from "./constants";
 
 console.log("ENV", process.env);
@@ -82,13 +81,6 @@ class AuthModule {
           }
         }
       });
-
-    axios.interceptors.request.use(async (config) => {
-      if (!this.account) return config;
-      const token = await this.token();
-      if (token) config.headers.Authorization = `Bearer ${token}`;
-      return config;
-    });
   }
 
   onAccount(cb: (user?: string) => void) {
