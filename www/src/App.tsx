@@ -44,7 +44,7 @@ const authLink = setContext((_, { headers }) => {
 });
 
 const wsLink = new WebSocketLink({
-  uri: `ws://${process.env.REACT_APP_APOLLO_WS_HOST}/graphql`,
+  uri: `${process.env.REACT_APP_APOLLO_WS_HOST}/graphql`,
   options: {
     reconnect: true
   }
