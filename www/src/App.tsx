@@ -12,73 +12,21 @@ import { Layout, Row, Menu, Breadcrumb, Col } from "antd";
 import Home from "./pages/Home";
 import Skills from "./pages/Skills";
 import User from "./components/User";
-
-import { ApolloClient, InMemoryCache, ApolloProvider, split, createHttpLink } from '@apollo/client';
-import { WebSocketLink } from '@apollo/client/link/ws';
-import { getMainDefinition } from '@apollo/client/utilities';
-import { setContext } from '@apollo/client/link/context';
-import { OperationDefinitionNode } from "graphql";
+import { ApolloAuthProvider } from "./context/ApolloAuthContext/ApolloAuthContext";
 
 console.log(process.env);
-console.log("[APOLLO SERVER]", process.env.REACT_APP_APOLLO_SERVER)
-console.log("[APOLLO WS HOST]", process.env.REACT_APP_APOLLO_WS_HOST)
-
-
-// const client = new ApolloClient({
-//   uri: '/graphql',
-//   cache: new InMemoryCache(),
-// });
-
-const httpLink = createHttpLink({
-  uri: '/graphql'
-});
-
-const authLink = setContext((_, { headers }) => {
-  const token = '123';
-  return {
-    headers: {
-      ...headers,
-      authorization: token ? `Bearer ${token}` : ''
-    }
-  };
-});
-
-const wsLink = new WebSocketLink({
-  uri: `${process.env.REACT_APP_APOLLO_WS_HOST}/graphql`,
-  options: {
-    reconnect: true
-  }
-});
-
-const link = split(
-  ({ query }) => {
-    const { kind, operation } = getMainDefinition(query) as OperationDefinitionNode;
-    return (
-      kind === 'OperationDefinition' &&
-      operation === 'subscription'
-    );
-  },
-  wsLink,
-  authLink.concat(httpLink)
-);
-
-const client = new ApolloClient({
-  link,
-  cache: new InMemoryCache()
-});
+console.log("[APOLLO SERVER]", process.env.REACT_APP_APOLLO_SERVER);
+console.log("[APOLLO WS HOST]", process.env.REACT_APP_APOLLO_WS_HOST);
 
 const { Header, Content, Footer } = Layout;
+
 const PrivateRoute = ({ children, ...rest }: RouteProps): JSX.Element => {
   const auth = useAuth();
   return (
     <Route
       {...rest}
       render={({ location }) =>
-        auth.user ? (
-          children
-        ) : (
-            <h1>Not Authorized</h1>
-          )
+        auth.user ? children : <h1>Not Authorized</h1>
       }
     />
   );
@@ -86,8 +34,8 @@ const PrivateRoute = ({ children, ...rest }: RouteProps): JSX.Element => {
 
 function App() {
   return (
-    <ApolloProvider client={client}>
-      <AuthProvider>
+    <AuthProvider>
+      <ApolloAuthProvider>
         <Router>
           <Layout>
             <Header>
@@ -126,11 +74,11 @@ function App() {
             </Content>
             <Footer style={{ textAlign: "center" }}>
               CASpR © 2020 Created by David Federspiel
-          </Footer>
+            </Footer>
           </Layout>
         </Router>
-      </AuthProvider>
-    </ApolloProvider>
+      </ApolloAuthProvider>
+    </AuthProvider>
   );
 }
 
