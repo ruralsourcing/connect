@@ -1,6 +1,7 @@
 generator client {
-  provider      = "prisma-client-js"
-  binaryTargets = ["native", "linux-musl"]
+  provider        = "prisma-client-js"
+  binaryTargets   = ["native", "linux-musl"]
+  previewFeatures = ["groupBy"]
 }
 
 datasource db {
@@ -58,16 +59,18 @@ model SlackUser {
 }
 
 model Skill {
-  id     Int  @id @default(autoincrement())
+  id     Int   @id @default(autoincrement())
   userId Int
-  User   User @relation(fields: [userId], references: [id])
+  User   User  @relation(fields: [userId], references: [id])
   techId Int?
   Tech   Tech? @relation(fields: [techId], references: [id])
   rating Int
 }
 
 model Tech {
-  id    Int     @id @default(autoincrement())
-  name  String
-  Skill Skill[]
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String?
+  icon        String?
+  Skill       Skill[]
 }
