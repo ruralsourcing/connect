@@ -13,50 +13,49 @@ import Home from "./pages/Home";
 import Skills from "./pages/Skills";
 import User from "./components/User";
 
-import { ApolloClient, InMemoryCache, ApolloProvider, split, createHttpLink } from '@apollo/client';
-import { WebSocketLink } from '@apollo/client/link/ws';
-import { getMainDefinition } from '@apollo/client/utilities';
-import { setContext } from '@apollo/client/link/context';
+import {
+  ApolloClient,
+  InMemoryCache,
+  ApolloProvider,
+  split,
+  createHttpLink,
+} from "@apollo/client";
+import { WebSocketLink } from "@apollo/client/link/ws";
+import { getMainDefinition } from "@apollo/client/utilities";
+import { setContext } from "@apollo/client/link/context";
 import { OperationDefinitionNode } from "graphql";
 
 console.log(process.env);
-console.log("[APOLLO SERVER]", process.env.REACT_APP_APOLLO_SERVER)
-console.log("[APOLLO WS HOST]", process.env.REACT_APP_APOLLO_WS_HOST)
-
-
-// const client = new ApolloClient({
-//   uri: '/graphql',
-//   cache: new InMemoryCache(),
-// });
+console.log("[APOLLO SERVER]", process.env.REACT_APP_APOLLO_SERVER);
+console.log("[APOLLO WS HOST]", process.env.REACT_APP_APOLLO_WS_HOST);
 
 const httpLink = createHttpLink({
-  uri: '/graphql'
+  uri: "/graphql",
 });
 
 const authLink = setContext((_, { headers }) => {
-  const token = '123';
+  const token = "123";
   return {
     headers: {
       ...headers,
-      authorization: token ? `Bearer ${token}` : ''
-    }
+      authorization: token ? `Bearer ${token}` : "",
+    },
   };
 });
 
 const wsLink = new WebSocketLink({
   uri: `${process.env.REACT_APP_APOLLO_WS_HOST}/graphql`,
   options: {
-    reconnect: true
-  }
+    reconnect: true,
+  },
 });
 
 const link = split(
   ({ query }) => {
-    const { kind, operation } = getMainDefinition(query) as OperationDefinitionNode;
-    return (
-      kind === 'OperationDefinition' &&
-      operation === 'subscription'
-    );
+    const { kind, operation } = getMainDefinition(
+      query
+    ) as OperationDefinitionNode;
+    return kind === "OperationDefinition" && operation === "subscription";
   },
   wsLink,
   authLink.concat(httpLink)
@@ -64,21 +63,18 @@ const link = split(
 
 const client = new ApolloClient({
   link,
-  cache: new InMemoryCache()
+  cache: new InMemoryCache(),
 });
 
 const { Header, Content, Footer } = Layout;
+
 const PrivateRoute = ({ children, ...rest }: RouteProps): JSX.Element => {
   const auth = useAuth();
   return (
     <Route
       {...rest}
       render={({ location }) =>
-        auth.user ? (
-          children
-        ) : (
-            <h1>Not Authorized</h1>
-          )
+        auth.user ? children : <h1>Not Authorized</h1>
       }
     />
   );
@@ -126,7 +122,7 @@ function App() {
             </Content>
             <Footer style={{ textAlign: "center" }}>
               CASpR © 2020 Created by David Federspiel
-          </Footer>
+            </Footer>
           </Layout>
         </Router>
       </AuthProvider>
