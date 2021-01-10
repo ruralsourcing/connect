@@ -58,7 +58,7 @@ const typeDefs = gql`
   }
 
   type Subscription {
-    skillAdded(userId: String!): SkillWithTech
+    skillAdded: SkillWithTech
   }
 `;
 
@@ -156,9 +156,10 @@ const resolvers = {
       //subscribe: () => pubsub.asyncIterator([SKILL_ADDED]),
       subscribe: withFilter(
         () => pubsub.asyncIterator("SKILL_ADDED"),
-        (payload, variables) => {
+        (payload, variables, context) => {
           console.info("[WITH FILTER]", payload, variables);
-          return payload.user.email === variables.userId;
+          console.log("[FILTER CONTEXT]", context)
+          return payload.skillAdded.userId === context.currentUser?.id;
         }
       ),
     },

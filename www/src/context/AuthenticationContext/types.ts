@@ -13,7 +13,6 @@ type AuthContext = {
     signin(): void;
     signout(): void;
     token(): Promise<string | null>;
-    onToken(cb: Function): void
 };
 
 export type { AuthContext, Policy, UserProfile };
