@@ -151,6 +151,7 @@ const resolvers = {
   },
   Subscription: {
     skillAdded: {
+      // TODO: FILTER BASED ON USER https://github.com/apollographql/apollo-server/issues/1553
       subscribe: () => pubsub.asyncIterator([SKILL_ADDED]),
     },
   },
