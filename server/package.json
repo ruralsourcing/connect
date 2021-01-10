@@ -17,7 +17,7 @@
     "@azure/ms-rest-js": "^2.1.0",
     "@azure/ms-rest-nodeauth": "^3.0.6",
     "@casl/ability": "^5.1.1",
-    "@prisma/cli": "^2.13.1",
+    "@prisma/cli": "^2.14.0",
     "@slack/events-api": "^2.3.4",
     "@slack/interactive-messages": "^1.7.0",
     "@slack/web-api": "^5.14.0",

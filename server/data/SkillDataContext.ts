@@ -47,6 +47,7 @@ export default class SkillDataContext implements ISkillDataContext {
   }
 
   getSkillsForUser(userId: number): Promise<Skill[]> {
+    console.info('[GET SKILLS FOR USER]', userId);
     return this.client.skill.findMany({
       where: {
         userId,

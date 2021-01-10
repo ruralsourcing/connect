@@ -1,12 +1,15 @@
 import { gql, useQuery, useSubscription } from "@apollo/client";
+import { User } from "@prisma/client";
 
 const GET_SKILLS = gql`
   {
-    skills {
-      technology {
-        name
+    user {
+      skills {
+        technology {
+          name
+        }
+        rating
       }
-      rating
     }
   }
 `;
@@ -38,8 +41,8 @@ const Skills = () => {
   return (
     (loading && <div>Loading...</div>) ||
     (error && <div>Error! ${error.message}`</div>) ||
-    (data &&
-      data.skills.map(
+    (data && data.user &&
+      data.user.skills.map(
         (
           skill: {
             rating: number;

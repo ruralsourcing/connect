@@ -5,11 +5,10 @@
   "repository": "git@github.com:dfederspiel/caspr-responder.git",
   "author": "David Federspiel <david@federnet.com>",
   "license": "MIT",
-  "devDependencies": {
-    "@prisma/cli": "^2.13.1"
-  },
+  "devDependencies": {},
   "dependencies": {
-    "@prisma/client": "^2.13.1"
+    "@prisma/cli": "^2.14.0",
+    "@prisma/client": "^2.14.0"
   },
   "scripts": {
     "setup": "yarn install && (cd www && yarn install) && (cd server && yarn install)"

@@ -78,13 +78,6 @@ app.get("/ping", (_, res) => {
   });
 });
 
-// app.use((req, _, next) => {
-//   const user = req.app.get("user");
-//   if (user) console.log("[REQUEST USER]", req.app.get("user"));
-//   else console.log("[ANONYMOUS REQUEST]");
-//   next();
-// });
-
 const router = express.Router();
 
 const skillDataContext = new SkillDataContext();
@@ -100,9 +93,9 @@ new TechController(router, techDataContext);
 
 app.use("/api", UserContext, router);
 
-apollo.applyMiddleware({ app });
-
 const httpServer = createServer(app);
+
+apollo.applyMiddleware({ app });
 apollo.installSubscriptionHandlers(httpServer);
 
 app.use(
