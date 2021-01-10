@@ -1,5 +1,5 @@
 import { gql, useQuery, useSubscription } from "@apollo/client";
-import { User } from "@prisma/client";
+import { useAuth } from "../../context/AuthenticationContext";
 
 const GET_SKILLS = gql`
   {
@@ -15,33 +15,38 @@ const GET_SKILLS = gql`
 `;
 
 const SKILLS_SUBSCRIPTION = gql`
-  subscription skillAdded {
-    skillAdded {
+  subscription skillAdded($userId: String!) {
+    skillAdded(userId: $userId) {
+      id
+      userId
+      rating
+      Tech {
         id
-        userId
-        rating
-        Tech {
-            id
-            name
-        }
+        name
+      }
     }
   }
 `;
 
 const Skills = () => {
   const { loading, error, data, refetch } = useQuery(GET_SKILLS);
+  const auth = useAuth();
 
   useSubscription(SKILLS_SUBSCRIPTION, {
-      onSubscriptionData: ({subscriptionData}) => {
-        console.log('[SUBSCRIPTION DATA]', subscriptionData.data);
-        refetch();
-      }
+    variables: {
+      userId: auth.user
+    },
+    onSubscriptionData: ({ subscriptionData }) => {
+      console.log("[SUBSCRIPTION DATA]", subscriptionData.data);
+      refetch();
+    },
   });
 
   return (
     (loading && <div>Loading...</div>) ||
     (error && <div>Error! ${error.message}`</div>) ||
-    (data && data.user &&
+    (data &&
+      data.user &&
       data.user.skills.map(
         (
           skill: {

@@ -46,7 +46,7 @@ export class AuthContext {
             });
             resolve(decoded);
           } catch (ex) {
-            console.log(ex.message);
+            console.log("ERROR PROCESSING TOKEN", ex.message, token);
             reject(ex);
           }
         }
