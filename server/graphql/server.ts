@@ -1,4 +1,4 @@
-import { ApolloServer, PubSub, gql } from "apollo-server-express";
+import { ApolloServer, PubSub, gql, withFilter } from "apollo-server-express";
 import TechDataSource from "./datasources/TechDataSource";
 import { DataSources } from "apollo-server-core/dist/graphqlOptions";
 import TechDataContext from "../data/TechDataContext";
@@ -51,7 +51,6 @@ const typeDefs = gql`
     skills: [Skill]
     skill(skillId: ID!): Skill
     user: User
-
   }
 
   type Mutation {
@@ -59,7 +58,7 @@ const typeDefs = gql`
   }
 
   type Subscription {
-    skillAdded: SkillWithTech
+    skillAdded(userId: String!): SkillWithTech
   }
 `;
 
@@ -105,11 +104,13 @@ const resolvers = {
       context: { user: User; dataSources: { userApi: UserDataSource } },
       __: any
     ) => {
-      if(!context.user) return {
-        error: 'There is no user context, did you forget to pass a bearer token?'
-      }
+      if (!context.user)
+        return {
+          error:
+            "There is no user context, did you forget to pass a bearer token?",
+        };
       return context.dataSources.userApi.getById(context.user.id.toString());
-    }
+    },
   },
   User: {
     skills: async (
@@ -119,7 +120,7 @@ const resolvers = {
       __: any
     ) => {
       return context.dataSources.skillApi.getSkillsForUser(context.user.id);
-    }
+    },
   },
   Skill: {
     technology: async (
@@ -127,7 +128,7 @@ const resolvers = {
       __: any,
       context: { dataSources: { techApi: TechDataSource } }
     ) => {
-      console.log("[Linking Tech to Skill]", parent);
+      //console.log("[Linking Tech to Skill]", parent);
       return await context.dataSources.techApi.getById(parent.techId);
     },
   },
@@ -137,22 +138,29 @@ const resolvers = {
       { skill }: any,
       context: { user: User; dataSources: { skillApi: SkillDataSource } }
     ) => {
-      console.log(skill, context);
-      console.log("[USER]", context.user);
+      //console.log(skill, context);
+      //console.log("[USER]", context.user);
       let response = await context.dataSources.skillApi.create(
         skill.technologyId,
         skill.rating,
         context.user.id
       );
-      console.log("[QUERY RESULT]", response);
-      pubsub.publish(SKILL_ADDED, { skillAdded: response });
+      //console.log("[QUERY RESULT]", response);
+      pubsub.publish(SKILL_ADDED, { skillAdded: response, user: context.user });
       return response;
     },
   },
   Subscription: {
     skillAdded: {
       // TODO: FILTER BASED ON USER https://github.com/apollographql/apollo-server/issues/1553
-      subscribe: () => pubsub.asyncIterator([SKILL_ADDED]),
+      //subscribe: () => pubsub.asyncIterator([SKILL_ADDED]),
+      subscribe: withFilter(
+        () => pubsub.asyncIterator("SKILL_ADDED"),
+        (payload, variables) => {
+          console.info("[WITH FILTER]", payload, variables);
+          return payload.user.email === variables.userId;
+        }
+      ),
     },
   },
 };
@@ -166,7 +174,7 @@ interface IDataSources {
 const dataSources: DataSources<IDataSources> = {
   techApi: new TechDataSource(new TechDataContext()),
   skillApi: new SkillDataSource(new SkillDataContext()),
-  userApi: new UserDataSource(new UserDataContext())
+  userApi: new UserDataSource(new UserDataContext()),
 };
 
 const dataContext = new UserDataContext();
@@ -187,17 +195,16 @@ export default new ApolloServer({
       let user;
       if (token) {
         try {
-          console.info("[ACCESS TOKEN]", token)
+          //console.info("[ACCESS TOKEN]", token)
           const decoded = await context.decode(token);
-          console.log("[TOKEN INFO]", decoded, token);
+          //console.log("[TOKEN INFO]", decoded, token);
           user = await context.getUser(decoded);
-          console.log('[USER CONTEXT]', user)
+          //console.log('[USER CONTEXT]', user)
         } catch (ex) {
-          console.error('[X0001]', ex.message);
+          console.error("[X0001]", ex.message);
         }
       }
 
-      
       // optionally block the user
       // we could also check user roles/permissions here
       //if (!user) throw new AuthenticationError("you must be logged in");
@@ -205,5 +212,25 @@ export default new ApolloServer({
       // add the user to the context
       return { user };
     }
+  },
+  subscriptions: {
+    onConnect: async (connectionParams: any, webSocket) => {
+      let user;
+      try {
+        if (connectionParams.authToken !== '') {
+          const decoded = await context.decode(connectionParams.authToken);
+          console.log("SUBSCRIPTION CONNECTION PARAMS", decoded);
+          user = await context.getUser(decoded);
+          return {
+            currentUser: user,
+          };
+        }
+      } catch (ex) {
+        console.error(ex);
+      }
+      return {
+        currentUser: null,
+      };
+    },
   },
 });

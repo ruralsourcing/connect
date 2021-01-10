@@ -24,7 +24,8 @@ class AuthModule {
   account?: AccountInfo;
   user?: User;
 
-  private cb?: (user?: string) => void;
+  private accountCallback?: (user?: string) => void;
+  private tokenCallback?: (token?: string) => void;
 
   constructor() {
     console.log(MSAL_CONFIG);
@@ -42,7 +43,7 @@ class AuthModule {
               email: this.account.username,
               domain: "",
             };
-            this.cb && this.cb(this.account.username);
+            this.accountCallback && this.accountCallback(this.account.username);
           });
         } else {
           if (response?.account) {
@@ -52,7 +53,7 @@ class AuthModule {
               email: this.account.username,
               domain: "",
             };
-            this.cb && this.cb(this.account.username);
+            this.accountCallback && this.accountCallback(this.account.username);
           }
         }
       })
@@ -84,7 +85,11 @@ class AuthModule {
   }
 
   onAccount(cb: (user?: string) => void) {
-    this.cb = cb;
+    this.accountCallback = cb;
+  }
+
+  onToken(cb: (token?: string) => void) {
+    this.tokenCallback = cb;
   }
 
   login() {
@@ -127,6 +132,7 @@ class AuthModule {
         if (!result.accessToken || result.accessToken === "") {
           throw new InteractionRequiredAuthError();
         }
+        this.tokenCallback && this.tokenCallback(result.accessToken);
         return result.accessToken;
       })
       .catch((error) => {
