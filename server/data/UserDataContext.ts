@@ -32,8 +32,12 @@ export default class UserDataContext implements IUserDataContext {
   async getAll(): Promise<User[]> {
     return await this.client.user.findMany();
   }
-  async get(id: string): Promise<User> {
-    throw new Error("Method not implemented.");
+  async get(id: string): Promise<User | null> {
+    return await this.client.user.findUnique({
+      where: {
+        id: parseInt(id)
+      }
+    })
   }
   async post(item: User): Promise<User> {
     return await this.client.user.create({
