@@ -13,7 +13,11 @@ const POLICY = `${process.env.REACT_APP_B2C_AUTHORITY}/${process.env.REACT_APP_B
 const RESET_POLICY = `${process.env.REACT_APP_B2C_AUTHORITY}/${process.env.REACT_APP_B2C_RESET_POLICY}`;
 
 const redirectRequest: RedirectRequest = {
-  scopes: ["openid", "offline_access", "https://codeflyb2c.onmicrosoft.com/codefly/user_impersonation"],
+  scopes: [
+    "openid",
+    "offline_access",
+    "https://codeflyb2c.onmicrosoft.com/codefly/user_impersonation",
+  ],
   redirectUri: `${window.location.protocol}//${window.location.host}`,
   authority: RESET_POLICY,
   redirectStartPage: `${window.location.protocol}//${window.location.host}`,
@@ -25,34 +29,20 @@ class AuthModule {
   user?: User;
 
   private accountCallback?: (user?: string) => void;
-  private tokenCallback?: (token?: string) => void;
 
   constructor() {
-    console.log(MSAL_CONFIG);
     this.msal = new PublicClientApplication(MSAL_CONFIG);
-    //this.account = this.getActiveAccount();
     this.msal
       .handleRedirectPromise()
       .then((response: AuthenticationResult | null) => {
-        console.log("[HANDLE REDIRECT]", response);
         if (response === null) {
           this.msal.getAllAccounts().forEach((acct) => {
             this.account = acct;
-            this.user = {
-              id: 0,
-              email: this.account.username,
-              domain: "",
-            };
             this.accountCallback && this.accountCallback(this.account.username);
           });
         } else {
           if (response?.account) {
             this.account = response?.account;
-            this.user = {
-              id: 0,
-              email: this.account.username,
-              domain: "",
-            };
             this.accountCallback && this.accountCallback(this.account.username);
           }
         }
@@ -62,9 +52,7 @@ class AuthModule {
         if (err.errorMessage.indexOf("AADB2C90118") > -1) {
           try {
             // Password reset
-            this.msal.loginRedirect(redirectRequest).then((response) => {
-              console.log(response);
-            });
+            this.msal.loginRedirect(redirectRequest);
           } catch (e) {
             // eslint-disable-next-line no-console
             console.error(`error: ${e}`);
@@ -86,10 +74,6 @@ class AuthModule {
 
   onAccount(cb: (user?: string) => void) {
     this.accountCallback = cb;
-  }
-
-  onToken(cb: (token?: string) => void) {
-    this.tokenCallback = cb;
   }
 
   login() {
@@ -132,7 +116,6 @@ class AuthModule {
         if (!result.accessToken || result.accessToken === "") {
           throw new InteractionRequiredAuthError();
         }
-        this.tokenCallback && this.tokenCallback(result.accessToken);
         return result.accessToken;
       })
       .catch((error) => {

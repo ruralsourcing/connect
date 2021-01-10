@@ -5,19 +5,19 @@ import { message } from "antd";
 
 export const useProvideAuth = (auth: AuthModule): AuthContext => {
   const [user, setUser] = useState<string | undefined>(auth?.user?.email);
-  let tokenCallback: Function;
+  // let tokenCallback: Function;
 
   auth.onAccount((user?: string) => {
     setUser(user);
   });
 
-  auth.onToken((token?: string) => {
-    tokenCallback && tokenCallback(token);
-  })
+  // auth.onToken((token?: string) => {
+  //   tokenCallback && tokenCallback(token);
+  // })
 
-  const onToken = (cb: Function): void => {
-    tokenCallback = cb;
-  }
+  // const onToken = (cb: Function): void => {
+  //   tokenCallback = cb;
+  // }
 
 
   const signin = async (): Promise<void> => {
@@ -46,7 +46,6 @@ export const useProvideAuth = (auth: AuthModule): AuthContext => {
     user,
     signin,
     token,
-    onToken,
     signout,
   };
 };

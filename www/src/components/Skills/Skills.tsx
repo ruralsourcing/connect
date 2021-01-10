@@ -1,5 +1,5 @@
 import { gql, useQuery, useSubscription } from "@apollo/client";
-import { useAuth } from "../../context/AuthenticationContext";
+import { message } from "antd";
 
 const GET_SKILLS = gql`
   {
@@ -15,8 +15,8 @@ const GET_SKILLS = gql`
 `;
 
 const SKILLS_SUBSCRIPTION = gql`
-  subscription skillAdded($userId: String!) {
-    skillAdded(userId: $userId) {
+  subscription {
+    skillAdded {
       id
       userId
       rating
@@ -30,14 +30,11 @@ const SKILLS_SUBSCRIPTION = gql`
 
 const Skills = () => {
   const { loading, error, data, refetch } = useQuery(GET_SKILLS);
-  const auth = useAuth();
 
   useSubscription(SKILLS_SUBSCRIPTION, {
-    variables: {
-      userId: auth.user
-    },
     onSubscriptionData: ({ subscriptionData }) => {
       console.log("[SUBSCRIPTION DATA]", subscriptionData.data);
+      message.info("Subscription Fired!!")
       refetch();
     },
   });
