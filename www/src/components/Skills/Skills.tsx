@@ -1,10 +1,11 @@
-import { gql, useQuery, useSubscription } from "@apollo/client";
+import { gql, useMutation, useQuery, useSubscription } from "@apollo/client";
 import { message } from "antd";
 
 const GET_SKILLS = gql`
   {
     user {
       skills {
+        id
         technology {
           name
         }
@@ -14,7 +15,7 @@ const GET_SKILLS = gql`
   }
 `;
 
-const SKILLS_SUBSCRIPTION = gql`
+const SKILL_ADDED_SUBSCRIPTION = gql`
   subscription {
     skillAdded {
       id
@@ -28,13 +29,33 @@ const SKILLS_SUBSCRIPTION = gql`
   }
 `;
 
+const SKILL_DELETED_SUBSCRIPTION = gql`
+  subscription {
+    skillDeleted
+  }
+`;
+
+const DELETE_SKILL = gql`
+  mutation deleteSkill($skillId: ID!) {
+    deleteSkill(skillId: $skillId)
+  }
+`;
+
 const Skills = () => {
   const { loading, error, data, refetch } = useQuery(GET_SKILLS);
 
-  useSubscription(SKILLS_SUBSCRIPTION, {
+  const [deleteSkill] = useMutation(DELETE_SKILL);
+
+  useSubscription(SKILL_ADDED_SUBSCRIPTION, {
     onSubscriptionData: ({ subscriptionData }) => {
-      console.log("[SUBSCRIPTION DATA]", subscriptionData.data);
-      message.info("Subscription Fired!!")
+      message.info("Skill Added!!");
+      refetch();
+    },
+  });
+
+  useSubscription(SKILL_DELETED_SUBSCRIPTION, {
+    onSubscriptionData: ({ subscriptionData }) => {
+      message.info("Skill Deleted!!");
       refetch();
     },
   });
@@ -47,6 +68,7 @@ const Skills = () => {
       data.user.skills.map(
         (
           skill: {
+            id: string;
             rating: number;
             technology: {
               name: string;
@@ -55,6 +77,20 @@ const Skills = () => {
           idx: string
         ) => (
           <div key={idx}>
+            <button
+              onClick={() => {
+                console.log(skill);
+                deleteSkill({
+                  variables: {
+                    skillId: skill.id,
+                  },
+                })
+                  .then(() => refetch())
+                  .catch(() => console.log);
+              }}
+            >
+              DELETE
+            </button>
             User Skill {skill.technology?.name} with rating {skill.rating}
           </div>
         )

@@ -32,7 +32,7 @@ export default class TechDataContext implements ITechDataContext {
       }
     });
   }
-  delete(id: string): void {
+  delete(id: string): Promise<Tech> {
     throw new Error("Method not implemented.");
   }
   put(item: Tech): Promise<Tech> {

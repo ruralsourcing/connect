@@ -14,7 +14,7 @@ export default class ZoomDataContext implements IZoomDataContext {
     post(item: ZoomAuth): Promise<ZoomAuth> {
         throw new Error("Method not implemented.");
     }
-    delete(id: string): void {
+    delete(id: string): Promise<ZoomAuth> {
         throw new Error("Method not implemented.");
     }
     put(item: ZoomAuth): Promise<ZoomAuth> {
