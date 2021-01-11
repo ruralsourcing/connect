@@ -86,7 +86,10 @@ const Skills = () => {
                   },
                 })
                   .then(() => refetch())
-                  .catch(() => console.log);
+                  .catch((error) => {
+                    console.log(error);
+                    refetch()
+                  });
               }}
             >
               DELETE

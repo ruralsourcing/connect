@@ -34,7 +34,7 @@ export class AuthContext {
 
   decode = (token: string): Promise<string | object> => {
     return new Promise((resolve, reject) => {
-      console.log(process.env.JWT_KID)
+      //console.log(process.env.JWT_KID)
       client.getSigningKey(process.env.JWT_KID || "", async (err, key) => {
         if (err != null) {
           console.log("err:" + err);
@@ -65,7 +65,7 @@ export class AuthContext {
       if (token) {
         const decoded = await this.decode(token);
         user = await this.getUser(decoded);
-        console.info("[USER]", user);
+        //console.info("[USER]", user);
         res.locals.user = user;
       }
       next();

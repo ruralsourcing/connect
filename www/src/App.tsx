@@ -8,9 +8,10 @@ import {
   Link,
   RouteProps,
 } from "react-router-dom";
-import { Layout, Row, Menu, Breadcrumb, Col } from "antd";
+import { Layout, Row, Menu, Col } from "antd";
 import Home from "./pages/Home";
 import Skills from "./pages/Skills";
+import AffirmationsPage from "./pages/Affirmations";
 import User from "./components/User";
 import { ApolloAuthProvider } from "./context/ApolloAuthContext/ApolloAuthContext";
 
@@ -47,25 +48,31 @@ function App() {
                   <Menu.Item key="2">
                     <Link to="/skills">Skills</Link>
                   </Menu.Item>
+                  <Menu.Item key="3">
+                    <Link to="/affirmations">Affirmations</Link>
+                  </Menu.Item>
                 </Menu>
               </Row>
             </Header>
             <Content style={{ padding: "0 50px" }}>
               <Row>
-                <Col span={20}>
+                {/* <Col span={20}>
                   <Breadcrumb style={{ margin: "16px 0" }}>
                     <Breadcrumb.Item>Home</Breadcrumb.Item>
                     <Breadcrumb.Item>List</Breadcrumb.Item>
                     <Breadcrumb.Item>App</Breadcrumb.Item>
                   </Breadcrumb>
-                </Col>
-                <Col style={{ textAlign: "right" }} span={4}>
+                </Col> */}
+                <Col style={{ textAlign: "right" }} span={24}>
                   <User />
                 </Col>
               </Row>
               <Switch>
                 <PrivateRoute path="/skills">
                   <Skills />
+                </PrivateRoute>
+                <PrivateRoute path="/affirmations">
+                  <AffirmationsPage />
                 </PrivateRoute>
                 <Route path="/">
                   <Home />

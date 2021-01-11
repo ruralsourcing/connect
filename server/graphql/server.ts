@@ -13,8 +13,15 @@ const pubsub = new PubSub();
 
 const SKILL_ADDED = "SKILL_ADDED";
 const SKILL_DELETED = "SKILL_DELETED";
+const AFFIRMATION_GIVEN = "AFFIRMATION_GIVEN";
 
 const typeDefs = gql`
+
+  type Affirmation {
+    from: ID!
+    to: ID!
+  }
+
   type User {
     id: ID!
     email: String
@@ -52,16 +59,19 @@ const typeDefs = gql`
     skills: [Skill]
     skill(skillId: ID!): Skill
     user: User
+    users: [User]
   }
 
   type Mutation {
     addSkill(skill: SkillInput!): SkillWithTech!
     deleteSkill(skillId: ID!): Int
+    sendAffirmation(userId: ID!): Affirmation
   }
 
   type Subscription {
     skillAdded: SkillWithTech
     skillDeleted: Int
+    affirmationGiven: Affirmation
   }
 `;
 
@@ -114,6 +124,19 @@ const resolvers = {
         };
       return context.dataSources.userApi.getById(context.user.id.toString());
     },
+    users: (
+      _: any,
+      _args: any,
+      context: { user: User; dataSources: { userApi: UserDataSource } },
+      __: any
+    ) => {
+      if (!context.user)
+        return {
+          error:
+            "There is no user context, did you forget to pass a bearer token?",
+        };
+      return context.dataSources.userApi.getAll();
+    },
   },
   User: {
     skills: async (
@@ -158,36 +181,52 @@ const resolvers = {
       context: { user: User; dataSources: { skillApi: SkillDataSource } }
     ) => {
       await context.dataSources.skillApi.delete(skillId);
-      //console.log("[QUERY RESULT]", response);
-      pubsub.publish(SKILL_DELETED, { skillDeleted: skillId, user: context.user });
+      pubsub.publish(SKILL_DELETED, {
+        skillDeleted: skillId,
+        user: context.user,
+      });
       return skillId;
+    },
+    sendAffirmation: async (
+      _: any,
+      { userId }: any,
+      context: { user: User; dataSources: { skillApi: SkillDataSource } }
+    ) => {
+      const affirmation = {
+        from: context.user.id,
+        to: userId
+      };
+      pubsub.publish(AFFIRMATION_GIVEN, affirmation);
+      return affirmation;
     }
   },
   Subscription: {
     skillAdded: {
-      // TODO: FILTER BASED ON USER https://github.com/apollographql/apollo-server/issues/1553
-      //subscribe: () => pubsub.asyncIterator([SKILL_ADDED]),
       subscribe: withFilter(
         () => pubsub.asyncIterator("SKILL_ADDED"),
-        (payload, variables, context) => {
-          console.info("[WITH FILTER]", payload, variables);
-          console.log("[FILTER CONTEXT]", context)
-          return payload.user.id === context.currentUser?.id;
+        (payload, _, context) => {
+          return payload.user.id === context.user?.id;
         }
       ),
     },
     skillDeleted: {
-      // TODO: FILTER BASED ON USER https://github.com/apollographql/apollo-server/issues/1553
-      //subscribe: () => pubsub.asyncIterator([SKILL_ADDED]),
       subscribe: withFilter(
         () => pubsub.asyncIterator("SKILL_DELETED"),
-        (payload, variables, context) => {
-          console.info("[WITH FILTER]", payload, variables);
-          console.log("[FILTER CONTEXT]", context)
-          return payload.user.id === context.currentUser?.id;
+        (payload, _, context) => {
+          return payload.user.id === context.user?.id;
         }
       ),
     },
+    affirmationGiven: {
+      subscribe: withFilter(
+        () => pubsub.asyncIterator("AFFIRMATION_GIVEN"),
+        (payload, variables, context) => {
+          console.info("[WITH FILTER]", payload, variables);
+          console.log("[FILTER CONTEXT]", context)
+          return parseInt(payload.to) === context.user.id;
+        }
+      )
+    }
   },
 };
 
@@ -243,12 +282,12 @@ export default new ApolloServer({
     onConnect: async (connectionParams: any, webSocket) => {
       let user;
       try {
-        if (connectionParams.authToken !== '') {
+        if (connectionParams.authToken !== "") {
           const decoded = await context.decode(connectionParams.authToken);
-          console.log("SUBSCRIPTION CONNECTION PARAMS", decoded);
+          //console.log("SUBSCRIPTION CONNECTION PARAMS", decoded);
           user = await context.getUser(decoded);
           return {
-            currentUser: user,
+            user: user,
           };
         }
       } catch (ex) {

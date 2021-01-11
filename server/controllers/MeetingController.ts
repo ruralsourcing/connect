@@ -19,7 +19,7 @@ export default class MeetingController {
 
   private getAllMeetings = async (
     _: any,
-    res: { json: (arg0: Meeting[]) => void }
+    res: { json: (meeting: Meeting[]) => void }
   ) => {
     res.json(await this.context.getAll());
   };
