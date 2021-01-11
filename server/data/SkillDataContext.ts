@@ -88,7 +88,6 @@ export default class SkillDataContext implements ISkillDataContext {
     throw new Error("Method not implemented.");
   }
   delete(id: string): Promise<Skill> {
-    console.log("DELETE")
     return this.client.skill.delete({
       where: { id: parseInt(id) },
     });

@@ -8,7 +8,7 @@ export default class SkillDataSource extends DataSource {
   private context: ISkillDataContext;
   constructor(context: ISkillDataContext) {
     super();
-    this.context = new SkillDataContext();
+    this.context = context;
   }
   
   getById = async (id: string): Promise<Skill | null> => {

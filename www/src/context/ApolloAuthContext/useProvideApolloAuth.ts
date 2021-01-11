@@ -31,6 +31,7 @@ export const useProvideApolloAuth = (): ApolloAuthContext => {
   const wsLink = new WebSocketLink({
     uri: `${process.env.REACT_APP_APOLLO_WS_HOST}/graphql`,
     options: {
+      
       reconnect: true,
       connectionParams: async (): Promise<ConnectionParams> => {
         const token = await auth.token();
