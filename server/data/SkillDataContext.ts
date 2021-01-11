@@ -28,7 +28,7 @@ class TSkillDataContext implements ISkillDataContext {
   post(item: Skill): Promise<Skill> {
     throw new Error("Method not implemented.");
   }
-  delete(id: string): void {
+  delete(id: string): Promise<Skill> {
     throw new Error("Method not implemented.");
   }
   put(item: Skill): Promise<Skill> {
@@ -47,7 +47,7 @@ export default class SkillDataContext implements ISkillDataContext {
   }
 
   getSkillsForUser(userId: number): Promise<Skill[]> {
-    console.info('[GET SKILLS FOR USER]', userId);
+    console.info("[GET SKILLS FOR USER]", userId);
     return this.client.skill.findMany({
       where: {
         userId,
@@ -72,8 +72,8 @@ export default class SkillDataContext implements ISkillDataContext {
         },
       },
       include: {
-          Tech: true
-      }
+        Tech: true,
+      },
     });
   }
 
@@ -87,8 +87,11 @@ export default class SkillDataContext implements ISkillDataContext {
   post(item: Skill): Promise<Skill> {
     throw new Error("Method not implemented.");
   }
-  delete(id: string): void {
-    throw new Error("Method not implemented.");
+  delete(id: string): Promise<Skill> {
+    console.log("DELETE")
+    return this.client.skill.delete({
+      where: { id: parseInt(id) },
+    });
   }
   put(item: Skill): Promise<Skill> {
     throw new Error("Method not implemented.");

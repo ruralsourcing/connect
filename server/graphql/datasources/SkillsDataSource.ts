@@ -32,4 +32,8 @@ export default class SkillDataSource extends DataSource {
       technologyId,
     }, userId);
   };
+
+  delete = async (skillId: string): Promise<Skill> => {
+    return await this.context.delete(skillId);
+  }
 }

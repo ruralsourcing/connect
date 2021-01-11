@@ -44,7 +44,7 @@ export default class UserDataContext implements IUserDataContext {
       data: item
     })
   }
-  async delete(id: string): Promise<void> {
+  async delete(id: string): Promise<User> {
     throw new Error("Method not implemented.");
   }
   async put(item: User): Promise<User> {

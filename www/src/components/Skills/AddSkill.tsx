@@ -50,10 +50,7 @@ const AddSkill = () => {
               technologyId: parseInt(data.techId),
               rating: data.rating,
             },
-          }).then((result) => {
-            console.log(result);
-            //refetch();
-          });
+          })
         }}
         labelCol={{
           span: 4,

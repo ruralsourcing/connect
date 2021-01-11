@@ -12,6 +12,7 @@ import UserDataSource from "./datasources/UsersDataSource";
 const pubsub = new PubSub();
 
 const SKILL_ADDED = "SKILL_ADDED";
+const SKILL_DELETED = "SKILL_DELETED";
 
 const typeDefs = gql`
   type User {
@@ -55,10 +56,12 @@ const typeDefs = gql`
 
   type Mutation {
     addSkill(skill: SkillInput!): SkillWithTech!
+    deleteSkill(skillId: ID!): Int
   }
 
   type Subscription {
     skillAdded: SkillWithTech
+    skillDeleted: Int
   }
 `;
 
@@ -149,6 +152,16 @@ const resolvers = {
       pubsub.publish(SKILL_ADDED, { skillAdded: response, user: context.user });
       return response;
     },
+    deleteSkill: async (
+      _: any,
+      { skillId }: any,
+      context: { user: User; dataSources: { skillApi: SkillDataSource } }
+    ) => {
+      await context.dataSources.skillApi.delete(skillId);
+      //console.log("[QUERY RESULT]", response);
+      pubsub.publish(SKILL_DELETED, { skillDeleted: skillId, user: context.user });
+      return skillId;
+    }
   },
   Subscription: {
     skillAdded: {
@@ -159,7 +172,19 @@ const resolvers = {
         (payload, variables, context) => {
           console.info("[WITH FILTER]", payload, variables);
           console.log("[FILTER CONTEXT]", context)
-          return payload.skillAdded.userId === context.currentUser?.id;
+          return payload.user.id === context.currentUser?.id;
+        }
+      ),
+    },
+    skillDeleted: {
+      // TODO: FILTER BASED ON USER https://github.com/apollographql/apollo-server/issues/1553
+      //subscribe: () => pubsub.asyncIterator([SKILL_ADDED]),
+      subscribe: withFilter(
+        () => pubsub.asyncIterator("SKILL_DELETED"),
+        (payload, variables, context) => {
+          console.info("[WITH FILTER]", payload, variables);
+          console.log("[FILTER CONTEXT]", context)
+          return payload.user.id === context.currentUser?.id;
         }
       ),
     },
