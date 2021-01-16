@@ -43,7 +43,7 @@ export const LOGIN_REQUEST = {
   scopes: [
     "openid",
     "offline_access",
-    process.env.REACT_APP_B2C_SCOPE,
+    process.env.REACT_APP_B2C_SCOPE || "",
   ],
   forceRefresh: false,
 };

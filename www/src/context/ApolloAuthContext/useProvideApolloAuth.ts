@@ -21,6 +21,7 @@ export const useProvideApolloAuth = (): ApolloAuthContext => {
 
   const authLink = setContext(async (_, { headers }) => {
     const token = await auth.token();
+    console.log("GRAPHQL HTTP", token)
     return {
       headers: {
         ...headers,
@@ -32,10 +33,10 @@ export const useProvideApolloAuth = (): ApolloAuthContext => {
   const wsLink = new WebSocketLink({
     uri: `${process.env.REACT_APP_APOLLO_WS_HOST}`,
     options: {
-      
       reconnect: true,
       connectionParams: async (): Promise<ConnectionParams> => {
         const token = await auth.token();
+        console.log("GRAPHQL WS", token)
         return { authToken: token, test: "some_other_thing" }
       }
     },
@@ -46,7 +47,6 @@ export const useProvideApolloAuth = (): ApolloAuthContext => {
       const { kind, operation } = getMainDefinition(
         query
       ) as OperationDefinitionNode;
-      auth.token();
       return kind === "OperationDefinition" && operation === "subscription";
     },
     wsLink,
