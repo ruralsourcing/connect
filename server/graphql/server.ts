@@ -154,7 +154,6 @@ const resolvers = {
       __: any,
       context: { dataSources: { techApi: TechDataSource } }
     ) => {
-      //console.log("[Linking Tech to Skill]", parent);
       return await context.dataSources.techApi.getById(parent.techId);
     },
   },
@@ -164,8 +163,6 @@ const resolvers = {
       { skill }: any,
       context: { user: User; dataSources: { skillApi: SkillDataSource } }
     ) => {
-      //console.log(skill, context);
-      //console.log("[USER]", context.user);
       let response = await context.dataSources.skillApi.create(
         skill.technologyId,
         skill.rating,
@@ -220,9 +217,7 @@ const resolvers = {
     affirmationGiven: {
       subscribe: withFilter(
         () => pubsub.asyncIterator("AFFIRMATION_GIVEN"),
-        (payload, variables, context) => {
-          console.info("[WITH FILTER]", payload, variables);
-          console.log("[FILTER CONTEXT]", context)
+        (payload, _, context) => {
           return parseInt(payload.to) === context.user.id;
         }
       )
@@ -284,7 +279,6 @@ export default new ApolloServer({
       try {
         if (connectionParams.authToken !== "") {
           const decoded = await context.decode(connectionParams.authToken);
-          //console.log("SUBSCRIPTION CONNECTION PARAMS", decoded);
           user = await context.getUser(decoded);
           return {
             user: user,

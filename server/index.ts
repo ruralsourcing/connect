@@ -2,6 +2,8 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import { createServer } from "http";
+// import https from "https";
+// import fs from "fs";
 
 import axios from "axios";
 axios.defaults.baseURL = process.env.API_BASE_URL || "";
@@ -28,6 +30,7 @@ import TechController from "./controllers/TechController";
 
 const slackSigningSecret = process.env.SLACK_SIGNING_SECRET || "";
 const port = process.env.PORT || 3000;
+
 
 const slackEvents = SlackEventHandlers(slackSigningSecret);
 const slackInteractions = SlackInteractionHandlers(slackSigningSecret);
@@ -107,7 +110,7 @@ app.use(
 app.use("/", express.static("www/build"));
 
 httpServer.listen(port, () => {
-  console.log(`Server started on port: ${port}`);
+  console.log(`Server started at: http://localhost:${port}`);
   console.log(
     `GraphQL Playground ready at http://localhost:${port}/${apollo.graphqlPath}`
   );
@@ -115,3 +118,21 @@ httpServer.listen(port, () => {
     `Subscriptions ready at ws://localhost:${port}/${apollo.subscriptionsPath}`
   );
 });
+
+// https
+//   .createServer(
+//     {
+//       key: fs.readFileSync(__dirname + "/certs/server.key"),
+//       cert: fs.readFileSync(__dirname + "/certs/cert.pem"),
+//     },
+//     app
+//   )
+//   .listen(port, () => {
+//     console.log(`Secure server started at: https://localhost:${port}`);
+//     console.log(
+//       `GraphQL started at: https://localhost:${port}${apollo.graphqlPath}`
+//     );
+//     console.log(
+//       `Subscriptions ready at wss://localhost:${port}${apollo.subscriptionsPath}`
+//     );
+//   });

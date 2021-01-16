@@ -1,4 +1,3 @@
-# docker-compose.yml
 version: "3.3"
 services:
   server:
@@ -10,6 +9,8 @@ services:
       - postgres
     links: 
       - postgres
+    ports:
+      - "4000:3000"
     volumes:
       - ./prisma:/usr/src/app/prisma
       - ./server:/usr/src/app/server

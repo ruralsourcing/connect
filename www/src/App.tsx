@@ -14,10 +14,7 @@ import Skills from "./pages/Skills";
 import AffirmationsPage from "./pages/Affirmations";
 import User from "./components/User";
 import { ApolloAuthProvider } from "./context/ApolloAuthContext/ApolloAuthContext";
-
-console.log(process.env);
-console.log("[APOLLO SERVER]", process.env.REACT_APP_APOLLO_SERVER);
-console.log("[APOLLO WS HOST]", process.env.REACT_APP_APOLLO_WS_HOST);
+import IntegrationsPage from "./pages/Integrations";
 
 const { Header, Content, Footer } = Layout;
 
@@ -51,18 +48,14 @@ function App() {
                   <Menu.Item key="3">
                     <Link to="/affirmations">Affirmations</Link>
                   </Menu.Item>
+                  <Menu.Item key="4">
+                    <Link to="/integrations">Integrations</Link>
+                  </Menu.Item>
                 </Menu>
               </Row>
             </Header>
             <Content style={{ padding: "0 50px" }}>
               <Row>
-                {/* <Col span={20}>
-                  <Breadcrumb style={{ margin: "16px 0" }}>
-                    <Breadcrumb.Item>Home</Breadcrumb.Item>
-                    <Breadcrumb.Item>List</Breadcrumb.Item>
-                    <Breadcrumb.Item>App</Breadcrumb.Item>
-                  </Breadcrumb>
-                </Col> */}
                 <Col style={{ textAlign: "right" }} span={24}>
                   <User />
                 </Col>
@@ -70,6 +63,9 @@ function App() {
               <Switch>
                 <PrivateRoute path="/skills">
                   <Skills />
+                </PrivateRoute>
+                <PrivateRoute path="/integrations">
+                  <IntegrationsPage />
                 </PrivateRoute>
                 <PrivateRoute path="/affirmations">
                   <AffirmationsPage />
