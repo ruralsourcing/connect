@@ -61,6 +61,11 @@ const typeDefs = gql`
     rating: Int
   }
 
+  input ZoomAuthInput {
+    code: String
+    state: String
+  }
+
   type Query {
     technologies: [Tech]!
     technology(technologyId: ID!): Tech
@@ -78,7 +83,7 @@ const typeDefs = gql`
     addSkill(skill: SkillInput!): SkillWithTech!
     deleteSkill(skillId: ID!): Int
     sendAffirmation(userId: ID!): Affirmation
-    addZoomAuth(code: String, state: String): ZoomAuth!
+    addZoomAuth(zoomAuth: ZoomAuthInput): ZoomAuth!
   }
 
   type Subscription {
@@ -166,7 +171,7 @@ const resolvers = {
       context: { user: User; dataSources: { userApi: UserDataSource } }
     ) => {
       return context.dataSources.userApi.getZoomAuth(context.user.id);
-    }
+    },
   },
   Skill: {
     technology: async (
@@ -205,10 +210,11 @@ const resolvers = {
     },
     addZoomAuth: async (
       _: any,
-      { code, state }: ZoomCodeInput,
+      { zoomAuth }: { zoomAuth: ZoomCodeInput },
       context: { user: User; dataSources: { zoomApi: ZoomDataSource } }
     ) => {
-      console.log("[CODE AND STATE]", code, state);
+      console.log("[CODE AND STATE]", zoomAuth);
+      const { code, state } = zoomAuth;
       return await context.dataSources.zoomApi.create({
         code,
         userId: context.user.id,

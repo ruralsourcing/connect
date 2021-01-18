@@ -1,6 +1,9 @@
-import { PrismaClient, ZoomAuth } from "@prisma/client";
+import {
+  Prisma,
+  PrismaClient,
+  ZoomAuth,
+} from "@prisma/client";
 import axios, { AxiosRequestConfig } from "axios";
-import { ModuleResolutionKind } from "typescript";
 import { IDataContext } from "./types";
 
 export interface IZoomDataContext extends IDataContext<ZoomAuth> {
@@ -14,9 +17,6 @@ export interface ZoomCodeInput {
   userId: number;
   token?: string;
 }
-
-console.log("[ENVIRONMENT FOR ZOOM]", process.env)
-
 export default class ZoomDataContext implements IZoomDataContext {
   client: PrismaClient;
 
@@ -33,7 +33,7 @@ export default class ZoomDataContext implements IZoomDataContext {
     throw new Error("Method not implemented.");
   }
 
-/*
+  /*
 TODO: Add token if not added
 TODO: Store refresh and expiration
 TODO: Refresh if expired or near expiration
@@ -48,36 +48,49 @@ server_1    | }
 */
   async addToken(item: ZoomCodeInput): Promise<ZoomAuth | null> {
     const token = await this.client.zoomAuth.findUnique({
-        where: {
-            userId: item.userId
-        }
-    })
-    if(token) return token;
-    
+      where: {
+        userId: item.userId,
+      },
+    });
+    if (token) return token;
+
     let userData;
     userData = JSON.parse(
       Buffer.from(item.state as string, "base64").toString("utf-8")
     );
     console.log("[USER DATA]", userData);
+    console.log(
+      "[ZOOM CLIENT INFO]",
+      `${process.env.ZOOM_CLIENT_ID}:${process.env.ZOOM_CLIENT_SECRET}`
+    );
 
-    let response = await axios.post("https://zoom.us/oauth/token", null, {
-      params: {
-        grant_type: "authorization_code",
-        code: item.code,
-        redirect_uri: process.env.ZOOM_REDIRECT_URI,
-      },
-      headers: {
-        Authorization: `Basic ${Buffer.from(
-          `${process.env.ZOOM_CLIENT_ID}:${process.env.ZOOM_CLIENT_SECRET}`
-        ).toString("base64")}`,
-      },
-    } as AxiosRequestConfig);
-    console.log("[ZOOM AUTH RESPONSE]", response);
-    item.token = response.data?.access_token;
-    if (item.token) {
-      return this.client.zoomAuth.create({
+    try {
+      let response = await axios.post("https://zoom.us/oauth/token", null, {
+        params: {
+          grant_type: "authorization_code",
+          code: item.code,
+          redirect_uri: process.env.ZOOM_REDIRECT_URI,
+        },
+        headers: {
+          Authorization: `Basic ${Buffer.from(
+            `${process.env.ZOOM_CLIENT_ID}:${process.env.ZOOM_CLIENT_SECRET}`
+          ).toString("base64")}`,
+        },
+      } as AxiosRequestConfig);
+
+      const { access_token, refresh_token, expires_in } = response.data;
+      console.log(
+        "[ZOOM AUTH RESPONSE]",
+        access_token,
+        refresh_token,
+        expires_in
+      );
+
+      return this.client.zoomAuth.create<Prisma.ZoomAuthCreateArgs>({
         data: {
-          token: item.token,
+          token: access_token,
+          refresh: refresh_token,
+          expiration: expires_in,
           user: {
             connect: {
               id: item.userId,
@@ -85,6 +98,8 @@ server_1    | }
           },
         },
       });
+    } catch (ex) {
+      console.log(ex.response.data);
     }
     return null;
     //   let token = jwt_decode<any>(response.data.access_token);

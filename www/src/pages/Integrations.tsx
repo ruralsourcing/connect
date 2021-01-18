@@ -1,6 +1,7 @@
 import { useLocation } from "react-router-dom";
 import qs, { ParsedQs } from "qs";
 import { gql, useMutation, useQuery } from "@apollo/client";
+import { useEffect } from "react";
 
 interface ZoomQuery extends ParsedQs {
   code?: string;
@@ -21,7 +22,7 @@ const GET_TOKEN = gql`
 
 const PROCESS_CODE = gql`
   mutation addZoomAuth($code: String!, $state: String!) {
-    addZoomAuth(code: $code, state: $state) {
+    addZoomAuth(zoomAuth: { code: $code, state: $state }) {
       id
       token
       userId
@@ -31,28 +32,40 @@ const PROCESS_CODE = gql`
 
 const IntegrationsPage = () => {
   const location = useLocation();
-  const { loading, error, data } = useQuery(GET_TOKEN);
+  const { loading, error, data, refetch } = useQuery(GET_TOKEN);
   const [processCode] = useMutation(PROCESS_CODE);
-  const query = qs.parse(location.search, {
-    ignoreQueryPrefix: true,
-  }) as ZoomQuery;
-  console.log(location);
-  console.log("[QUERY]", query);
-  const { code, state } = query;
-  if (code && state) {
-    processCode({
-      variables: {
-        code,
-        state,
-      },
-    }).then((result) => {
-      console.log("[CODE RESULT]", result);
-    });
-  }
+
+  useEffect(() => {
+    const query = qs.parse(location.search, {
+      ignoreQueryPrefix: true,
+    }) as ZoomQuery;
+    console.log(location);
+    console.log("[QUERY]", query);
+    const { code, state } = query;
+    if (code && state) {
+      window.history.pushState(
+        null,
+        "",
+        `${window.location.protocol}//${window.location.host}`
+      );
+      processCode({
+        variables: {
+          code,
+          state,
+        },
+      }).then((result) => {
+        console.log("[CODE RESULT]", result);
+        refetch();
+      });
+    }
+  }, [location, processCode, refetch])
+
   return (
     (loading && <div>Loading...</div>) ||
     (error && <div>Error! ${error.message}`</div>) ||
-    (data && console.log("[ZOOM TOKEN]", data) && data.token && <div>Authorized</div>) || (
+    (data && data.user?.zoom?.token && (
+      <div>Authorized</div>
+    )) || (
       <>
         <h1>Integrations</h1>
         <button
