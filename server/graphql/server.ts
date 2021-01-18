@@ -34,6 +34,7 @@ const typeDefs = gql`
     email: String
     domain: String
     skills: [Skill]
+    zoom: ZoomAuth
   }
 
   type Tech {
@@ -159,6 +160,13 @@ const resolvers = {
     ) => {
       return context.dataSources.skillApi.getSkillsForUser(context.user.id);
     },
+    zoom: async (
+      _: any,
+      args: any,
+      context: { user: User; dataSources: { userApi: UserDataSource } }
+    ) => {
+      return context.dataSources.userApi.getZoomAuth(context.user.id);
+    }
   },
   Skill: {
     technology: async (

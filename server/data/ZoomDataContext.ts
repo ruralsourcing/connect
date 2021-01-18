@@ -1,5 +1,6 @@
 import { PrismaClient, ZoomAuth } from "@prisma/client";
 import axios, { AxiosRequestConfig } from "axios";
+import { ModuleResolutionKind } from "typescript";
 import { IDataContext } from "./types";
 
 export interface IZoomDataContext extends IDataContext<ZoomAuth> {
@@ -46,6 +47,13 @@ server_1    |    scope: 'meeting:read:admin meeting:write:admin'
 server_1    | }
 */
   async addToken(item: ZoomCodeInput): Promise<ZoomAuth | null> {
+    const token = await this.client.zoomAuth.findUnique({
+        where: {
+            userId: item.userId
+        }
+    })
+    if(token) return token;
+    
     let userData;
     userData = JSON.parse(
       Buffer.from(item.state as string, "base64").toString("utf-8")
