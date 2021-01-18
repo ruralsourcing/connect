@@ -4,10 +4,12 @@ import { DataSources } from "apollo-server-core/dist/graphqlOptions";
 import TechDataContext from "../data/TechDataContext";
 import SkillDataSource from "./datasources/SkillsDataSource";
 import SkillDataContext from "../data/SkillDataContext";
-import { User } from "@prisma/client";
+import { User, ZoomAuth } from "@prisma/client";
 import { AuthContext } from "../middleware/AuthContext";
 import UserDataContext from "../data/UserDataContext";
 import UserDataSource from "./datasources/UsersDataSource";
+import ZoomDataSource from "./datasources/ZoomDataSource";
+import ZoomDataContext, { ZoomCodeInput } from "../data/ZoomDataContext";
 
 const pubsub = new PubSub();
 
@@ -16,10 +18,15 @@ const SKILL_DELETED = "SKILL_DELETED";
 const AFFIRMATION_GIVEN = "AFFIRMATION_GIVEN";
 
 const typeDefs = gql`
-
   type Affirmation {
     from: ID!
     to: ID!
+  }
+
+  type ZoomAuth {
+    id: ID!
+    token: String
+    userId: Int
   }
 
   type User {
@@ -62,10 +69,15 @@ const typeDefs = gql`
     users: [User]
   }
 
+  type UsersMutations {
+    add(id: Int): Int
+  }
+
   type Mutation {
     addSkill(skill: SkillInput!): SkillWithTech!
     deleteSkill(skillId: ID!): Int
     sendAffirmation(userId: ID!): Affirmation
+    addZoomAuth(code: String, state: String): ZoomAuth!
   }
 
   type Subscription {
@@ -168,7 +180,6 @@ const resolvers = {
         skill.rating,
         context.user.id
       );
-      //console.log("[QUERY RESULT]", response);
       pubsub.publish(SKILL_ADDED, { skillAdded: response, user: context.user });
       return response;
     },
@@ -184,6 +195,18 @@ const resolvers = {
       });
       return skillId;
     },
+    addZoomAuth: async (
+      _: any,
+      { code, state }: ZoomCodeInput,
+      context: { user: User; dataSources: { zoomApi: ZoomDataSource } }
+    ) => {
+      console.log("[CODE AND STATE]", code, state);
+      return await context.dataSources.zoomApi.create({
+        code,
+        userId: context.user.id,
+        state,
+      });
+    },
     sendAffirmation: async (
       _: any,
       { userId }: any,
@@ -191,11 +214,11 @@ const resolvers = {
     ) => {
       const affirmation = {
         from: context.user.id,
-        to: userId
+        to: userId,
       };
       pubsub.publish(AFFIRMATION_GIVEN, affirmation);
       return affirmation;
-    }
+    },
   },
   Subscription: {
     skillAdded: {
@@ -220,8 +243,8 @@ const resolvers = {
         (payload, _, context) => {
           return parseInt(payload.to) === context.user.id;
         }
-      )
-    }
+      ),
+    },
   },
 };
 
@@ -229,19 +252,21 @@ interface IDataSources {
   techApi: TechDataSource;
   skillApi: SkillDataSource;
   userApi: UserDataSource;
+  zoomApi: ZoomDataSource;
 }
 
 const dataSources: DataSources<IDataSources> = {
   techApi: new TechDataSource(new TechDataContext()),
   skillApi: new SkillDataSource(new SkillDataContext()),
   userApi: new UserDataSource(new UserDataContext()),
+  zoomApi: new ZoomDataSource(new ZoomDataContext()),
 };
 
 const dataContext = new UserDataContext();
 const context = new AuthContext(dataContext);
 export default new ApolloServer({
-  typeDefs,
-  resolvers,
+  typeDefs: [typeDefs],
+  resolvers: [resolvers],
   dataSources: () => dataSources,
   introspection: true,
   // playground: true,
