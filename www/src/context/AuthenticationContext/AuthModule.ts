@@ -8,7 +8,6 @@ import {
 import { User } from "@prisma/client";
 import { MSAL_CONFIG, LOGIN_REQUEST } from "./constants";
 
-console.log("ENV", process.env);
 const POLICY = `${process.env.REACT_APP_B2C_AUTHORITY}/${process.env.REACT_APP_B2C_LOGIN_POLICY}`;
 const RESET_POLICY = `${process.env.REACT_APP_B2C_AUTHORITY}/${process.env.REACT_APP_B2C_RESET_POLICY}`;
 
@@ -16,7 +15,7 @@ const redirectRequest: RedirectRequest = {
   scopes: [
     "openid",
     "offline_access",
-    "https://codeflyb2c.onmicrosoft.com/9327b3d4-cfdc-4552-890f-83eb5dec9b67/user_impersonation",
+    process.env.REACT_APP_B2C_SCOPE || "",
   ],
   redirectUri: `${window.location.protocol}//${window.location.host}`,
   authority: RESET_POLICY,
@@ -103,9 +102,6 @@ class AuthModule {
 
   async token() {
     if (!this.account) return null;
-    // https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-acquire-cache-tokens#recommended-call-pattern-for-public-client-applications
-    // Auth Code Flow might require another way to get cache.
-    // Currently all token requests hit B2C and never pulls from cache
 
     return this.msal
       .acquireTokenSilent({
@@ -129,19 +125,6 @@ class AuthModule {
           console.log(error);
         }
       });
-
-    // try {
-    //   const result = await this.msal.acquireTokenSilent({
-    //     account: this.account,
-    //     ...LOGIN_REQUEST
-    //   });
-    //   if (!result.accessToken || result.accessToken === "") {
-    //     throw new InteractionRequiredAuthError();
-    //   }
-    //   return result.accessToken;
-    // } catch (error) {
-
-    // }
   }
 
   logout() {

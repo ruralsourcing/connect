@@ -30,13 +30,12 @@ const AFFIRMATION_GIVEN_SUBSCRIPTION = gql`
 `;
 
 const Affirmations = () => {
-  const { loading, error, data, refetch } = useQuery(GET_USERS);
+  const { loading, error, data } = useQuery(GET_USERS);
   const [sendAffirmation] = useMutation(SEND_AFFIRMATION);
 
   useSubscription(AFFIRMATION_GIVEN_SUBSCRIPTION, {
     onSubscriptionData: ({ subscriptionData }) => {
       message.info("Affirmation Given!!");
-      //refetch();
     },
   });
 
@@ -53,7 +52,7 @@ const Affirmations = () => {
                         userId: user.id
                     }
                 })
-            }}>Give Kudos</button>
+            }}>Send</button>
             <div>{user.email}</div>
           </>
         );

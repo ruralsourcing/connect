@@ -1,4 +1,4 @@
-import { User } from "@prisma/client";
+import { User, ZoomAuth } from "@prisma/client";
 import UserDataContext, {
     IUserDataContext,
 } from "../../data/UserDataContext";
@@ -24,4 +24,8 @@ export default class UserDataSource extends DataSource {
   getAllSkills = async (userId: number): Promise<User[]> => {
     return await this.context.getAll();
   };
+
+  getZoomAuth = async (userId: number): Promise<ZoomAuth | null> => {
+    return await this.context.getZoomAuth(userId)
+  }
 }

@@ -1,9 +1,10 @@
 import { IDataContext } from "./types";
-import { PrismaClient, User } from "@prisma/client";
+import { PrismaClient, User, ZoomAuth } from "@prisma/client";
 
 export interface IUserDataContext extends IDataContext<User> {
   getByEmail(email: string): Promise<User | null>;
   createUser(email?: string): Promise<User>;
+  getZoomAuth(userId: number): Promise<ZoomAuth | null>;
 }
 
 export default class UserDataContext implements IUserDataContext {
@@ -29,6 +30,15 @@ export default class UserDataContext implements IUserDataContext {
       }
     })
   }
+
+  async getZoomAuth(userId: number): Promise<ZoomAuth | null> {
+    return await this.client.zoomAuth.findUnique({
+      where: {
+        userId
+      }
+    })
+  }
+
   async getAll(): Promise<User[]> {
     return await this.client.user.findMany();
   }
