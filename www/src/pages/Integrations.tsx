@@ -1,7 +1,8 @@
 import { useLocation } from "react-router-dom";
 import qs, { ParsedQs } from "qs";
 import { gql, useMutation, useQuery } from "@apollo/client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { start } from "repl";
 
 interface ZoomQuery extends ParsedQs {
   code?: string;
@@ -30,8 +31,25 @@ const PROCESS_CODE = gql`
   }
 `;
 
+const START_MEETING = gql`
+  mutation startMeeting {
+    startMeeting {
+      uuid
+      start_url
+      join_url
+      password
+      host_id
+      host_email
+      userId
+    }
+  }
+`;
+
 const IntegrationsPage = () => {
+  const [startUrl, setStartUrl] = useState();
+  const [joinUrl, setJoinUrl] = useState();
   const location = useLocation();
+  const [startMeeting] = useMutation(START_MEETING);
   const { loading, error, data, refetch } = useQuery(GET_TOKEN);
   const [processCode] = useMutation(PROCESS_CODE);
 
@@ -58,13 +76,29 @@ const IntegrationsPage = () => {
         refetch();
       });
     }
-  }, [location, processCode, refetch])
+  }, [location, processCode, refetch]);
 
   return (
     (loading && <div>Loading...</div>) ||
     (error && <div>Error! ${error.message}`</div>) ||
     (data && data.user?.zoom?.token && (
-      <div>Authorized</div>
+      <>
+        <div>Authorized</div>
+        <button
+          type="button"
+          onClick={() => {
+            startMeeting().then((result) => {
+              console.info("[MEETING INFO]", result);
+              setStartUrl(result.data?.startMeeting?.start_url);
+              setJoinUrl(result.data?.startMeeting?.join_url);
+            });
+          }}
+        >
+          Start Meeting
+        </button>
+        {startUrl && <a href={startUrl}>Start Meeting</a>}
+        {joinUrl && <a href={joinUrl}>Join Meeting</a>}
+      </>
     )) || (
       <>
         <h1>Integrations</h1>
