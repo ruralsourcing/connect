@@ -2,8 +2,6 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import { createServer } from "http";
-// import https from "https";
-// import fs from "fs";
 
 import axios from "axios";
 axios.defaults.baseURL = process.env.API_BASE_URL || "";
@@ -30,7 +28,6 @@ import TechController from "./controllers/TechController";
 
 const slackSigningSecret = process.env.SLACK_SIGNING_SECRET || "";
 const port = process.env.PORT || 3000;
-
 
 const slackEvents = SlackEventHandlers(slackSigningSecret);
 const slackInteractions = SlackInteractionHandlers(slackSigningSecret);
