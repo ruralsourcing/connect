@@ -16,7 +16,7 @@ import SkillController from "./controllers/SkillController";
 import ZoomController from "./controllers/ZoomController";
 import MeetingController from "./controllers/MeetingController";
 import UserController from "./controllers/UserController";
-import apollo from "./graphql/server";
+import GraphQLServer from "./graphql/server";
 import { AuthContext } from "./middleware/AuthContext";
 import { UserContext } from "./middleware/UserContext";
 import UserDataContext from "./data/UserDataContext";
@@ -25,6 +25,11 @@ import MeetingDataContext from "./data/MeetingDataContext";
 import ZoomDataContext from "./data/ZoomDataContext";
 import TechDataContext from "./data/TechDataContext";
 import TechController from "./controllers/TechController";
+import { PubSub } from "apollo-server-express";
+
+const pubsub = new PubSub();
+const graphQlServer = new GraphQLServer(pubsub);
+const apollo = graphQlServer.server();
 
 const slackSigningSecret = process.env.SLACK_SIGNING_SECRET || "";
 const port = process.env.PORT || 3000;
@@ -86,7 +91,7 @@ const zoomDataContext = new ZoomDataContext();
 const techDataContext = new TechDataContext();
 
 new SkillController(router, skillDataContext);
-new ZoomController(router, zoomDataContext);
+new ZoomController(router, zoomDataContext, pubsub);
 new MeetingController(router, meetingDataContext);
 new UserController(router, userDataContext);
 new TechController(router, techDataContext);

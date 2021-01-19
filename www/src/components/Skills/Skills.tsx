@@ -35,6 +35,15 @@ const SKILL_DELETED_SUBSCRIPTION = gql`
   }
 `;
 
+const MEETING_CREATED_SUBSCRIPTION = gql`
+  subscription {
+    meetingStarted {
+      start_url
+      join_url
+    }
+  }
+`;
+
 const DELETE_SKILL = gql`
   mutation deleteSkill($skillId: ID!) {
     deleteSkill(skillId: $skillId)
@@ -50,6 +59,12 @@ const Skills = () => {
     onSubscriptionData: ({ subscriptionData }) => {
       message.info("Skill Added!!");
       refetch();
+    },
+  });
+
+  useSubscription(MEETING_CREATED_SUBSCRIPTION, {
+    onSubscriptionData: ({ subscriptionData }) => {
+      message.info("Meeting Created!!");
     },
   });
 
@@ -88,7 +103,7 @@ const Skills = () => {
                   .then(() => refetch())
                   .catch((error) => {
                     console.log(error);
-                    refetch()
+                    refetch();
                   });
               }}
             >
