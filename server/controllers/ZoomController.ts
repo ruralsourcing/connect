@@ -1,4 +1,4 @@
-import { IRouter } from "express";
+import { IRouter, response } from "express";
 import SessionManager from "../lib/SessionManager/SessionManager";
 import SessionDataContext from "../lib/SessionManager/SessionDataContext";
 import {
@@ -7,6 +7,8 @@ import {
 } from "@slack/web-api";
 import { IZoomDataContext } from "../data/ZoomDataContext";
 import { ZoomAuth } from "@prisma/client";
+import { PubSub } from "apollo-server-express";
+import { MEETING_STARTED } from "../graphql/resolvers/MeetingsResolvers";
 
 const sessionDataContext = new SessionDataContext();
 const session = new SessionManager(sessionDataContext);
@@ -22,15 +24,17 @@ export default class ZoomController {
   private path: string = "/zoom";
   private router: IRouter;
   private context: IZoomDataContext;
-  constructor(router: IRouter, context: IZoomDataContext) {
+  private pubsub: PubSub;
+  constructor(router: IRouter, context: IZoomDataContext, pubsub: PubSub) {
     this.router = router;
     this.context = context;
+    this.pubsub = pubsub;
     this.initialize();
   }
 
   private initialize = () => {
     // this.router.get(`${this.path}`, this.getAllMeetings);
-    // this.router.post(`${this.path}`, this.createMeeting);
+    this.router.post(`${this.path}`, this.createMeeting);
   };
 
 //   private getAllMeetings = async (_, res: { json: ( meetings: ZoomAuth[]) => void}) => {
@@ -38,9 +42,14 @@ export default class ZoomController {
 //     res.json(await this.context.getAll())
 //   };
 
-//   private createMeeting = () => {
-//     console.log("[MEETING CREATE]");
-//   };
+  private createMeeting = async (req: any, res: any) => {
+    console.log("[MEETING CREATE]");
+    this.pubsub.publish(MEETING_STARTED, {
+      request: req.body
+    });
+    console.log("DONE");
+    res.sendStatus(200);
+  };
 
   //routes() {
   // this.app.get(
