@@ -4,10 +4,9 @@ import ZoomDataSource from "../datasources/ZoomDataSource";
 import jwt_decode from "jwt-decode";
 import axios from "axios";
 
-const MEETING_STARTED = "MEETING_STARTED";
+export const MEETING_STARTED = "MEETING_STARTED";
 
 export const MeetingsTypeDefs = gql`
-
   type Meeting {
     id: Int
     uuid: String
@@ -74,7 +73,9 @@ export default class MeetingsResolvers {
           subscribe: withFilter(
             () => this.pubsub.asyncIterator("MEETING_STARTED"),
             (payload, _, context) => {
-              return parseInt(payload.to) === context.user.id;
+              console.log("[MEETING STARTED]", payload, context);
+              return true;
+              //return parseInt(payload.to) === context.user.id;
             }
           ),
         },
