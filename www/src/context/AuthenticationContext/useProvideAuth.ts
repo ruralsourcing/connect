@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
+import { snackBarContext } from "../AlertContext/SnackBarProvider";
 import { AuthContext } from "../AuthenticationContext";
 import AuthModule from "./AuthModule";
-import { message } from "antd";
 
 export const useProvideAuth = (auth: AuthModule): AuthContext => {
   const [user, setUser] = useState<string | undefined>(auth?.user?.email);
-
+  const useAlert = useContext(snackBarContext);
   auth.onAccount((user?: string) => {
     setUser(user);
   });
@@ -28,7 +28,7 @@ export const useProvideAuth = (auth: AuthModule): AuthContext => {
   };
 
   useEffect(() => {
-    user && message.success(`Hello, ${user}`);
+    user && useAlert.updateMessage(`Welcome ${user}`)
   }, [user]);
 
   return {

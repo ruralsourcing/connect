@@ -1,15 +1,15 @@
-import { Button, DatePicker, version } from "antd";
-import "antd/dist/antd.css";
+import { Typography } from '@material-ui/core';
+import User from "../components/User";
+import { useAuth } from "../context/AuthenticationContext";
 
-const Home = () => (
-  <>
-    <h1>Home</h1>
-    <p>antd version: {version}</p>
-    <DatePicker />
-    <Button type="primary" style={{ marginLeft: 8 }}>
-      Primary Button
-    </Button>
+const Home = () => {
+  const auth = useAuth();
+
+  return (
+    <>
+    <Typography variant={"h2"}>Home</Typography>
   </>
-);
+  )
+};
 
 export default Home;
