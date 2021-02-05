@@ -1,6 +1,6 @@
 import { useState, useEffect, createContext, useContext } from 'react';
 import Snackbar from '@material-ui/core/Snackbar';
-import { SnackBarType } from './withSnackbarContext';
+import { SnackBarType } from './SnackBarType';
 
 export const snackBarContext = createContext<SnackBarType>({message: '', updateMessage: () => {}});
 export const SnackBarProvider = ({
@@ -9,11 +9,12 @@ export const SnackBarProvider = ({
     const [message, setMessage] = useState('')
     const updateMessage = (m:string) => {
         setMessage(m);
+        setOpen(true);
     }
     const [open, setOpen] = useState(true)
 
     useEffect(() => {
-        if (message.length > 0) {
+        if (message.length > 0 && open) {
             const timer = setTimeout(() => setOpen(false), 5000)
             return () => clearTimeout(timer)
         }
@@ -21,8 +22,10 @@ export const SnackBarProvider = ({
 
     return (
         <snackBarContext.Provider value={{ message, updateMessage }}>
+            {children} 
+            {message.length > 0 &&
             <Snackbar open={open} anchorOrigin={{ vertical: 'top', horizontal: 'center' }} message={message} />
-            {children}
+            }
         </snackBarContext.Provider>
     )
 }
