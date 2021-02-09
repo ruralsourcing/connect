@@ -1,11 +1,11 @@
-import { useState, useEffect, useContext } from "react";
-import { snackBarContext } from "../AlertContext/SnackBarProvider";
+import { useState, useEffect } from "react";
+import { useSnacks } from "../AlertContext/SnackBarProvider";
 import { AuthContext } from "../AuthenticationContext";
 import AuthModule from "./AuthModule";
 
 export const useProvideAuth = (auth: AuthModule): AuthContext => {
   const [user, setUser] = useState<string | undefined>(auth?.user?.email);
-  const useAlert = useContext(snackBarContext);
+  const snacks = useSnacks();
   auth.onAccount((user?: string) => {
     setUser(user);
   });
@@ -28,8 +28,8 @@ export const useProvideAuth = (auth: AuthModule): AuthContext => {
   };
 
   useEffect(() => {
-    user && useAlert.updateMessage(`Welcome ${user}`)
-  }, [user]);
+    user && snacks && snacks.updateMessage(`Welcome ${user}`)
+  }, [user, snacks]);
 
   return {
     user,

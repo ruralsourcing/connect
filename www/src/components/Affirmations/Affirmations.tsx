@@ -1,7 +1,6 @@
 import { gql, useMutation, useQuery, useSubscription } from "@apollo/client";
 import { User } from "@prisma/client";
-import React from 'react';
-import { snackBarContext } from "../../context/AlertContext/SnackBarProvider";
+import { useSnacks } from "../../context/AlertContext/SnackBarProvider";
 
 const GET_USERS = gql`
   {
@@ -33,11 +32,11 @@ const AFFIRMATION_GIVEN_SUBSCRIPTION = gql`
 const Affirmations = () => {
   const { loading, error, data } = useQuery(GET_USERS);
   const [sendAffirmation] = useMutation(SEND_AFFIRMATION);
-  const useAlert = React.useContext(snackBarContext);
+  const snacks = useSnacks();
 
   useSubscription(AFFIRMATION_GIVEN_SUBSCRIPTION, {
     onSubscriptionData: ({ subscriptionData }) => {
-      useAlert.updateMessage("Affirmation Given!!");
+      snacks.updateMessage("Affirmation Given!!");
     },
   });
 
@@ -48,7 +47,7 @@ const Affirmations = () => {
       data.users.map((user: User) => {
         return (
           <>
-            <button onClick={() => {
+            <button type="button" onClick={() => {
                 sendAffirmation({
                     variables: {
                         userId: user.id
