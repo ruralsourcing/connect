@@ -2,7 +2,9 @@ import { useState, useEffect, createContext, useContext } from 'react';
 import Snackbar from '@material-ui/core/Snackbar';
 import { SnackBarType } from './SnackBarType';
 
-export const snackBarContext = createContext<SnackBarType>({message: '', updateMessage: () => {}});
+const snackBarContext = createContext<SnackBarType>({message: '', updateMessage: () => {}});
+
+// export const snackBarContext = createContext<SnackBarType>({message: '', updateMessage: () => {}});
 export const SnackBarProvider = ({
     children,
 }: JSX.ElementChildrenAttribute): JSX.Element => {
@@ -24,10 +26,11 @@ export const SnackBarProvider = ({
         <snackBarContext.Provider value={{ message, updateMessage }}>
             {children} 
             {message.length > 0 &&
-            <Snackbar open={open} anchorOrigin={{ vertical: 'top', horizontal: 'center' }} message={message} />
+            <Snackbar open={open}  anchorOrigin={{ vertical: 'top', horizontal: 'center' }} message={message} />
             }
         </snackBarContext.Provider>
     )
 }
-
-export const useSnack = useContext(snackBarContext);
+// Hook for child components to get the snack object ...
+// ... and re-render when it changes.
+export const useSnacks = (): SnackBarType => useContext(snackBarContext);
