@@ -29,3 +29,5 @@ export const SnackBarProvider = ({
         </snackBarContext.Provider>
     )
 }
+
+export const useSnack = useContext(snackBarContext);

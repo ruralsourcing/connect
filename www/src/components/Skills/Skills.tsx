@@ -1,5 +1,5 @@
 import { gql, useMutation, useQuery, useSubscription } from "@apollo/client";
-import { snackBarContext } from "../../context/AlertContext/SnackBarProvider";
+import { useSnack } from "../../context/AlertContext/SnackBarProvider";
 import React from "react";
 
 const GET_SKILLS = gql`
@@ -56,24 +56,22 @@ const Skills = () => {
 
   const [deleteSkill] = useMutation(DELETE_SKILL);
 
-  const useAlert = React.useContext(snackBarContext);
-
   useSubscription(SKILL_ADDED_SUBSCRIPTION, {
     onSubscriptionData: ({ subscriptionData }) => {
-      useAlert.updateMessage("Skill Added!!");
+      useSnack.updateMessage("Skill Added!!");
       refetch();
     },
   });
 
   useSubscription(MEETING_CREATED_SUBSCRIPTION, {
     onSubscriptionData: ({ subscriptionData }) => {
-      useAlert.updateMessage("Meeting Created!!");
+      useSnack.updateMessage("Meeting Created!!");
     },
   });
 
   useSubscription(SKILL_DELETED_SUBSCRIPTION, {
     onSubscriptionData: ({ subscriptionData }) => {
-      useAlert.updateMessage("Skill Deleted!!");
+      useSnack.updateMessage("Skill Deleted!!");
       refetch();
     },
   });
