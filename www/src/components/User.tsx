@@ -1,18 +1,15 @@
 import { useAuth } from "../context/AuthenticationContext";
-import { Typography, Button } from "antd";
-
-const { Text } = Typography;
+import { Typography, Button } from '@material-ui/core';
 
 const User = (): JSX.Element => {
   const auth = useAuth();
 
   return (
     <>
-      <Text>
+      <Typography>
         {auth.user}
         {!auth.user && (
           <Button
-            type="link"
             onClick={() => {
               auth.signin();
             }}
@@ -22,7 +19,6 @@ const User = (): JSX.Element => {
         )}
         {auth.user && (
           <Button
-            type="link"
             onClick={() => {
               auth.signout();
             }}
@@ -30,7 +26,7 @@ const User = (): JSX.Element => {
             Logout
           </Button>
         )}
-      </Text>
+      </Typography>
     </>
   );
 };

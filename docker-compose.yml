@@ -12,7 +12,6 @@ services:
     volumes:
       - ./prisma:/usr/src/app/prisma
       - ./server:/usr/src/app/server
-      - /usr/src/app/node_modules/
     restart: on-failure
     env_file: docker/app/.env
     command: [bash, -c, "prisma migrate deploy --preview-feature && cd server && yarn run start"]
@@ -22,7 +21,6 @@ services:
       dockerfile:  docker/www/Dockerfile
     volumes:
       - ./www:/usr/src/app/www
-      - /usr/src/app/node_modules/
     ports:
       - "80:3000"
     links:
