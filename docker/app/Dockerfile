@@ -2,7 +2,7 @@ FROM node:latest
 
 WORKDIR /usr/src/app
 
-RUN npm install -g typescript nodemon ts-node @prisma/cli
+RUN npm install -g typescript nodemon ts-node prisma
 
 COPY ./package.json .
 COPY ./prisma ./prisma

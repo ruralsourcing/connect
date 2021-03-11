@@ -9,10 +9,10 @@
   "dependencies": {
     "@material-ui/icons": "^4.11.2",
     "@material-ui/lab": "^4.0.0-alpha.57",
-    "@prisma/cli": "^2.14.0",
-    "@prisma/client": "^2.14.0"
+    "@prisma/client": "^2.18.0",
+    "prisma": "^2.18.0"
   },
   "scripts": {
-    "setup": "yarn install && (cd www && yarn install) && (cd server && yarn install)"
+    "setup": "yarn install && cd www && yarn install && cd ../server && yarn install"
   }
 }

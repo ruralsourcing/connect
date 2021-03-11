@@ -41,7 +41,10 @@ Create a `/docker/db/.env` file and add the following:
 ---
 
 Open a terminal to the root of this repository:
-
+**Install dependencies**
+```
+yarn run setup
+```
 **Build the dev environment**
 ```
 docker-compose build
