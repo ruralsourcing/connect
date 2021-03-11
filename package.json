@@ -13,6 +13,6 @@
     "@prisma/client": "^2.14.0"
   },
   "scripts": {
-    "setup": "yarn install && (cd www && yarn install) && (cd server && yarn install)"
+    "setup": "yarn install && cd www && yarn install && cd ../server && yarn install"
   }
 }
