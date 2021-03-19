@@ -2,144 +2,133 @@ import {
   AccountInfo,
   AuthenticationResult,
   InteractionRequiredAuthError,
+  PopupRequest,
   PublicClientApplication,
   RedirectRequest,
+  SilentRequest,
 } from "@azure/msal-browser";
-import { User } from "@prisma/client";
 import { MSAL_CONFIG, LOGIN_REQUEST } from "./constants";
 
-const POLICY = `${process.env.REACT_APP_B2C_AUTHORITY}/${process.env.REACT_APP_B2C_LOGIN_POLICY}`;
 const RESET_POLICY = `${process.env.REACT_APP_B2C_AUTHORITY}/${process.env.REACT_APP_B2C_RESET_POLICY}`;
 
 const redirectRequest: RedirectRequest = {
-  scopes: [
-    "openid",
-    "offline_access",
-    process.env.REACT_APP_B2C_SCOPE || "",
-  ],
-  redirectUri: `${window.location.protocol}//${window.location.host}`,
+  scopes: ["openid", "offline_access", process.env.REACT_APP_B2C_SCOPE || ""],
+  redirectUri: `${window.location.protocol}//${window.location.host}/login`,
   authority: RESET_POLICY,
-  redirectStartPage: `${window.location.protocol}//${window.location.host}`,
+  redirectStartPage: `${window.location.protocol}//${window.location.host}/login`,
 };
 
-class AuthModule {
-  msal: PublicClientApplication;
-  account?: AccountInfo;
-  user?: User;
+export enum Mode {
+  Client,
+  Server,
+}
+export class AuthModule {
+  private client: PublicClientApplication;
+  private cb?: (user?: string) => void;
+  account?: AccountInfo | null;
 
-  private accountCallback?: (user?: string) => void;
-
-  constructor() {
-    this.msal = new PublicClientApplication(MSAL_CONFIG);
-    this.msal
-      .handleRedirectPromise()
-      .then((response: AuthenticationResult | null) => {
-        if (response === null) {
-          this.msal.getAllAccounts().forEach((acct) => {
-            this.account = acct;
-            this.accountCallback && this.accountCallback(this.account.username);
-          });
-        } else {
-          if (response?.account) {
-            this.account = response?.account;
-            this.accountCallback && this.accountCallback(this.account.username);
-          }
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-        if (err.errorMessage.indexOf("AADB2C90118") > -1) {
-          try {
-            // Password reset
-            this.msal.loginRedirect(redirectRequest);
-          } catch (e) {
-            // eslint-disable-next-line no-console
-            console.error(`error: ${e}`);
-          }
-        }
-        if (err.errorMessage.indexOf("AADB2C90077") > -1) {
-          try {
-            // Password reset
-            // this.msal.loginRedirect(redirectRequest).then((response) => {
-            //   console.log(response);
-            // });
-          } catch (e) {
-            // eslint-disable-next-line no-console
-            console.error(`error: ${e}`);
-          }
-        }
-      });
+  constructor(mode: Mode) {
+    this.client = new PublicClientApplication(MSAL_CONFIG);
+    /**
+     * Only register the redirect handler if running in client mode
+     */
+    if (mode === Mode.Client) {
+      this.registerRedirectHandler();
+    }
   }
 
   onAccount(cb: (user?: string) => void) {
-    this.accountCallback = cb;
+    this.cb = cb;
   }
 
-  login() {
-    this.msal
+  login(userPolicyId: string) {
+    this.client
       .loginRedirect({
         ...LOGIN_REQUEST,
         ...{
-          authority: POLICY,
-          redirectUri: `${window.location.protocol}//${window.location.host}`,
+          authority: `${process.env.REACT_APP_B2C_AUTHORITY}/${userPolicyId}`,
+          redirectUri: `${window.location.protocol}//${window.location.host}/login`,
         },
-      })
-      .catch((ex) => {
-        console.log(ex);
-        this.msal
+      } as RedirectRequest)
+      .catch(() => {
+        this.client
           .loginPopup({
             ...LOGIN_REQUEST,
             ...{
-              authority: POLICY,
-              redirectUri: `${window.location.protocol}//${window.location.host}`,
+              authority: `${process.env.REACT_APP_B2C_AUTHORITY}/${userPolicyId}`,
+              redirectUri: `${window.location.protocol}//${window.location.host}/login`,
             },
-          })
-          .catch((e) => {
-            console.log(e);
-          });
+          } as PopupRequest)
+          .catch(() => {});
       });
   }
 
-  async token() {
+  async token(): Promise<string | null> {
     if (!this.account) return null;
+    const currentPolicy = sessionStorage.getItem("currentPolicy");
 
-    return this.msal
+    return this.client
       .acquireTokenSilent({
         account: this.account,
         ...LOGIN_REQUEST,
-      })
+        authority: `${process.env.REACT_APP_B2C_AUTHORITY}/${currentPolicy}`,
+      } as SilentRequest)
       .then((result) => {
         if (!result.accessToken || result.accessToken === "") {
           throw new InteractionRequiredAuthError();
         }
         return result.accessToken;
       })
-      .catch((error) => {
-        if (error instanceof InteractionRequiredAuthError) {
-          // fallback to interaction when silent call fails
-          return this.msal.acquireTokenRedirect({
+      .catch(() => {
+        this.client
+          .acquireTokenRedirect({
             account: this.account,
             ...LOGIN_REQUEST,
-          });
-        } else {
-          console.log(error);
-        }
+            authority: `${process.env.REACT_APP_B2C_AUTHORITY}/${currentPolicy}`,
+          } as RedirectRequest)
+          .catch(() => {});
+        return null;
       });
   }
 
-  logout() {
-    this.msal.logout({
-      postLogoutRedirectUri: `${window.location.protocol}//${window.location.host}`,
-      authority: POLICY,
+  logout(policyId: string) {
+    this.client.logout({
+      postLogoutRedirectUri: `${window.location.protocol}//${window.location.host}/login`,
+      authority: `${process.env.REACT_APP_B2C_AUTHORITY}/${policyId}`,
     });
+    sessionStorage.clear();
   }
 
   getActiveAccount() {
-    if (this.msal.getAllAccounts().length > 0) {
-      return this.msal.getAllAccounts()[0];
+    if (this.client.getAllAccounts().length > 0) {
+      return this.client.getAllAccounts()[0];
     }
     return;
   }
-}
 
-export default AuthModule;
+  registerRedirectHandler() {
+    this.client
+      .handleRedirectPromise()
+      .then((response: AuthenticationResult | null) => {
+        if (response === null) {
+          this.client.getAllAccounts().forEach((acct) => {
+            this.account = acct;
+            this.cb && this.cb(this.account.name);
+          });
+        } else {
+          this.account = response?.account;
+          this.account && this.cb && this.cb(this.account.name);
+        }
+      })
+      .catch((err) => {
+        if (err.errorMessage.indexOf("AADB2C90118") > -1) {
+          try {
+            // Password reset
+            this.client.loginRedirect(redirectRequest);
+          } catch {}
+        }
+        if (err.errorMessage.indexOf("AADB2C90077") > -1) {
+        }
+      });
+  }
+}

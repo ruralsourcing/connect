@@ -1,27 +1,30 @@
-import { useState } from "react";
-import { AuthContext } from "../AuthenticationContext";
-import AuthModule from "./AuthModule";
+import { useState, useEffect } from "react";
+import { AuthContext } from "./types";
+import { AuthModule } from "./AuthModule";
 
-export const useProvideAuth = (auth: AuthModule): AuthContext => {
-  const [user, setUser] = useState<string | undefined>(auth?.user?.email);
+export const useProvideAuth = (
+  auth: AuthModule,
+  origin?: string
+): AuthContext => {
+  const [user, setUser] = useState<string | undefined>(auth?.account?.name);
 
   auth.onAccount((user?: string) => {
-    setUser(user);
+    if (user) setUser(user);
   });
 
-  const signin = async (): Promise<void> => {
-    auth.login();
+  const signin = async (userPolicyId: string): Promise<void> => {
+    sessionStorage.setItem("currentPolicy", userPolicyId || "");
+    auth.login(userPolicyId);
   };
   const signout = (): void => {
-    auth.logout();
+    auth.logout(process.env.REACT_APP_B2C_LOGIN_POLICY || "");
   };
 
   const token = async (): Promise<string | null> => {
     try {
       let response = await auth.token();
-      return response || null;
+      return response;
     } catch (ex) {
-      console.log("[ERROR]", ex);
       return null;
     }
   };
