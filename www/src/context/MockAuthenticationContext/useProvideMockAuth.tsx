@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { AuthContext } from "../AuthenticationContext/types";
 
 export interface User {}

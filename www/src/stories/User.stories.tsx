@@ -3,14 +3,14 @@ import React from 'react';
 import { Story, Meta } from '@storybook/react/types-6-0';
 
 import User from '../components/User';
-import { MockAuthProvider } from '../context/MockAuthenticationContext/MockAuthProvider';
+import { MockAuthProvider } from '../context/MockAuthenticationContext';
 
 export default {
   title: 'Connect/User',
   component: User
 } as Meta;
 
-const Template: Story = () => <MockAuthProvider><User /></MockAuthProvider>;
+const Template: Story = () => <MockAuthProvider user="John Doe"><User /></MockAuthProvider>;
 
 export const Primary = Template.bind({});
 

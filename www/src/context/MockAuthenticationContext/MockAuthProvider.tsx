@@ -1,4 +1,3 @@
-import React, { useContext, createContext } from "react";
 import { useProvideMockAuth } from ".";
 import { AuthProvider } from "../AuthenticationContext/";
 import { AuthContext } from "../AuthenticationContext/types";
@@ -11,7 +10,14 @@ import { AuthContext } from "../AuthenticationContext/types";
 // Provider component that wraps your app and makes auth object ...
 // ... available to any child component that calls useAuth().
 // eslint-disable-next-line react/prop-types
-export const MockAuthProvider = (props: any): JSX.Element => {
+
+interface MockAuthProviderProps {
+    origin?: string;
+    children?: JSX.Element;
+    user: string
+}
+
+export const MockAuthProvider = (props: MockAuthProviderProps): JSX.Element => {
   const { origin, children, user } = props;
   const auth = useProvideMockAuth(user) as AuthContext;
   return (
